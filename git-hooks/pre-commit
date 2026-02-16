@@ -1,0 +1,17 @@
+#!/bin/bash
+# Pre-commit hook for Android project
+# Runs lint and unit tests before allowing commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint
+echo "📝 Running lint checks..."
+./gradlew lintDebug --quiet
+
+# Run unit tests
+echo "🧪 Running unit tests..."
+./gradlew testDebugUnitTest --quiet
+
+echo "✅ All checks passed! Proceeding with commit."

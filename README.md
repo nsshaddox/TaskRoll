@@ -77,6 +77,16 @@ git clone https://github.com/nsshaddox/TaskRoll.git
 cd TaskRoll
 ```
 
+### Set Up Git Hooks
+
+Install pre-commit hooks to run lint and tests before each commit:
+
+```bash
+./gradlew installGitHooks
+```
+
+This ensures code quality checks run automatically before commits. You can skip hooks with `git commit --no-verify` if needed.
+
 ### Build the App
 
 ```bash
