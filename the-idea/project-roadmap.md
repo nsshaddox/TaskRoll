@@ -11,8 +11,8 @@ Reference GITHUB_ISSUES.md or the actually issue on github for more context.
 - [x] Configure branch protections
 - [x] Create project documentation (README, CLAUDE.md)
 - [x] Set up development environment
-- [ ] Configure CI/CD pipeline
-- [ ] Create initial wireframes/mockups
+- [x] Configure CI/CD pipeline (GitHub Actions + pre-commit hooks)
+- [x] Create initial wireframes/mockups (using Jetpack Compose UI code)
 
 ## Phase 2: Core Architecture (Week 2)
 
