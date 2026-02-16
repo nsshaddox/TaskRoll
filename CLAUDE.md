@@ -40,7 +40,16 @@ Random Task is a native Android app built with Kotlin and Jetpack Compose that h
 
 # View all available tasks
 ./gradlew tasks
+
+# Install Git hooks (pre-commit checks)
+./gradlew installGitHooks
 ```
+
+**Git Hooks:**
+- Pre-commit hook runs lint and unit tests before each commit
+- Ensures code quality before changes reach the repository
+- Skip with `git commit --no-verify` if needed (use sparingly)
+- Hook files are stored in `git-hooks/` and installed via Gradle task
 
 ## Technical Stack
 
