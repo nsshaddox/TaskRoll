@@ -12,7 +12,7 @@ Reference GITHUB_ISSUES.md or the actually issue on github for more context.
 - [x] Create project documentation (README, CLAUDE.md)
 - [x] Set up development environment
 - [x] Configure CI/CD pipeline (GitHub Actions + pre-commit hooks)
-- [ ] Create initial wireframes/mockups (approach: Jetpack Compose UI code)
+- [x] Create initial wireframes/mockups (approach: Jetpack Compose UI code)
 
 ## Phase 2: Core Architecture (Week 2)
 

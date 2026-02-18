@@ -69,3 +69,6 @@ proguard/
 
 # Miscellaneous
 *.hprof
+
+### RPI ###
+.rpi/
