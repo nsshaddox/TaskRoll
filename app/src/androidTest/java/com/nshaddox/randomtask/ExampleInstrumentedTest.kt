@@ -1,24 +1,41 @@
 package com.nshaddox.randomtask
 
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import com.nshaddox.randomtask.data.local.AppDatabase
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.After
+import org.junit.Assert.assertNotNull
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-import org.junit.Assert.*
-
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-@RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class ExampleInstrumentedTest {
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    private lateinit var database: AppDatabase
+
+    @Before
+    fun setUp() {
+        hiltRule.inject()
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            AppDatabase::class.java
+        ).allowMainThreadQueries().build()
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
+    }
+
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.nshaddox.randomtask", appContext.packageName)
+    fun databaseCreatesSuccessfully() {
+        assertNotNull(database)
+        assertNotNull(database.openHelper)
     }
 }
