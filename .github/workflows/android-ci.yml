@@ -1,22 +1,7 @@
 name: Android CI
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'the-idea/**'
-      - '.github/**'
-      - '!.github/workflows/**'
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'the-idea/**'
-      - '.github/**'
-      - '!.github/workflows/**'
+  workflow_dispatch: # disabled: re-enable when collaborators are added
 
 jobs:
   build:
