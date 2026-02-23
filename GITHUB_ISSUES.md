@@ -30,21 +30,22 @@
 ### Issue #87: Setup Room Database foundation
 **Labels**: `phase-1`, `architecture`, `database`, `P0-critical`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED (PR #159)
 
 **Description**:
 Configure Room Database as the local persistence layer for task data.
 
 **Acceptance Criteria**:
-- [ ] Room dependencies added to `build.gradle.kts`:
+- [x] Room dependencies added to `build.gradle.kts`:
   - `androidx.room:room-runtime`
   - `androidx.room:room-compiler` (kapt)
   - `androidx.room:room-ktx` (Coroutines support)
-- [ ] Abstract class `AppDatabase` created in `data.local` package
-- [ ] `AppDatabase` extends `RoomDatabase`
-- [ ] `@Database` annotation with version = 1, exportSchema = false
-- [ ] Database instance provided via Hilt in `DatabaseModule`
-- [ ] Database name: "random_task_db"
-- [ ] Project builds successfully
+- [x] Abstract class `AppDatabase` created in `data.local` package
+- [x] `AppDatabase` extends `RoomDatabase`
+- [x] `@Database` annotation with version = 1, exportSchema = false
+- [x] Database instance provided via Hilt in `DatabaseModule`
+- [x] Database name: "random_task_db"
+- [x] Project builds successfully
 
 **Dependencies**: None (was #78 — already done)
 
@@ -53,17 +54,18 @@ Configure Room Database as the local persistence layer for task data.
 ### Issue #99: Configure Kotlin Coroutines
 **Labels**: `phase-1`, `architecture`, `P1-high`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #164)
 
 **Description**:
 Ensure Kotlin Coroutines are properly configured for asynchronous operations.
 
 **Acceptance Criteria**:
-- [ ] Coroutines dependencies verified in `build.gradle.kts`:
+- [x] Coroutines dependencies verified in `build.gradle.kts`:
   - `org.jetbrains.kotlinx:kotlinx-coroutines-core`
   - `org.jetbrains.kotlinx:kotlinx-coroutines-android`
-- [ ] Dispatcher configuration for tests (TestDispatcher)
-- [ ] Documentation added on coroutine usage patterns
-- [ ] Sample coroutine verified to work (e.g., in a ViewModel)
+- [x] Dispatcher configuration for tests (TestDispatcher)
+- [x] Documentation added on coroutine usage patterns
+- [x] Sample coroutine verified to work (e.g., in a ViewModel)
 
 **Dependencies**: None (was #78 — already done)
 
@@ -72,14 +74,15 @@ Ensure Kotlin Coroutines are properly configured for asynchronous operations.
 ### Issue #113: Add Navigation Compose dependency
 **Labels**: `setup`, `ui`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #163)
 
 Add Jetpack Compose Navigation library for screen navigation.
 
 ## Acceptance Criteria
-- [ ] Dependency added: `androidx.navigation:navigation-compose`
-- [ ] Dependency added: `androidx.hilt:hilt-navigation-compose`
-- [ ] Project builds successfully
-- [ ] Navigation imports work in Kotlin files
+- [x] Dependency added: `androidx.navigation:navigation-compose`
+- [x] Dependency added: `androidx.hilt:hilt-navigation-compose`
+- [x] Project builds successfully
+- [x] Navigation imports work in Kotlin files
 
 **Dependencies**: None
 
