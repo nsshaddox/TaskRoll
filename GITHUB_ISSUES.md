@@ -96,22 +96,23 @@ Add Jetpack Compose Navigation library for screen navigation.
 ### Issue #111: Create Task entity for Room
 **Labels**: `phase-1`, `database`, `feature`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #166)
 
 **Description**:
 Create the Room entity that represents a task in the database.
 
 **Acceptance Criteria**:
-- [ ] Data class `TaskEntity` created in `data.local` package
-- [ ] `@Entity` annotation with tableName = "tasks"
-- [ ] Fields:
+- [x] Data class `TaskEntity` created in `data.local` package
+- [x] `@Entity` annotation with tableName = "tasks"
+- [x] Fields:
   - `@PrimaryKey(autoGenerate = true) val id: Long = 0`
   - `@ColumnInfo(name = "title") val title: String`
   - `@ColumnInfo(name = "description") val description: String?`
   - `@ColumnInfo(name = "is_completed") val isCompleted: Boolean = false`
   - `@ColumnInfo(name = "created_at") val createdAt: Long`
   - `@ColumnInfo(name = "updated_at") val updatedAt: Long`
-- [ ] Proper data types and nullability
-- [ ] Documentation comments for each field
+- [x] Proper data types and nullability
+- [x] Documentation comments for each field
 
 **Dependencies**: #87
 
