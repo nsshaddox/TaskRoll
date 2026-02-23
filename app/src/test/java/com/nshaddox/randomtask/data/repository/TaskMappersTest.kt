@@ -66,6 +66,25 @@ class TaskMappersTest {
     }
 
     @Test
+    fun `null description maps correctly between entity and domain`() {
+        val entity = TaskEntity(
+            id = 3L,
+            title = "No Description",
+            description = null,
+            isCompleted = false,
+            createdAt = 9000L,
+            updatedAt = 10000L
+        )
+
+        val domain = entity.toDomain()
+        assertEquals(null, domain.description)
+
+        val backToEntity = domain.toEntity()
+        assertEquals(null, backToEntity.description)
+        assertEquals(entity, backToEntity)
+    }
+
+    @Test
     fun `round trip domain to entity to domain preserves all fields`() {
         val original = Task(
             id = 10L,
