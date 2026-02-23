@@ -16,21 +16,21 @@ class TaskListUiStateTest {
     }
 
     @Test
-    fun `default state is not loading`() {
+    fun `default state is loading`() {
         val state = TaskListUiState()
-        assertFalse(state.isLoading)
+        assertTrue(state.isLoading)
     }
 
     @Test
     fun `default state has no error`() {
         val state = TaskListUiState()
-        assertNull(state.error)
+        assertNull(state.errorMessage)
     }
 
     @Test
     fun `default state has add dialog hidden`() {
         val state = TaskListUiState()
-        assertFalse(state.showAddDialog)
+        assertFalse(state.isAddDialogVisible)
     }
 
     @Test
@@ -39,23 +39,23 @@ class TaskListUiStateTest {
         val loading = state.copy(isLoading = true)
         assertTrue(loading.isLoading)
         assertTrue(loading.tasks.isEmpty())
-        assertNull(loading.error)
-        assertFalse(loading.showAddDialog)
+        assertNull(loading.errorMessage)
+        assertFalse(loading.isAddDialogVisible)
     }
 
     @Test
     fun `copy to error state`() {
         val state = TaskListUiState(isLoading = true)
-        val error = state.copy(isLoading = false, error = "Something went wrong")
+        val error = state.copy(isLoading = false, errorMessage = "Something went wrong")
         assertFalse(error.isLoading)
-        assertEquals("Something went wrong", error.error)
+        assertEquals("Something went wrong", error.errorMessage)
     }
 
     @Test
     fun `copy to show add dialog`() {
         val state = TaskListUiState()
-        val withDialog = state.copy(showAddDialog = true)
-        assertTrue(withDialog.showAddDialog)
+        val withDialog = state.copy(isAddDialogVisible = true)
+        assertTrue(withDialog.isAddDialogVisible)
     }
 
     @Test
@@ -87,9 +87,9 @@ class TaskListUiStateTest {
 
     @Test
     fun `toString contains field values`() {
-        val state = TaskListUiState(isLoading = true, error = "fail")
+        val state = TaskListUiState(isLoading = true, errorMessage = "fail")
         val str = state.toString()
         assertTrue(str.contains("isLoading=true"))
-        assertTrue(str.contains("error=fail"))
+        assertTrue(str.contains("errorMessage=fail"))
     }
 }
