@@ -11,14 +11,20 @@ class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
 
-    override fun getTasks(): Flow<List<Task>> {
+    override fun getAllTasks(): Flow<List<Task>> {
         return taskDao.getAllTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    override suspend fun getTaskById(id: Long): Task? {
-        return taskDao.getTaskById(id)?.toDomain()
+    override fun getIncompleteTasks(): Flow<List<Task>> {
+        return taskDao.getIncompleteTasks().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override fun getTaskById(id: Long): Flow<Task?> {
+        return taskDao.getTaskByIdFlow(id).map { it?.toDomain() }
     }
 
     override suspend fun addTask(task: Task): Result<Long> {
@@ -39,9 +45,9 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteTask(taskId: Long): Result<Unit> {
+    override suspend fun deleteTask(task: Task): Result<Unit> {
         return try {
-            taskDao.deleteTaskById(taskId)
+            taskDao.deleteTaskById(task.id)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

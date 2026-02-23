@@ -4,6 +4,7 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class FakeTaskRepository : TaskRepository {
@@ -12,10 +13,14 @@ class FakeTaskRepository : TaskRepository {
     private val tasksFlow = MutableStateFlow<List<Task>>(emptyList())
     private var nextId = 1L
 
-    override fun getTasks(): Flow<List<Task>> = tasksFlow
+    override fun getAllTasks(): Flow<List<Task>> = tasksFlow
 
-    override suspend fun getTaskById(id: Long): Task? {
-        return tasks.find { it.id == id }
+    override fun getIncompleteTasks(): Flow<List<Task>> {
+        return tasksFlow.map { list -> list.filter { !it.isCompleted } }
+    }
+
+    override fun getTaskById(id: Long): Flow<Task?> {
+        return tasksFlow.map { list -> list.find { it.id == id } }
     }
 
     override suspend fun addTask(task: Task): Result<Long> {
@@ -34,8 +39,8 @@ class FakeTaskRepository : TaskRepository {
         return Result.success(Unit)
     }
 
-    override suspend fun deleteTask(taskId: Long): Result<Unit> {
-        val removed = tasks.removeAll { it.id == taskId }
+    override suspend fun deleteTask(task: Task): Result<Unit> {
+        val removed = tasks.removeAll { it.id == task.id }
         if (!removed) return Result.failure(NoSuchElementException("Task not found"))
         tasksFlow.update { tasks.toList() }
         return Result.success(Unit)

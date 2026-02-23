@@ -9,6 +9,6 @@ class GetTasksUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {
     operator fun invoke(): Flow<List<Task>> {
-        return repository.getTasks()
+        return repository.getAllTasks()
     }
 }
