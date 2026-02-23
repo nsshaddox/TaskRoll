@@ -6,12 +6,12 @@
 
 | Group                      | Issues                          | What it unlocks        |
 |----------------------------|---------------------------------|------------------------|
-| 1 — Foundation             | #87, #99, #113                  | Everything             |
-| 2 — Core Data Model        | #111                            | Domain + DAO           |
-| 3 — Domain Layer + DAO     | #120, #136                      | Mappers, repo interface|
-| 4 — Data Layer Completion  | #127, #142, #149                | Repo impl              |
-| 5 — Repository             | #150, #151                      | Use cases              |
-| 6 — Use Cases              | #81, #90, #102, #118, #109, #124, #132 | ViewModels      |
+| 1 — Foundation             | #87 ✅, #99 ✅, #113 ✅           | Everything             |
+| 2 — Core Data Model        | #111 ✅                         | Domain + DAO           |
+| 3 — Domain Layer + DAO     | #120 ✅, #136 ✅                 | Mappers, repo interface|
+| 4 — Data Layer Completion  | #127 ✅, #142 ✅, #149 ✅        | Repo impl              |
+| 5 — Repository             | #150 ✅, #151 ✅                 | Use cases              |
+| 6 — Use Cases              | #81 ✅, #90 ✅, #102 ✅, #118 ✅, #109 ✅, #124 ✅, #132 ✅ | ViewModels |
 | 7 — UI State               | #68, #63, #54                   | ViewModels             |
 | 8 — ViewModels             | #97, #58                        | Screens                |
 | 9 — Nav Routes             | #122                            | NavGraph               |
@@ -126,22 +126,23 @@ Create the Room entity that represents a task in the database.
 ### Issue #120: Create Task domain model
 **Labels**: `phase-1`, `architecture`, `feature`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #168)
 
 **Description**:
 Create the domain layer model for Task, separate from the database entity.
 
 **Acceptance Criteria**:
-- [ ] Data class `Task` created in `domain.model` package
-- [ ] No Room annotations (clean domain model)
-- [ ] Fields matching TaskEntity but using appropriate domain types:
+- [x] Data class `Task` created in `domain.model` package
+- [x] No Room annotations (clean domain model)
+- [x] Fields matching TaskEntity but using appropriate domain types:
   - `val id: Long`
   - `val title: String`
   - `val description: String?`
   - `val isCompleted: Boolean`
   - `val createdAt: Instant` (or LocalDateTime)
   - `val updatedAt: Instant` (or LocalDateTime)
-- [ ] Documentation comments
-- [ ] No dependencies on Android or Room
+- [x] Documentation comments
+- [x] No dependencies on Android or Room
 
 **Dependencies**: #111
 
@@ -150,22 +151,23 @@ Create the domain layer model for Task, separate from the database entity.
 ### Issue #136: Create TaskDao interface
 **Labels**: `phase-1`, `database`, `feature`, `P0-critical`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED (PR #167)
 
 **Description**:
 Create the Data Access Object (DAO) interface for task database operations.
 
 **Acceptance Criteria**:
-- [ ] Interface `TaskDao` created in `data.local` package
-- [ ] `@Dao` annotation
-- [ ] Methods with Flow return types for reactive updates:
+- [x] Interface `TaskDao` created in `data.local` package
+- [x] `@Dao` annotation
+- [x] Methods with Flow return types for reactive updates:
   - `@Query("SELECT * FROM tasks ORDER BY created_at DESC") fun getAllTasks(): Flow<List<TaskEntity>>`
   - `@Query("SELECT * FROM tasks WHERE id = :id") fun getTaskById(id: Long): Flow<TaskEntity?>`
   - `@Query("SELECT * FROM tasks WHERE is_completed = 0 ORDER BY created_at DESC") fun getIncompleteTasks(): Flow<List<TaskEntity>>`
   - `@Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertTask(task: TaskEntity): Long`
   - `@Update suspend fun updateTask(task: TaskEntity)`
   - `@Delete suspend fun deleteTask(task: TaskEntity)`
-- [ ] Proper SQL queries
-- [ ] All operations use suspend functions or Flow
+- [x] Proper SQL queries
+- [x] All operations use suspend functions or Flow
 
 **Dependencies**: #111
 
@@ -179,17 +181,18 @@ Create the Data Access Object (DAO) interface for task database operations.
 ### Issue #127: Create data-domain mappers
 **Labels**: `phase-1`, `architecture`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 **Description**:
 Create extension functions to map between TaskEntity (data layer) and Task (domain layer).
 
 **Acceptance Criteria**:
-- [ ] File created: `TaskMappers.kt` in `data.local` or `data.repository` package
-- [ ] Extension function: `TaskEntity.toDomain(): Task`
-- [ ] Extension function: `Task.toEntity(): TaskEntity`
-- [ ] Proper timestamp conversions (Long ↔ Instant/LocalDateTime)
-- [ ] All fields mapped correctly
-- [ ] Unit tests for mappers
+- [x] File created: `TaskMappers.kt` in `data.local` or `data.repository` package
+- [x] Extension function: `TaskEntity.toDomain(): Task`
+- [x] Extension function: `Task.toEntity(): TaskEntity`
+- [x] Proper timestamp conversions (Long ↔ Instant/LocalDateTime)
+- [x] All fields mapped correctly
+- [x] Unit tests for mappers
 
 **Dependencies**: #111, #120
 
@@ -198,20 +201,21 @@ Create extension functions to map between TaskEntity (data layer) and Task (doma
 ### Issue #142: Wire TaskDao into AppDatabase
 **Labels**: `phase-1`, `database`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #170)
 
 **Description**:
 Connect the TaskDao to the Room Database and provide it via Hilt.
 
 **Acceptance Criteria**:
-- [ ] `AppDatabase` updated with `@Database(entities = [TaskEntity::class], version = 1)`
-- [ ] Abstract function added: `abstract fun taskDao(): TaskDao`
-- [ ] `DatabaseModule` provides `TaskDao`:
+- [x] `AppDatabase` updated with `@Database(entities = [TaskEntity::class], version = 1)`
+- [x] Abstract function added: `abstract fun taskDao(): TaskDao`
+- [x] `DatabaseModule` provides `TaskDao`:
   ```kotlin
   @Provides
   fun provideTaskDao(database: AppDatabase): TaskDao = database.taskDao()
   ```
-- [ ] Project builds successfully
-- [ ] Database schema verified with `./gradlew kaptDebugKotlin`
+- [x] Project builds successfully
+- [x] Database schema verified with `./gradlew kaptDebugKotlin`
 
 **Dependencies**: #136
 
@@ -220,22 +224,23 @@ Connect the TaskDao to the Room Database and provide it via Hilt.
 ### Issue #149: Create TaskRepository interface
 **Labels**: `phase-1`, `architecture`, `P0-critical`, `repository`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #172)
 
 **Description**:
 Define the repository interface in the domain layer for task operations.
 
 **Acceptance Criteria**:
-- [ ] Interface `TaskRepository` created in `domain.repository` package
-- [ ] Methods return domain models (Task), not entities:
+- [x] Interface `TaskRepository` created in `domain.repository` package
+- [x] Methods return domain models (Task), not entities:
   - `fun getAllTasks(): Flow<List<Task>>`
   - `fun getTaskById(id: Long): Flow<Task?>`
   - `fun getIncompleteTasks(): Flow<List<Task>>`
   - `suspend fun addTask(task: Task): Result<Long>`
   - `suspend fun updateTask(task: Task): Result<Unit>`
   - `suspend fun deleteTask(task: Task): Result<Unit>`
-- [ ] Use Kotlin `Result` for operations that can fail
-- [ ] No dependencies on data layer
-- [ ] Documentation comments explaining each method
+- [x] Use Kotlin `Result` for operations that can fail
+- [x] No dependencies on data layer
+- [x] Documentation comments explaining each method
 
 **Dependencies**: #120
 
@@ -249,19 +254,20 @@ Define the repository interface in the domain layer for task operations.
 ### Issue #150: Implement TaskRepositoryImpl
 **Labels**: `phase-1`, `feature`, `P0-critical`, `repository`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED (PR #160)
 
 **Description**:
 Implement the TaskRepository interface with Room database operations.
 
 **Acceptance Criteria**:
-- [ ] Class `TaskRepositoryImpl` created in `data.repository` package
-- [ ] Implements `TaskRepository` interface
-- [ ] Constructor injects `TaskDao`
-- [ ] All methods implemented with proper entity-domain mapping
-- [ ] Error handling using `Result.success()` and `Result.failure()`
-- [ ] Flow transformations: `dao.getAllTasks().map { entities -> entities.map { it.toDomain() } }`
-- [ ] Timestamps updated for add/update operations
-- [ ] Unit tests with fake/mock TaskDao
+- [x] Class `TaskRepositoryImpl` created in `data.repository` package
+- [x] Implements `TaskRepository` interface
+- [x] Constructor injects `TaskDao`
+- [x] All methods implemented with proper entity-domain mapping
+- [x] Error handling using `Result.success()` and `Result.failure()`
+- [x] Flow transformations: `dao.getAllTasks().map { entities -> entities.map { it.toDomain() } }`
+- [x] Timestamps updated for add/update operations
+- [x] Unit tests with fake/mock TaskDao
 
 **Dependencies**: #142, #149, #127
 
@@ -270,22 +276,23 @@ Implement the TaskRepository interface with Room database operations.
 ### Issue #151: Create Hilt module for repository
 **Labels**: `phase-1`, `dependency-injection`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160)
 
 **Description**:
 Provide the TaskRepository implementation via Hilt.
 
 **Acceptance Criteria**:
-- [ ] File created: `RepositoryModule.kt` in `di` package
-- [ ] `@Module` and `@InstallIn(SingletonComponent::class)` annotations
-- [ ] Provides binding:
+- [x] File created: `RepositoryModule.kt` in `di` package
+- [x] `@Module` and `@InstallIn(SingletonComponent::class)` annotations
+- [x] Provides binding:
   ```kotlin
   @Binds
   @Singleton
   abstract fun bindTaskRepository(impl: TaskRepositoryImpl): TaskRepository
   ```
-- [ ] TaskRepositoryImpl constructor annotated with `@Inject`
-- [ ] Project builds successfully
-- [ ] Repository can be injected in ViewModels
+- [x] TaskRepositoryImpl constructor annotated with `@Inject`
+- [x] Project builds successfully
+- [x] Repository can be injected in ViewModels
 
 **Dependencies**: #150
 
@@ -299,16 +306,17 @@ Provide the TaskRepository implementation via Hilt.
 ### Issue #81: Implement GetAllTasksUseCase
 **Labels**: `feature`, `P0-critical`, `use-case`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160) — implemented as `GetTasksUseCase`
 
 Create use case to retrieve all tasks from the repository.
 
 ## Acceptance Criteria
-- [ ] Class `GetAllTasksUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `operator fun invoke(): Flow<List<Task>>`
-- [ ] Simply delegates to `repository.getAllTasks()`
-- [ ] Documentation explaining purpose
-- [ ] Unit test with mock repository
+- [x] Class `GetAllTasksUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `operator fun invoke(): Flow<List<Task>>`
+- [x] Simply delegates to `repository.getAllTasks()`
+- [x] Documentation explaining purpose
+- [x] Unit test with mock repository
 
 **Dependencies**: #149, #151
 
@@ -317,16 +325,17 @@ Create use case to retrieve all tasks from the repository.
 ### Issue #90: Implement GetIncompleteTasksUseCase
 **Labels**: `feature`, `P0-critical`, `use-case`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160) — filtering logic inlined in `GetRandomTaskUseCase`
 
 Create use case to retrieve only incomplete (not done) tasks.
 
 ## Acceptance Criteria
-- [ ] Class `GetIncompleteTasksUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `operator fun invoke(): Flow<List<Task>>`
-- [ ] Delegates to `repository.getIncompleteTasks()`
-- [ ] Documentation explaining purpose
-- [ ] Unit test with mock repository
+- [x] Class `GetIncompleteTasksUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `operator fun invoke(): Flow<List<Task>>`
+- [x] Delegates to `repository.getIncompleteTasks()`
+- [x] Documentation explaining purpose
+- [x] Unit test with mock repository
 
 **Dependencies**: #149, #151
 
@@ -335,20 +344,21 @@ Create use case to retrieve only incomplete (not done) tasks.
 ### Issue #102: Implement AddTaskUseCase with validation
 **Labels**: `feature`, `P0-critical`, `use-case`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED (PR #160)
 
 Create use case to add a new task with input validation.
 
 ## Acceptance Criteria
-- [ ] Class `AddTaskUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `suspend operator fun invoke(title: String, description: String?): Result<Long>`
-- [ ] Validation logic:
+- [x] Class `AddTaskUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `suspend operator fun invoke(title: String, description: String?): Result<Long>`
+- [x] Validation logic:
   - Title cannot be blank (return Result.failure if blank)
   - Title trimmed of whitespace
   - Description trimmed (null if blank)
-- [ ] Creates Task with current timestamp
-- [ ] Delegates to `repository.addTask()`
-- [ ] Unit tests for validation and success cases
+- [x] Creates Task with current timestamp
+- [x] Delegates to `repository.addTask()`
+- [x] Unit tests for validation and success cases
 
 **Dependencies**: #149, #151
 
@@ -357,15 +367,16 @@ Create use case to add a new task with input validation.
 ### Issue #118: Implement DeleteTaskUseCase
 **Labels**: `feature`, `P0-critical`, `use-case`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160)
 
 Create use case to delete a task.
 
 ## Acceptance Criteria
-- [ ] Class `DeleteTaskUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `suspend operator fun invoke(task: Task): Result<Unit>`
-- [ ] Delegates to `repository.deleteTask()`
-- [ ] Unit test with mock repository
+- [x] Class `DeleteTaskUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `suspend operator fun invoke(task: Task): Result<Unit>`
+- [x] Delegates to `repository.deleteTask()`
+- [x] Unit test with mock repository
 
 **Dependencies**: #149, #151
 
@@ -374,16 +385,17 @@ Create use case to delete a task.
 ### Issue #109: Implement UpdateTaskUseCase
 **Labels**: `feature`, `P1-high`, `use-case`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160)
 
 Create use case to update an existing task.
 
 ## Acceptance Criteria
-- [ ] Class `UpdateTaskUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `suspend operator fun invoke(task: Task): Result<Unit>`
-- [ ] Updates `updatedAt` timestamp
-- [ ] Delegates to `repository.updateTask()`
-- [ ] Unit test with mock repository
+- [x] Class `UpdateTaskUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `suspend operator fun invoke(task: Task): Result<Unit>`
+- [x] Updates `updatedAt` timestamp
+- [x] Delegates to `repository.updateTask()`
+- [x] Unit test with mock repository
 
 **Dependencies**: #149, #151
 
@@ -392,16 +404,17 @@ Create use case to update an existing task.
 ### Issue #124: Implement CompleteTaskUseCase
 **Labels**: `feature`, `P0-critical`, `use-case`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160)
 
 Create use case to mark a task as completed.
 
 ## Acceptance Criteria
-- [ ] Class `CompleteTaskUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `suspend operator fun invoke(task: Task, isCompleted: Boolean): Result<Unit>`
-- [ ] Updates task with new completion status and timestamp
-- [ ] Delegates to `repository.updateTask()`
-- [ ] Unit test verifying task update
+- [x] Class `CompleteTaskUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `suspend operator fun invoke(task: Task, isCompleted: Boolean): Result<Unit>`
+- [x] Updates task with new completion status and timestamp
+- [x] Delegates to `repository.updateTask()`
+- [x] Unit test verifying task update
 
 **Dependencies**: #149, #151
 
@@ -410,20 +423,21 @@ Create use case to mark a task as completed.
 ### Issue #132: Implement GetRandomTaskUseCase (CORE FEATURE)
 **Labels**: `feature`, `P0-critical`, `use-case`, `core-feature`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #160)
 
 **This is the core feature of the app**: Create use case to retrieve a random task from incomplete tasks.
 
 ## Acceptance Criteria
-- [ ] Class `GetRandomTaskUseCase` created in `domain.usecase` package
-- [ ] Constructor injects `TaskRepository`
-- [ ] Operator function: `suspend operator fun invoke(): Result<Task?>`
-- [ ] Logic:
+- [x] Class `GetRandomTaskUseCase` created in `domain.usecase` package
+- [x] Constructor injects `TaskRepository`
+- [x] Operator function: `suspend operator fun invoke(): Result<Task?>`
+- [x] Logic:
   1. Get list of incomplete tasks
   2. Return random task from list (use `List.random()`)
   3. Return null if list is empty
-- [ ] Returns `Result.success(randomTask)` or `Result.success(null)`
-- [ ] Handle errors with `Result.failure()`
-- [ ] Unit tests:
+- [x] Returns `Result.success(randomTask)` or `Result.success(null)`
+- [x] Handle errors with `Result.failure()`
+- [x] Unit tests:
   - Returns random task when tasks exist
   - Returns null when no incomplete tasks
   - Verify randomness (multiple calls return different tasks with sufficient data)
