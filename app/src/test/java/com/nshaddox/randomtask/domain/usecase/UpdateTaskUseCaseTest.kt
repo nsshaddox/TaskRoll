@@ -22,24 +22,24 @@ class UpdateTaskUseCaseTest {
     @Test
     fun `invoke updates task successfully`() = runTest {
         repository.addTask(Task(title = "Original", createdAt = 1000L, updatedAt = 1000L))
-        val task = repository.getTasks().first().first()
+        val task = repository.getAllTasks().first().first()
         val updated = task.copy(title = "Updated")
 
         val result = updateTaskUseCase(updated)
 
         assertTrue(result.isSuccess)
-        val stored = repository.getTaskById(task.id)
+        val stored = repository.getTaskById(task.id).first()
         assertEquals("Updated", stored?.title)
     }
 
     @Test
     fun `invoke sets updatedAt timestamp`() = runTest {
         repository.addTask(Task(title = "Original", createdAt = 1000L, updatedAt = 1000L))
-        val task = repository.getTasks().first().first()
+        val task = repository.getAllTasks().first().first()
 
         updateTaskUseCase(task.copy(title = "Changed"))
 
-        val stored = repository.getTaskById(task.id)
+        val stored = repository.getTaskById(task.id).first()
         assertTrue(stored!!.updatedAt >= task.updatedAt)
     }
 }

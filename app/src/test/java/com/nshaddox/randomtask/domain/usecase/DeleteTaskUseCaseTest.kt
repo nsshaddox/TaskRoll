@@ -22,18 +22,19 @@ class DeleteTaskUseCaseTest {
     @Test
     fun `invoke deletes existing task successfully`() = runTest {
         repository.addTask(Task(title = "To Delete", createdAt = 1000L, updatedAt = 1000L))
-        val tasks = repository.getTasks().first()
-        val taskId = tasks.first().id
+        val tasks = repository.getAllTasks().first()
+        val task = tasks.first()
 
-        val result = deleteTaskUseCase(taskId)
+        val result = deleteTaskUseCase(task)
 
         assertTrue(result.isSuccess)
-        assertEquals(0, repository.getTasks().first().size)
+        assertEquals(0, repository.getAllTasks().first().size)
     }
 
     @Test
-    fun `invoke with non-existent id returns failure`() = runTest {
-        val result = deleteTaskUseCase(999L)
+    fun `invoke with non-existent task returns failure`() = runTest {
+        val nonExistentTask = Task(id = 999L, title = "Ghost", createdAt = 1000L, updatedAt = 1000L)
+        val result = deleteTaskUseCase(nonExistentTask)
 
         assertTrue(result.isFailure)
     }

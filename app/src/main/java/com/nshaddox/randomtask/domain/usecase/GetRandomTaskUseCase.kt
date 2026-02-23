@@ -9,8 +9,7 @@ class GetRandomTaskUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {
     suspend operator fun invoke(): Task? {
-        val tasks = repository.getTasks().first()
-        val incompleteTasks = tasks.filter { !it.isCompleted }
+        val incompleteTasks = repository.getIncompleteTasks().first()
         return if (incompleteTasks.isEmpty()) null else incompleteTasks.random()
     }
 }
