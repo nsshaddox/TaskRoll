@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.nshaddox.randomtask.ui.preview.Task
+import com.nshaddox.randomtask.domain.model.Task
 
 /**
  * Task List Screen - Displays a list of tasks with CRUD operations

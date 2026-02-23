@@ -7,12 +7,12 @@ import com.nshaddox.randomtask.domain.model.Task
  *
  * @property tasks The current list of tasks to display.
  * @property isLoading Whether a loading operation is in progress.
- * @property error An optional error message to display. Null when there is no error.
- * @property showAddDialog Whether the add-task dialog is currently visible.
+ * @property errorMessage An optional error message to display. Null when there is no error.
+ * @property isAddDialogVisible Whether the add-task dialog is currently visible.
  */
 data class TaskListUiState(
     val tasks: List<Task> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val showAddDialog: Boolean = false
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
+    val isAddDialogVisible: Boolean = false
 )

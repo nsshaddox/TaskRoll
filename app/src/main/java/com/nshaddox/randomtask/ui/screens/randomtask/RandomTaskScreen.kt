@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nshaddox.randomtask.ui.preview.Task
+import com.nshaddox.randomtask.domain.model.Task
 
 /**
  * Random Task Selection Screen - Displays a randomly selected task from the list
