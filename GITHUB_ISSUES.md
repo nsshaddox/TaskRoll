@@ -12,8 +12,8 @@
 | 4 — Data Layer Completion  | #127 ✅, #142 ✅, #149 ✅        | Repo impl              |
 | 5 — Repository             | #150 ✅, #151 ✅                 | Use cases              |
 | 6 — Use Cases              | #81 ✅, #90 ✅, #102 ✅, #118 ✅, #109 ✅, #124 ✅, #132 ✅ | ViewModels |
-| 7 — UI State               | #68, #63, #54                   | ViewModels             |
-| 8 — ViewModels             | #97, #58                        | Screens                |
+| 7 — UI State               | #68 ✅, #63 ✅, #54 ✅           | ViewModels             |
+| 8 — ViewModels             | #97 ✅, #58 ✅                   | Screens                |
 | 9 — Nav Routes             | #122                            | NavGraph               |
 | 10 — UI Components         | #76, #85                        | Screens                |
 | 11 — Screens               | #108, #61                       | Nav wiring             |
@@ -454,16 +454,17 @@ Create use case to mark a task as completed.
 ### Issue #68: Create TaskUiModel
 **Labels**: `ui`, `P1-high`, `model`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 ## Description
 Create a UI-specific model for displaying tasks (e.g., with formatted dates).
 
 ## Acceptance Criteria
-- [ ] File created: `TaskUiModel.kt` in `ui.screens.tasklist` package
-- [ ] Data class or mapping function to format domain Task for UI
-- [ ] Format timestamps to readable strings
-- [ ] Any other UI-specific transformations
-- [ ] Mapper function: `Task.toUiModel(): TaskUiModel`
+- [x] File created: `TaskUiModel.kt` in `ui.screens.tasklist` package
+- [x] Data class or mapping function to format domain Task for UI
+- [x] Format timestamps to readable strings
+- [x] Any other UI-specific transformations
+- [x] Mapper function: `Task.toUiModel(): TaskUiModel`
 
 **Dependencies**: #120
 
@@ -472,13 +473,14 @@ Create a UI-specific model for displaying tasks (e.g., with formatted dates).
 ### Issue #63: Create TaskListUiState
 **Labels**: `ui`, `P0-critical`, `state`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 ## Description
 Define the UI state data class for the task list screen.
 
 ## Acceptance Criteria
-- [ ] File created: `TaskListUiState.kt` in `ui.screens.tasklist` package
-- [ ] Data class with sealed interface or states:
+- [x] File created: `TaskListUiState.kt` in `ui.screens.tasklist` package
+- [x] Data class with sealed interface or states:
   ```kotlin
   data class TaskListUiState(
       val tasks: List<Task> = emptyList(),
@@ -487,7 +489,7 @@ Define the UI state data class for the task list screen.
       val showAddDialog: Boolean = false
   )
   ```
-- [ ] Documentation comments explaining each property
+- [x] Documentation comments explaining each property
 
 **Dependencies**: #68
 
@@ -496,12 +498,13 @@ Define the UI state data class for the task list screen.
 ### Issue #54: Create RandomTaskUiState
 **Labels**: `ui`, `phase-5`, `P0-critical`, `state`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 Define the UI state data class for the random task screen.
 
 ## Acceptance Criteria
-- [ ] File created: `RandomTaskUiState.kt` in `ui.screens.randomtask` package
-- [ ] Data class:
+- [x] File created: `RandomTaskUiState.kt` in `ui.screens.randomtask` package
+- [x] Data class:
   ```kotlin
   data class RandomTaskUiState(
       val currentTask: Task? = null,
@@ -510,7 +513,7 @@ Define the UI state data class for the random task screen.
       val noTasksAvailable: Boolean = false
   )
   ```
-- [ ] Documentation comments
+- [x] Documentation comments
 
 **Dependencies**: #68
 
@@ -524,27 +527,28 @@ Define the UI state data class for the random task screen.
 ### Issue #97: Implement TaskListViewModel
 **Labels**: `ui`, `P0-critical`, `viewmodel`
 **Estimated Complexity**: High
+**Status**: ✅ COMPLETED
 
 ## Description
 Create the ViewModel for the task list screen, managing state and user interactions.
 
 ## Acceptance Criteria
-- [ ] Class `TaskListViewModel` created in `ui.screens.tasklist` package
-- [ ] Annotated with `@HiltViewModel`
-- [ ] Constructor injects use cases:
+- [x] Class `TaskListViewModel` created in `ui.screens.tasklist` package
+- [x] Annotated with `@HiltViewModel`
+- [x] Constructor injects use cases:
   - GetAllTasksUseCase
   - AddTaskUseCase
   - DeleteTaskUseCase
   - CompleteTaskUseCase
-- [ ] Exposes `StateFlow<TaskListUiState>`
-- [ ] Functions:
+- [x] Exposes `StateFlow<TaskListUiState>`
+- [x] Functions:
   - `fun addTask(title: String, description: String?)`
   - `fun deleteTask(task: Task)`
   - `fun toggleComplete(task: Task)`
   - `fun showAddDialog()` / `fun hideAddDialog()`
-- [ ] Collects tasks from GetAllTasksUseCase into state
-- [ ] Handles errors and updates error state
-- [ ] Unit tests with TestCoroutineDispatcher
+- [x] Collects tasks from GetAllTasksUseCase into state
+- [x] Handles errors and updates error state
+- [x] Unit tests with TestCoroutineDispatcher
 
 **Dependencies**: #63, #81, #102, #118, #124
 
@@ -553,22 +557,23 @@ Create the ViewModel for the task list screen, managing state and user interacti
 ### Issue #58: Implement RandomTaskViewModel
 **Labels**: `ui`, `phase-5`, `P0-critical`, `viewmodel`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED
 
 ## Description
 Create the ViewModel for the random task screen.
 
 ## Acceptance Criteria
-- [ ] Class `RandomTaskViewModel` created in `ui.screens.randomtask` package
-- [ ] Annotated with `@HiltViewModel`
-- [ ] Constructor injects:
+- [x] Class `RandomTaskViewModel` created in `ui.screens.randomtask` package
+- [x] Annotated with `@HiltViewModel`
+- [x] Constructor injects:
   - GetRandomTaskUseCase
   - CompleteTaskUseCase
-- [ ] Exposes `StateFlow<RandomTaskUiState>`
-- [ ] Functions:
+- [x] Exposes `StateFlow<RandomTaskUiState>`
+- [x] Functions:
   - `fun getRandomTask()`
   - `fun completeTask(task: Task)`
   - `fun skipTask()`
-- [ ] Unit tests
+- [x] Unit tests
 
 **Dependencies**: #54, #132, #124
 
