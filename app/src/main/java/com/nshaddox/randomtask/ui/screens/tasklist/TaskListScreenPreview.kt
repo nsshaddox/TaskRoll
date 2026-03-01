@@ -44,3 +44,45 @@ fun TaskListScreenSingleTaskPreview() {
         )
     }
 }
+
+/**
+ * Preview for TaskListScreen in loading state
+ */
+@Preview(showBackground = true)
+@Composable
+fun TaskListScreenLoadingPreview() {
+    RandomTaskTheme {
+        TaskListScreen(
+            tasks = emptyList(),
+            isLoading = true
+        )
+    }
+}
+
+/**
+ * Preview for TaskListScreen with error message
+ */
+@Preview(showBackground = true)
+@Composable
+fun TaskListScreenErrorPreview() {
+    RandomTaskTheme {
+        TaskListScreen(
+            tasks = SampleData.sampleTasks,
+            errorMessage = "Failed to load tasks"
+        )
+    }
+}
+
+/**
+ * Preview for AddTaskDialog
+ */
+@Preview(showBackground = true)
+@Composable
+fun AddTaskDialogPreview() {
+    RandomTaskTheme {
+        AddTaskDialog(
+            onConfirm = {},
+            onDismiss = {}
+        )
+    }
+}
