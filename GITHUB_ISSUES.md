@@ -14,10 +14,10 @@
 | 6 — Use Cases              | #81 ✅, #90 ✅, #102 ✅, #118 ✅, #109 ✅, #124 ✅, #132 ✅ | ViewModels |
 | 7 — UI State               | #68 ✅, #63 ✅, #54 ✅           | ViewModels             |
 | 8 — ViewModels             | #97 ✅, #58 ✅                   | Screens                |
-| 9 — Nav Routes             | #122                            | NavGraph               |
+| 9 — Nav Routes             | #122 ✅                         | NavGraph               |
 | 10 — UI Components         | #76, #85                        | Screens                |
-| 11 — Screens               | #108, #61                       | Nav wiring             |
-| 12 — Navigation Wiring     | #128, #119, #66                 | Feature completion     |
+| 11 — Screens               | #108 ✅, #61 ✅                  | Nav wiring             |
+| 12 — Navigation Wiring     | #128 ✅, #119 ✅, #66 ✅         | Feature completion     |
 | 13 — Feature Completion    | #95, #131, #77, #69             | Done                   |
 
 ---
@@ -587,14 +587,15 @@ Create the ViewModel for the random task screen.
 ### Issue #122: Define navigation routes
 **Labels**: `ui`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #180)
 
 ## Acceptance Criteria
-- [ ] Sealed class or object `Screen` created in `ui.navigation` package
-- [ ] Routes defined:
+- [x] Sealed class or object `Screen` created in `ui.navigation` package
+- [x] Routes defined:
   - `TaskList`
   - `RandomTask`
-- [ ] Each route has a `route: String` property
-- [ ] Documentation
+- [x] Each route has a `route: String` property
+- [x] Documentation
 
 **Dependencies**: #113
 
@@ -646,16 +647,17 @@ Create the ViewModel for the random task screen.
 ### Issue #108: Implement TaskListScreen composable
 **Labels**: `ui`, `P0-critical`, `screen`
 **Estimated Complexity**: High
+**Status**: ✅ COMPLETED (PR #181)
 
 ## Acceptance Criteria
-- [ ] Composable `TaskListScreen` created in `ui.screens.tasklist` package
-- [ ] Collects state from `TaskListViewModel`
-- [ ] Displays list of tasks using `TaskListItem`
-- [ ] FAB to open `AddTaskDialog`
-- [ ] Empty state when no tasks
-- [ ] "Get Random Task" button/FAB navigates to random task screen
-- [ ] Error display
-- [ ] Material3 Scaffold with TopAppBar
+- [x] Composable `TaskListScreen` created in `ui.screens.tasklist` package
+- [x] Collects state from `TaskListViewModel`
+- [x] Displays list of tasks using `TaskListItem`
+- [x] FAB to open `AddTaskDialog`
+- [x] Empty state when no tasks
+- [x] "Get Random Task" button/FAB navigates to random task screen
+- [x] Error display
+- [x] Material3 Scaffold with TopAppBar
 
 **Dependencies**: #63, #76, #85, #97
 
@@ -664,16 +666,17 @@ Create the ViewModel for the random task screen.
 ### Issue #61: Implement RandomTaskScreen composable
 **Labels**: `ui`, `phase-5`, `P0-critical`, `screen`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED (PR #182)
 
 ## Acceptance Criteria
-- [ ] Composable `RandomTaskScreen` created in `ui.screens.randomtask` package
-- [ ] Collects state from `RandomTaskViewModel`
-- [ ] Displays current random task (title + description)
-- [ ] "Complete" button → marks task done, loads next random task
-- [ ] "Skip" button → loads next random task without completing
-- [ ] Empty state when no incomplete tasks
-- [ ] Back navigation to task list
-- [ ] Material3 styling
+- [x] Composable `RandomTaskScreen` created in `ui.screens.randomtask` package
+- [x] Collects state from `RandomTaskViewModel`
+- [x] Displays current random task (title + description)
+- [x] "Complete" button → marks task done, loads next random task
+- [x] "Skip" button → loads next random task without completing
+- [x] Empty state when no incomplete tasks
+- [x] Back navigation to task list
+- [x] Material3 styling
 
 **Dependencies**: #54, #58
 
@@ -687,13 +690,14 @@ Create the ViewModel for the random task screen.
 ### Issue #128: Implement NavGraph
 **Labels**: `ui`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #183)
 
 ## Acceptance Criteria
-- [ ] Composable `AppNavGraph` created in `ui.navigation` package
-- [ ] Uses `NavHost` with all defined routes
-- [ ] Start destination: `Screen.TaskList`
-- [ ] Each route renders the appropriate screen composable
-- [ ] NavController passed through or hoisted appropriately
+- [x] Composable `AppNavGraph` created in `ui.navigation` package
+- [x] Uses `NavHost` with all defined routes
+- [x] Start destination: `Screen.TaskList`
+- [x] Each route renders the appropriate screen composable
+- [x] NavController passed through or hoisted appropriately
 
 **Dependencies**: #122, #108, #61
 
@@ -702,12 +706,13 @@ Create the ViewModel for the random task screen.
 ### Issue #119: Wire TaskListScreen into navigation
 **Labels**: `ui`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #185)
 
 ## Acceptance Criteria
-- [ ] `TaskListScreen` is the start destination in `NavHost`
-- [ ] Navigation action to `RandomTaskScreen` wired up
-- [ ] Back stack handled correctly
-- [ ] Integration tested manually
+- [x] `TaskListScreen` is the start destination in `NavHost`
+- [x] Navigation action to `RandomTaskScreen` wired up
+- [x] Back stack handled correctly
+- [x] Integration tested manually
 
 **Dependencies**: #128, #108
 
@@ -716,12 +721,13 @@ Create the ViewModel for the random task screen.
 ### Issue #66: Wire RandomTaskScreen into navigation
 **Labels**: `ui`, `phase-5`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #184)
 
 ## Acceptance Criteria
-- [ ] `RandomTaskScreen` composable registered in `NavHost`
-- [ ] Navigation from TaskListScreen to RandomTaskScreen works
-- [ ] Back navigation returns to TaskListScreen
-- [ ] Integration tested manually
+- [x] `RandomTaskScreen` composable registered in `NavHost`
+- [x] Navigation from TaskListScreen to RandomTaskScreen works
+- [x] Back navigation returns to TaskListScreen
+- [x] Integration tested manually
 
 **Dependencies**: #128, #61
 
