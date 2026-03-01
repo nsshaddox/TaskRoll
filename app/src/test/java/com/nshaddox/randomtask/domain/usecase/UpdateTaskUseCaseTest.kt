@@ -33,6 +33,30 @@ class UpdateTaskUseCaseTest {
     }
 
     @Test
+    fun `invoke with blank title returns failure`() = runTest {
+        repository.addTask(Task(title = "Original", createdAt = 1000L, updatedAt = 1000L))
+        val task = repository.getAllTasks().first().first()
+        val blankTitle = task.copy(title = "   ")
+
+        val result = updateTaskUseCase(blankTitle)
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+    }
+
+    @Test
+    fun `invoke with empty title returns failure`() = runTest {
+        repository.addTask(Task(title = "Original", createdAt = 1000L, updatedAt = 1000L))
+        val task = repository.getAllTasks().first().first()
+        val emptyTitle = task.copy(title = "")
+
+        val result = updateTaskUseCase(emptyTitle)
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+    }
+
+    @Test
     fun `invoke sets updatedAt timestamp`() = runTest {
         repository.addTask(Task(title = "Original", createdAt = 1000L, updatedAt = 1000L))
         val task = repository.getAllTasks().first().first()
