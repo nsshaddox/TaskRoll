@@ -33,4 +33,13 @@ object SampleData {
         createdAt = 1_700_000_000_000L,
         updatedAt = 1_700_000_000_000L
     )
+
+    val sampleTaskWithDescription = Task(
+        id = 100L,
+        title = "Refactor authentication module",
+        description = "Extract shared auth logic into a reusable middleware and add unit tests for token validation",
+        isCompleted = false,
+        createdAt = 1_700_000_000_000L,
+        updatedAt = 1_700_000_000_000L
+    )
 }

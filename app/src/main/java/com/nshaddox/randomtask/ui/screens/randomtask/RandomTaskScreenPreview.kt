@@ -13,21 +13,21 @@ import com.nshaddox.randomtask.ui.theme.RandomTaskTheme
 @Composable
 fun RandomTaskScreenWithTaskPreview() {
     RandomTaskTheme {
-        RandomTaskScreen(
-            selectedTask = SampleData.singleTask
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(currentTask = SampleData.singleTask)
         )
     }
 }
 
 /**
- * Preview for RandomTaskScreen with no task selected (empty state)
+ * Preview for RandomTaskScreen with no task selected (empty/initial state)
  */
 @Preview(showBackground = true)
 @Composable
 fun RandomTaskScreenEmptyPreview() {
     RandomTaskTheme {
-        RandomTaskScreen(
-            selectedTask = null
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState()
         )
     }
 }
@@ -39,8 +39,60 @@ fun RandomTaskScreenEmptyPreview() {
 @Composable
 fun RandomTaskScreenShortTitlePreview() {
     RandomTaskTheme {
-        RandomTaskScreen(
-            selectedTask = SampleData.sampleTask
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(currentTask = SampleData.sampleTask)
+        )
+    }
+}
+
+/**
+ * Preview for RandomTaskScreen in loading state
+ */
+@Preview(showBackground = true)
+@Composable
+fun RandomTaskScreenLoadingPreview() {
+    RandomTaskTheme {
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(isLoading = true)
+        )
+    }
+}
+
+/**
+ * Preview for RandomTaskScreen in error state
+ */
+@Preview(showBackground = true)
+@Composable
+fun RandomTaskScreenErrorPreview() {
+    RandomTaskTheme {
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(error = "Something went wrong")
+        )
+    }
+}
+
+/**
+ * Preview for RandomTaskScreen with no tasks available
+ */
+@Preview(showBackground = true)
+@Composable
+fun RandomTaskScreenNoTasksPreview() {
+    RandomTaskTheme {
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(noTasksAvailable = true)
+        )
+    }
+}
+
+/**
+ * Preview for RandomTaskScreen with a task that has a description
+ */
+@Preview(showBackground = true)
+@Composable
+fun RandomTaskScreenWithDescriptionPreview() {
+    RandomTaskTheme {
+        RandomTaskScreenContent(
+            uiState = RandomTaskUiState(currentTask = SampleData.sampleTaskWithDescription)
         )
     }
 }
