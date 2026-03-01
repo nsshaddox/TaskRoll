@@ -58,6 +58,14 @@ fun RandomTaskScreen(
         viewModel.loadRandomTask()
     }
 
+    LaunchedEffect(uiState.taskCompleted) {
+        if (uiState.taskCompleted) {
+            navController.previousBackStackEntry?.savedStateHandle?.set("task_completed", true)
+            navController.popBackStack()
+            viewModel.resetTaskCompleted()
+        }
+    }
+
     RandomTaskScreenContent(
         uiState = uiState,
         onSelectRandom = viewModel::loadRandomTask,
