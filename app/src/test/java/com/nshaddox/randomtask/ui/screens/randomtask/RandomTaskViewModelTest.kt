@@ -84,26 +84,65 @@ class RandomTaskViewModelTest {
     }
 
     @Test
-    fun `completeTask marks current task complete and loads next random task`() = runTest(testDispatcher) {
+    fun `completeTask sets taskCompleted flag to true on success`() = runTest(testDispatcher) {
         repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
-        repository.addTask(Task(title = "Task 2", createdAt = 2000L, updatedAt = 2000L))
 
         viewModel.loadRandomTask()
         advanceUntilIdle()
 
-        val firstTask = viewModel.uiState.value.currentTask
-        assertNotNull(firstTask)
+        assertNotNull(viewModel.uiState.value.currentTask)
 
         viewModel.completeTask()
         advanceUntilIdle()
 
         val afterComplete = viewModel.uiState.value
         assertFalse(afterComplete.isLoading)
-        // After completing one of two tasks, the remaining incomplete task should be loaded
-        assertNotNull(afterComplete.currentTask)
-        // The completed task should not be the current task anymore
-        assertTrue(afterComplete.currentTask!!.title != firstTask!!.title)
-        assertFalse(afterComplete.currentTask!!.isCompleted)
+        assertTrue(afterComplete.taskCompleted)
+    }
+
+    @Test
+    fun `resetTaskCompleted clears the taskCompleted flag`() = runTest(testDispatcher) {
+        repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+
+        viewModel.loadRandomTask()
+        advanceUntilIdle()
+
+        viewModel.completeTask()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.taskCompleted)
+
+        viewModel.resetTaskCompleted()
+
+        assertFalse(viewModel.uiState.value.taskCompleted)
+    }
+
+    @Test
+    fun `completeTask failure does not set taskCompleted flag`() = runTest(testDispatcher) {
+        val errorRepository = object : TaskRepository {
+            override fun getAllTasks(): Flow<List<Task>> = flow { emit(emptyList()) }
+            override fun getIncompleteTasks(): Flow<List<Task>> = flow {
+                emit(listOf(Task(id = 1, title = "Task 1", createdAt = 1000L, updatedAt = 1000L)))
+            }
+            override fun getTaskById(id: Long): Flow<Task?> = flow { emit(null) }
+            override suspend fun addTask(task: Task): Result<Long> = Result.success(1L)
+            override suspend fun updateTask(task: Task): Result<Unit> = Result.failure(RuntimeException("Update failed"))
+            override suspend fun deleteTask(task: Task): Result<Unit> = Result.failure(RuntimeException("Delete failed"))
+        }
+        val errorGetUseCase = GetRandomTaskUseCase(errorRepository)
+        val errorCompleteUseCase = CompleteTaskUseCase(errorRepository)
+        val errorViewModel = RandomTaskViewModel(errorGetUseCase, errorCompleteUseCase, testDispatcher)
+
+        errorViewModel.loadRandomTask()
+        advanceUntilIdle()
+
+        assertNotNull(errorViewModel.uiState.value.currentTask)
+
+        errorViewModel.completeTask()
+        advanceUntilIdle()
+
+        val state = errorViewModel.uiState.value
+        assertFalse(state.taskCompleted)
+        assertNotNull(state.error)
     }
 
     @Test

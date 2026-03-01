@@ -35,13 +35,19 @@ class RandomTaskViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             _uiState.update { it.copy(isLoading = true, error = null) }
             completeTaskUseCase(task)
-                .onSuccess { loadRandomTaskInternal() }
+                .onSuccess {
+                    _uiState.update { it.copy(isLoading = false, taskCompleted = true) }
+                }
                 .onFailure { e ->
                     _uiState.update {
                         it.copy(isLoading = false, error = e.message ?: "Failed to complete task")
                     }
                 }
         }
+    }
+
+    fun resetTaskCompleted() {
+        _uiState.update { it.copy(taskCompleted = false) }
     }
 
     fun skipTask() {
