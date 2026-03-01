@@ -22,8 +22,44 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+
+/**
+ * ViewModel-connected wrapper for editing an existing task.
+ *
+ * Collects UI state from [TaskEditorViewModel] and delegates to the stateless [TaskEditorScreen].
+ * Navigates back when the task is saved successfully.
+ *
+ * @param navController Navigation controller for screen transitions.
+ * @param viewModel The TaskEditorViewModel instance, provided by Hilt.
+ */
+@Composable
+fun EditTaskScreen(
+    navController: NavController,
+    viewModel: TaskEditorViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.isSaved) {
+        if (uiState.isSaved) {
+            navController.popBackStack()
+        }
+    }
+
+    TaskEditorScreen(
+        taskTitle = uiState.taskTitle,
+        isEditMode = true,
+        onTitleChange = viewModel::onTitleChange,
+        onSaveClick = viewModel::saveTask,
+        onCancelClick = { navController.popBackStack() }
+    )
+}
 
 /**
  * Task Editor Screen - Form for creating or editing a task

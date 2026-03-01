@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -73,6 +74,7 @@ fun TaskListScreen(
         onTaskClick = {},
         onTaskCheckedChange = { task, _ -> viewModel.toggleTaskCompletion(task) },
         onDeleteTask = { task -> viewModel.deleteTask(task) },
+        onEditTask = { task -> navController.navigate(Screen.EditTask.createRoute(task.id)) },
         onAddTask = { viewModel.showAddDialog() },
         onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) }
     )
@@ -88,6 +90,7 @@ fun TaskListScreen(
  * @param onTaskClick Callback when a task is clicked
  * @param onTaskCheckedChange Callback when task completion status changes
  * @param onDeleteTask Callback when delete button is clicked
+ * @param onEditTask Callback when edit button is clicked
  * @param onAddTask Callback when FAB is clicked to add new task
  * @param onNavigateToRandomTask Callback when random task navigation button is clicked
  * @param modifier Modifier for customization
@@ -102,6 +105,7 @@ fun TaskListScreen(
     onTaskClick: (Task) -> Unit = {},
     onTaskCheckedChange: (Task, Boolean) -> Unit = { _, _ -> },
     onDeleteTask: (Task) -> Unit = {},
+    onEditTask: (Task) -> Unit = {},
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -175,6 +179,7 @@ fun TaskListScreen(
                         task = task,
                         onTaskClick = { onTaskClick(task) },
                         onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
+                        onEditClick = { onEditTask(task) },
                         onDeleteClick = { onDeleteTask(task) }
                     )
                 }
@@ -188,6 +193,7 @@ private fun TaskCard(
     task: Task,
     onTaskClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -228,6 +234,13 @@ private fun TaskCard(
                         MaterialTheme.colorScheme.onSurfaceVariant
                     else
                         MaterialTheme.colorScheme.onSurface
+                )
+            }
+            IconButton(onClick = onEditClick) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Task",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
             IconButton(onClick = onDeleteClick) {
