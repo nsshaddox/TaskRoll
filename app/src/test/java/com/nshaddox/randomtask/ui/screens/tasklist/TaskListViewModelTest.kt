@@ -259,6 +259,33 @@ class TaskListViewModelTest {
     }
 
     @Test
+    fun `addTask with description passes description to task`() = runTest(testDispatcher) {
+        val viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            // Initial loading
+            awaitItem()
+            // Loaded empty
+            awaitItem()
+
+            viewModel.addTask("Task With Desc", "A detailed description")
+
+            // StateFlow may conflate the dialog-close and task-list-update emissions.
+            val updated = awaitItem()
+            if (updated.tasks.isEmpty()) {
+                val withTask = awaitItem()
+                assertEquals(1, withTask.tasks.size)
+                assertEquals("Task With Desc", withTask.tasks[0].title)
+                assertEquals("A detailed description", withTask.tasks[0].description)
+            } else {
+                assertEquals(1, updated.tasks.size)
+                assertEquals("Task With Desc", updated.tasks[0].title)
+                assertEquals("A detailed description", updated.tasks[0].description)
+            }
+        }
+    }
+
+    @Test
     fun `clearError resets errorMessage to null`() = runTest(testDispatcher) {
         val viewModel = createViewModel()
 

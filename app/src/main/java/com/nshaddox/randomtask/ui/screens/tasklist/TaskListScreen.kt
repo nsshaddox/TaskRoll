@@ -75,7 +75,7 @@ fun TaskListScreen(
 
     if (uiState.isAddDialogVisible) {
         AddTaskDialog(
-            onConfirm = { title -> viewModel.addTask(title) },
+            onConfirm = { title, description -> viewModel.addTask(title, description) },
             onDismiss = { viewModel.hideAddDialog() }
         )
     }

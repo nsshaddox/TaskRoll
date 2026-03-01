@@ -39,9 +39,9 @@ class TaskListViewModel @Inject constructor(
         }
     }
 
-    fun addTask(title: String) {
+    fun addTask(title: String, description: String? = null) {
         val now = System.currentTimeMillis()
-        val task = Task(title = title, createdAt = now, updatedAt = now)
+        val task = Task(title = title, description = description, createdAt = now, updatedAt = now)
         viewModelScope.launch(ioDispatcher) {
             addTaskUseCase(task)
                 .onFailure { error ->
