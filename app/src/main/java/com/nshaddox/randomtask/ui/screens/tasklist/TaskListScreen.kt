@@ -75,7 +75,7 @@ fun TaskListScreen(
 
     if (uiState.isAddDialogVisible) {
         AddTaskDialog(
-            onConfirm = { title -> viewModel.addTask(title) },
+            onConfirm = { title, description -> viewModel.addTask(title, description) },
             onDismiss = { viewModel.hideAddDialog() }
         )
     }
@@ -190,7 +190,7 @@ fun TaskListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(tasks, key = { it.id }) { task ->
-                    TaskCard(
+                    TaskListItem(
                         task = task,
                         onTaskClick = { onTaskClick(task) },
                         onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
@@ -204,7 +204,7 @@ fun TaskListScreen(
 }
 
 @Composable
-private fun TaskCard(
+internal fun TaskListItem(
     task: Task,
     onTaskClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
