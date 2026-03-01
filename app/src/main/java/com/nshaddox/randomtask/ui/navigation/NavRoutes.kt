@@ -14,4 +14,9 @@ sealed class Screen(val route: String) {
 
     /** Route to the random task selection screen where a task is chosen at random. */
     data object RandomTask : Screen("random_task")
+
+    /** Route to the task editor screen for editing an existing task. */
+    data object EditTask : Screen("edit_task/{taskId}") {
+        fun createRoute(taskId: Long): String = "edit_task/$taskId"
+    }
 }

@@ -2,9 +2,12 @@ package com.nshaddox.randomtask.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.nshaddox.randomtask.ui.screens.randomtask.RandomTaskScreen
+import com.nshaddox.randomtask.ui.screens.taskeditor.EditTaskScreen
 import com.nshaddox.randomtask.ui.screens.tasklist.TaskListScreen
 
 /**
@@ -26,6 +29,12 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.RandomTask.route) {
             RandomTaskScreen(navController = navController)
+        }
+        composable(
+            route = Screen.EditTask.route,
+            arguments = listOf(navArgument("taskId") { type = NavType.LongType })
+        ) {
+            EditTaskScreen(navController = navController)
         }
     }
 }
