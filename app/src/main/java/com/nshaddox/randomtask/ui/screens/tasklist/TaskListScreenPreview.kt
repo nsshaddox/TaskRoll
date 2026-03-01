@@ -81,7 +81,55 @@ fun TaskListScreenErrorPreview() {
 fun AddTaskDialogPreview() {
     RandomTaskTheme {
         AddTaskDialog(
-            onConfirm = {},
+            onConfirm = { _, _ -> },
+            onDismiss = {}
+        )
+    }
+}
+
+/**
+ * Preview for TaskListItem in light and dark modes
+ */
+@PreviewLightDark
+@Composable
+fun TaskListItemPreview() {
+    RandomTaskTheme {
+        TaskListItem(
+            task = SampleData.sampleTask,
+            onTaskClick = {},
+            onCheckedChange = {},
+            onEditClick = {},
+            onDeleteClick = {}
+        )
+    }
+}
+
+/**
+ * Preview for TaskListItem with a completed task
+ */
+@Preview(showBackground = true)
+@Composable
+fun TaskListItemCompletedPreview() {
+    RandomTaskTheme {
+        TaskListItem(
+            task = SampleData.sampleTasks.first { it.isCompleted },
+            onTaskClick = {},
+            onCheckedChange = {},
+            onEditClick = {},
+            onDeleteClick = {}
+        )
+    }
+}
+
+/**
+ * Preview for AddTaskDialog with description field
+ */
+@Preview(showBackground = true)
+@Composable
+fun AddTaskDialogWithDescriptionPreview() {
+    RandomTaskTheme {
+        AddTaskDialog(
+            onConfirm = { _, _ -> },
             onDismiss = {}
         )
     }
