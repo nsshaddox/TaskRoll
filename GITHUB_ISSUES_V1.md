@@ -15,10 +15,10 @@
 | 7 — UI State               | #68 ✅, #63 ✅, #54 ✅           | ViewModels             |
 | 8 — ViewModels             | #97 ✅, #58 ✅                   | Screens                |
 | 9 — Nav Routes             | #122 ✅                         | NavGraph               |
-| 10 — UI Components         | #76, #85                        | Screens                |
+| 10 — UI Components         | #76 ✅, #85 ✅                   | Screens                |
 | 11 — Screens               | #108 ✅, #61 ✅                  | Nav wiring             |
 | 12 — Navigation Wiring     | #128 ✅, #119 ✅, #66 ✅         | Feature completion     |
-| 13 — Feature Completion    | #95, #131, #77, #69             | Done                   |
+| 13 — Feature Completion    | #95 ✅, #131 ✅, #77 ✅, #69 ✅  | Done                   |
 
 ---
 
@@ -609,14 +609,15 @@ Create the ViewModel for the random task screen.
 ### Issue #76: Implement TaskListItem composable
 **Labels**: `ui`, `P0-critical`, `component`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #190)
 
 ## Acceptance Criteria
-- [ ] Composable `TaskListItem` created in `ui.screens.tasklist` package
-- [ ] Displays task title, description (if present), completion status
-- [ ] Checkbox or toggle for completion
-- [ ] Callbacks: `onComplete: (Task) -> Unit`, `onDelete: (Task) -> Unit`
-- [ ] Material3 styling
-- [ ] Preview annotation
+- [x] Composable `TaskListItem` created in `ui.screens.tasklist` package
+- [x] Displays task title, description (if present), completion status
+- [x] Checkbox or toggle for completion
+- [x] Callbacks: `onComplete: (Task) -> Unit`, `onDelete: (Task) -> Unit`
+- [x] Material3 styling
+- [x] Preview annotation
 
 **Dependencies**: #68
 
@@ -625,15 +626,16 @@ Create the ViewModel for the random task screen.
 ### Issue #85: Implement AddTaskDialog composable
 **Labels**: `ui`, `P0-critical`, `component`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED (PR #190)
 
 ## Acceptance Criteria
-- [ ] Composable `AddTaskDialog` created in `ui.screens.tasklist` package
-- [ ] Text fields for title (required) and description (optional)
-- [ ] Confirm and cancel buttons
-- [ ] Input validation: disable confirm if title is blank
-- [ ] Callbacks: `onConfirm: (title: String, description: String?) -> Unit`, `onDismiss: () -> Unit`
-- [ ] Material3 AlertDialog styling
-- [ ] Preview annotation
+- [x] Composable `AddTaskDialog` created in `ui.screens.tasklist` package
+- [x] Text fields for title (required) and description (optional)
+- [x] Confirm and cancel buttons
+- [x] Input validation: disable confirm if title is blank
+- [x] Callbacks: `onConfirm: (title: String, description: String?) -> Unit`, `onDismiss: () -> Unit`
+- [x] Material3 AlertDialog styling
+- [x] Preview annotation
 
 **Dependencies**: None
 
@@ -741,13 +743,14 @@ Create the ViewModel for the random task screen.
 ### Issue #95: Implement edit task functionality
 **Labels**: `ui`, `feature`, `P1-high`
 **Estimated Complexity**: Medium
+**Status**: ✅ COMPLETED
 
 ## Acceptance Criteria
-- [ ] Edit dialog or inline editing in `TaskListScreen`
-- [ ] Pre-populates current title and description
-- [ ] Calls `UpdateTaskUseCase` via `TaskListViewModel`
-- [ ] Validates input (title not blank)
-- [ ] UI updates reactively after edit
+- [x] Edit dialog or inline editing in `TaskListScreen`
+- [x] Pre-populates current title and description
+- [x] Calls `UpdateTaskUseCase` via `TaskListViewModel`
+- [x] Validates input (title not blank)
+- [x] UI updates reactively after edit
 
 **Dependencies**: #97, #108, #109
 
@@ -756,12 +759,13 @@ Create the ViewModel for the random task screen.
 ### Issue #131: Implement task completion toggle
 **Labels**: `ui`, `feature`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 ## Acceptance Criteria
-- [ ] Checkbox/toggle in `TaskListItem` calls `toggleComplete` on ViewModel
-- [ ] Completed tasks visually distinguished (strikethrough or muted color)
-- [ ] State updates reactively via Flow
-- [ ] Calls `CompleteTaskUseCase`
+- [x] Checkbox/toggle in `TaskListItem` calls `toggleComplete` on ViewModel
+- [x] Completed tasks visually distinguished (strikethrough or muted color)
+- [x] State updates reactively via Flow
+- [x] Calls `CompleteTaskUseCase`
 
 **Dependencies**: #97, #108, #124
 
@@ -770,12 +774,13 @@ Create the ViewModel for the random task screen.
 ### Issue #77: Implement skip task functionality
 **Labels**: `ui`, `feature`, `phase-5`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 ## Acceptance Criteria
-- [ ] "Skip" button on `RandomTaskScreen` loads a new random task
-- [ ] Skipped task is NOT marked complete
-- [ ] If no more tasks, shows empty state
-- [ ] Calls `GetRandomTaskUseCase` via `RandomTaskViewModel`
+- [x] "Skip" button on `RandomTaskScreen` loads a new random task
+- [x] Skipped task is NOT marked complete
+- [x] If no more tasks, shows empty state
+- [x] Calls `GetRandomTaskUseCase` via `RandomTaskViewModel`
 
 **Dependencies**: #58, #61
 
@@ -784,11 +789,12 @@ Create the ViewModel for the random task screen.
 ### Issue #69: Implement task completion from random screen
 **Labels**: `ui`, `feature`, `phase-5`, `P0-critical`
 **Estimated Complexity**: Low
+**Status**: ✅ COMPLETED
 
 ## Acceptance Criteria
-- [ ] "Complete" button on `RandomTaskScreen` marks the task done
-- [ ] After completing, automatically loads the next random task
-- [ ] Completed task no longer appears in random selection pool
-- [ ] Calls `CompleteTaskUseCase` via `RandomTaskViewModel`
+- [x] "Complete" button on `RandomTaskScreen` marks the task done
+- [x] After completing, automatically loads the next random task
+- [x] Completed task no longer appears in random selection pool
+- [x] Calls `CompleteTaskUseCase` via `RandomTaskViewModel`
 
 **Dependencies**: #58, #61, #124
