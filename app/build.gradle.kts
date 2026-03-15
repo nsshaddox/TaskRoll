@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.navigation.compose)
     ksp(libs.hilt.compiler)
+    implementation(libs.datastore.preferences)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

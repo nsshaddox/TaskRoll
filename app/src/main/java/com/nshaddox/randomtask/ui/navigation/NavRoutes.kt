@@ -18,4 +18,10 @@ sealed class Screen(val route: String) {
     data object EditTask : Screen("edit_task/{taskId}") {
         fun createRoute(taskId: Long): String = "edit_task/$taskId"
     }
+
+    /** Route to the completed tasks history screen. */
+    data object CompletedTasks : Screen("completed_tasks")
+
+    /** Route to the settings screen where users configure app preferences. */
+    data object Settings : Screen("settings")
 }
