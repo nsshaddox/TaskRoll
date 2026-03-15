@@ -1,5 +1,6 @@
 package com.nshaddox.randomtask.domain.usecase
 
+import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,22 @@ class FakeTaskRepository : TaskRepository {
     override fun getTaskById(id: Long): Flow<Task?> {
         return tasksFlow.map { list -> list.find { it.id == id } }
     }
+
+    override fun getCompletedTasks(): Flow<List<Task>> = tasksFlow.map { list -> list.filter { it.isCompleted } }
+
+    override fun getTasksByPriority(priority: Priority): Flow<List<Task>> =
+        tasksFlow.map { list -> list.filter { it.priority == priority && !it.isCompleted } }
+
+    override fun getTasksByCategory(category: String): Flow<List<Task>> =
+        tasksFlow.map { list -> list.filter { it.category == category && !it.isCompleted } }
+
+    override fun searchTasks(query: String): Flow<List<Task>> =
+        tasksFlow.map { list ->
+            list.filter {
+                it.title.contains(query) ||
+                    it.description?.contains(query) == true
+            }
+        }
 
     override suspend fun addTask(task: Task): Result<Long> {
         val id = nextId++

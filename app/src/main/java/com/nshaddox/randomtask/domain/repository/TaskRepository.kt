@@ -1,5 +1,6 @@
 package com.nshaddox.randomtask.domain.repository
 
+import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
@@ -31,6 +32,43 @@ interface TaskRepository {
      * @return a [Flow] emitting the task if found, or null if no task matches the id.
      */
     fun getTaskById(id: Long): Flow<Task?>
+
+    /**
+     * Observes all completed tasks.
+     *
+     * @return a [Flow] emitting completed tasks whenever the data changes.
+     */
+    fun getCompletedTasks(): Flow<List<Task>>
+
+    /**
+     * Observes incomplete tasks filtered by the given priority level.
+     *
+     * Only incomplete tasks (not yet completed) with the specified [priority] are included.
+     *
+     * @param priority the priority level to filter by.
+     * @return a [Flow] emitting matching incomplete tasks whenever the data changes.
+     */
+    fun getTasksByPriority(priority: Priority): Flow<List<Task>>
+
+    /**
+     * Observes incomplete tasks filtered by the given category.
+     *
+     * Only incomplete tasks (not yet completed) with the specified [category] are included.
+     *
+     * @param category the category label to filter by.
+     * @return a [Flow] emitting matching incomplete tasks whenever the data changes.
+     */
+    fun getTasksByCategory(category: String): Flow<List<Task>>
+
+    /**
+     * Searches tasks whose title or description contains the given query string.
+     *
+     * The search is performed using simple substring matching (SQL LIKE).
+     *
+     * @param query the search string to match against task titles and descriptions.
+     * @return a [Flow] emitting matching tasks whenever the data changes.
+     */
+    fun searchTasks(query: String): Flow<List<Task>>
 
     /**
      * Adds a new task to the repository.

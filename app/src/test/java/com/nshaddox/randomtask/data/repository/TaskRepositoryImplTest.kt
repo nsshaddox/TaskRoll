@@ -3,6 +3,7 @@ package com.nshaddox.randomtask.data.repository
 import app.cash.turbine.test
 import com.nshaddox.randomtask.data.local.TaskDao
 import com.nshaddox.randomtask.data.local.TaskEntity
+import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -266,6 +267,174 @@ class TaskRepositoryImplTest {
             repository.getTaskById(999L).test {
                 val task = awaitItem()
                 assertNull(task)
+                awaitComplete()
+            }
+        }
+
+    // --- getCompletedTasks ---
+
+    @Test
+    fun `getCompletedTasks returns completed tasks from dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 1L,
+                        title = "Completed Task 1",
+                        description = null,
+                        isCompleted = true,
+                        createdAt = 1000L,
+                        updatedAt = 2000L,
+                    ),
+                    TaskEntity(
+                        id = 2L,
+                        title = "Completed Task 2",
+                        description = "Done",
+                        isCompleted = true,
+                        createdAt = 3000L,
+                        updatedAt = 4000L,
+                    ),
+                )
+            every { taskDao.getCompletedTasks() } returns flowOf(entities)
+
+            repository.getCompletedTasks().test {
+                val tasks = awaitItem()
+                assertEquals(2, tasks.size)
+                assertEquals("Completed Task 1", tasks[0].title)
+                assertEquals("Completed Task 2", tasks[1].title)
+                assertTrue(tasks.all { it.isCompleted })
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getCompletedTasks returns empty list when no completed tasks`() =
+        runTest {
+            every { taskDao.getCompletedTasks() } returns flowOf(emptyList())
+
+            repository.getCompletedTasks().test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    // --- getTasksByPriority ---
+
+    @Test
+    fun `getTasksByPriority returns matching tasks and passes priority name to dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 1L,
+                        title = "High Priority Task",
+                        description = null,
+                        isCompleted = false,
+                        createdAt = 1000L,
+                        updatedAt = 2000L,
+                        priority = "HIGH",
+                    ),
+                )
+            every { taskDao.getTasksByPriority("HIGH") } returns flowOf(entities)
+
+            repository.getTasksByPriority(Priority.HIGH).test {
+                val tasks = awaitItem()
+                assertEquals(1, tasks.size)
+                assertEquals("High Priority Task", tasks[0].title)
+                assertEquals(Priority.HIGH, tasks[0].priority)
+                awaitComplete()
+            }
+
+            io.mockk.verify { taskDao.getTasksByPriority("HIGH") }
+        }
+
+    @Test
+    fun `getTasksByPriority returns empty list when no matching tasks`() =
+        runTest {
+            every { taskDao.getTasksByPriority("LOW") } returns flowOf(emptyList())
+
+            repository.getTasksByPriority(Priority.LOW).test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    // --- getTasksByCategory ---
+
+    @Test
+    fun `getTasksByCategory returns matching tasks from dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 1L,
+                        title = "Work Task",
+                        description = null,
+                        isCompleted = false,
+                        createdAt = 1000L,
+                        updatedAt = 2000L,
+                        category = "Work",
+                    ),
+                )
+            every { taskDao.getTasksByCategory("Work") } returns flowOf(entities)
+
+            repository.getTasksByCategory("Work").test {
+                val tasks = awaitItem()
+                assertEquals(1, tasks.size)
+                assertEquals("Work Task", tasks[0].title)
+                assertEquals("Work", tasks[0].category)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getTasksByCategory returns empty list when no matching tasks`() =
+        runTest {
+            every { taskDao.getTasksByCategory("NonExistent") } returns flowOf(emptyList())
+
+            repository.getTasksByCategory("NonExistent").test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    // --- searchTasks ---
+
+    @Test
+    fun `searchTasks returns matching tasks from dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 1L,
+                        title = "Buy groceries",
+                        description = "Milk and eggs",
+                        isCompleted = false,
+                        createdAt = 1000L,
+                        updatedAt = 2000L,
+                    ),
+                )
+            every { taskDao.searchTasks("groceries") } returns flowOf(entities)
+
+            repository.searchTasks("groceries").test {
+                val tasks = awaitItem()
+                assertEquals(1, tasks.size)
+                assertEquals("Buy groceries", tasks[0].title)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `searchTasks returns empty list when no matching tasks`() =
+        runTest {
+            every { taskDao.searchTasks("nonexistent") } returns flowOf(emptyList())
+
+            repository.searchTasks("nonexistent").test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
                 awaitComplete()
             }
         }
