@@ -13,6 +13,9 @@ import androidx.room.PrimaryKey
  * @property isCompleted Whether the task has been marked as done.
  * @property createdAt Epoch milliseconds when the task was created.
  * @property updatedAt Epoch milliseconds when the task was last modified.
+ * @property priority The priority level stored as the enum name string. Defaults to "MEDIUM".
+ * @property dueDate Optional due date stored as epoch days (days since 1970-01-01). Null when not set.
+ * @property category Optional category label for grouping tasks. Null when not set.
  */
 @Entity(tableName = "tasks")
 data class TaskEntity(
@@ -22,4 +25,7 @@ data class TaskEntity(
     @ColumnInfo(name = "is_completed") val isCompleted: Boolean = false,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    @ColumnInfo(name = "priority") val priority: String = "MEDIUM",
+    @ColumnInfo(name = "due_date") val dueDate: Long? = null,
+    @ColumnInfo(name = "category") val category: String? = null,
 )

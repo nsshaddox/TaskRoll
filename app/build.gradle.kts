@@ -19,6 +19,10 @@ jacoco {
     toolVersion = libs.versions.jacoco.get()
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 android {
     namespace = "com.nshaddox.randomtask"
     compileSdk = 35
