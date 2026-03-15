@@ -26,9 +26,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
  * ViewModel-connected wrapper for editing an existing task.
@@ -42,7 +42,7 @@ import androidx.navigation.NavController
 @Composable
 fun EditTaskScreen(
     navController: NavController,
-    viewModel: TaskEditorViewModel = hiltViewModel()
+    viewModel: TaskEditorViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -57,7 +57,7 @@ fun EditTaskScreen(
         isEditMode = true,
         onTitleChange = viewModel::onTitleChange,
         onSaveClick = viewModel::saveTask,
-        onCancelClick = { navController.popBackStack() }
+        onCancelClick = { navController.popBackStack() },
     )
 }
 
@@ -79,7 +79,7 @@ fun TaskEditorScreen(
     onTitleChange: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -91,32 +91,36 @@ fun TaskEditorScreen(
                     IconButton(onClick = onCancelClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
             )
         },
-        modifier = modifier
+        modifier = modifier,
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(Spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(Spacing.medium),
         ) {
             Text(
-                text = if (isEditMode)
-                    "Edit the task details below"
-                else
-                    "Enter the task details below",
+                text =
+                    if (isEditMode) {
+                        "Edit the task details below"
+                    } else {
+                        "Enter the task details below"
+                    },
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             OutlinedTextField(
@@ -127,18 +131,18 @@ fun TaskEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = false,
                 minLines = 2,
-                maxLines = 4
+                maxLines = 4,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.small))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.componentPadding),
             ) {
                 OutlinedButton(
                     onClick = onCancelClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text("Cancel")
                 }
@@ -146,7 +150,7 @@ fun TaskEditorScreen(
                 Button(
                     onClick = onSaveClick,
                     modifier = Modifier.weight(1f),
-                    enabled = taskTitle.isNotBlank()
+                    enabled = taskTitle.isNotBlank(),
                 ) {
                     Text(if (isEditMode) "Save" else "Create")
                 }
@@ -156,7 +160,7 @@ fun TaskEditorScreen(
                 Text(
                     text = "Task title cannot be empty",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
         }

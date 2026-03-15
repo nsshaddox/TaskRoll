@@ -12,7 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
  * Dialog for adding a new task.
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 fun AddTaskDialog(
     onConfirm: (String, String?) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var text by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -34,26 +34,26 @@ fun AddTaskDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Task") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Spacing.small)) {
                 TextField(
                     value = text,
                     onValueChange = { text = it },
                     placeholder = { Text("Task title") },
-                    singleLine = true
+                    singleLine = true,
                 )
                 TextField(
                     value = description,
                     onValueChange = { description = it },
                     placeholder = { Text("Description (optional)") },
                     singleLine = false,
-                    minLines = 2
+                    minLines = 2,
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = { onConfirm(text.trim(), description.trim().ifBlank { null }) },
-                enabled = text.isNotBlank()
+                enabled = text.isNotBlank(),
             ) {
                 Text("Add")
             }
@@ -63,6 +63,6 @@ fun AddTaskDialog(
                 Text("Cancel")
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }

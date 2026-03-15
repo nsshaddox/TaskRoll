@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -37,13 +38,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.navigation.Screen
+import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
  * ViewModel-connected TaskListScreen wrapper.
@@ -56,7 +56,7 @@ import com.nshaddox.randomtask.ui.navigation.Screen
 @Composable
 fun TaskListScreen(
     navController: NavController,
-    viewModel: TaskListViewModel = hiltViewModel()
+    viewModel: TaskListViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -76,7 +76,7 @@ fun TaskListScreen(
     if (uiState.isAddDialogVisible) {
         AddTaskDialog(
             onConfirm = { title, description -> viewModel.addTask(title, description) },
-            onDismiss = { viewModel.hideAddDialog() }
+            onDismiss = { viewModel.hideAddDialog() },
         )
     }
 
@@ -91,7 +91,7 @@ fun TaskListScreen(
         onDeleteTask = { task -> viewModel.deleteTask(task) },
         onEditTask = { task -> navController.navigate(Screen.EditTask.createRoute(task.id)) },
         onAddTask = { viewModel.showAddDialog() },
-        onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) }
+        onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) },
     )
 }
 
@@ -124,9 +124,8 @@ fun TaskListScreen(
     onEditTask: (Task) -> Unit = {},
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {
             val result = snackbarHostState.showSnackbar(errorMessage)
@@ -140,54 +139,58 @@ fun TaskListScreen(
         topBar = {
             TopAppBar(
                 title = { Text("My Tasks") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
                 actions = {
                     IconButton(onClick = onNavigateToRandomTask) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Random Task",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
-                }
+                },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddTask) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Task"
+                    contentDescription = "Add Task",
                 )
             }
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        modifier = modifier
+        modifier = modifier,
     ) { innerPadding ->
         if (isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
         } else if (tasks.isEmpty()) {
             EmptyTaskListContent(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
             )
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = Spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(Spacing.small),
             ) {
                 items(tasks, key = { it.id }) { task ->
                     TaskListItem(
@@ -195,7 +198,7 @@ fun TaskListScreen(
                         onTaskClick = { onTaskClick(task) },
                         onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
                         onEditClick = { onEditTask(task) },
-                        onDeleteClick = { onDeleteTask(task) }
+                        onDeleteClick = { onDeleteTask(task) },
                     )
                 }
             }
@@ -210,59 +213,67 @@ internal fun TaskListItem(
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         onClick = onTaskClick,
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (task.isCompleted)
-                MaterialTheme.colorScheme.surfaceVariant
-            else
-                MaterialTheme.colorScheme.surface
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    if (task.isCompleted) {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+            ),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.componentPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.small),
             ) {
                 Checkbox(
                     checked = task.isCompleted,
-                    onCheckedChange = onCheckedChange
+                    onCheckedChange = onCheckedChange,
                 )
                 Text(
                     text = task.title,
                     style = MaterialTheme.typography.bodyLarge,
-                    textDecoration = if (task.isCompleted)
-                        TextDecoration.LineThrough
-                    else
-                        TextDecoration.None,
-                    color = if (task.isCompleted)
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    else
-                        MaterialTheme.colorScheme.onSurface
+                    textDecoration =
+                        if (task.isCompleted) {
+                            TextDecoration.LineThrough
+                        } else {
+                            TextDecoration.None
+                        },
+                    color =
+                        if (task.isCompleted) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                 )
             }
             IconButton(onClick = onEditClick) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit Task",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete Task",
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         }
@@ -270,26 +281,24 @@ internal fun TaskListItem(
 }
 
 @Composable
-private fun EmptyTaskListContent(
-    modifier: Modifier = Modifier
-) {
+private fun EmptyTaskListContent(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(Spacing.small),
         ) {
             Text(
                 text = "No tasks yet",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = "Tap + to add your first task",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

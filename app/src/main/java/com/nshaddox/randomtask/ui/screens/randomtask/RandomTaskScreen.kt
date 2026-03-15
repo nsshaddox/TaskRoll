@@ -36,10 +36,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.domain.model.Task
+import com.nshaddox.randomtask.ui.theme.Sizes
+import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
  * Stateful Random Task Screen that integrates with ViewModel and NavController.
@@ -50,7 +51,7 @@ import com.nshaddox.randomtask.domain.model.Task
 @Composable
 fun RandomTaskScreen(
     navController: NavController,
-    viewModel: RandomTaskViewModel = hiltViewModel()
+    viewModel: RandomTaskViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -71,7 +72,7 @@ fun RandomTaskScreen(
         onSelectRandom = viewModel::loadRandomTask,
         onCompleteTask = viewModel::completeTask,
         onSkipTask = viewModel::skipTask,
-        onBackClick = { navController.popBackStack() }
+        onBackClick = { navController.popBackStack() },
     )
 }
 
@@ -93,7 +94,7 @@ internal fun RandomTaskScreenContent(
     onCompleteTask: () -> Unit = {},
     onSkipTask: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
@@ -103,24 +104,26 @@ internal fun RandomTaskScreenContent(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
             )
         },
-        modifier = modifier
+        modifier = modifier,
     ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(Spacing.medium),
+            contentAlignment = Alignment.Center,
         ) {
             when {
                 uiState.isLoading -> {
@@ -129,12 +132,12 @@ internal fun RandomTaskScreenContent(
                 uiState.error != null -> {
                     ErrorContent(
                         error = uiState.error,
-                        onRetry = onSelectRandom
+                        onRetry = onSelectRandom,
                     )
                 }
                 uiState.noTasksAvailable -> {
                     NoTasksAvailableContent(
-                        onBackClick = onBackClick
+                        onBackClick = onBackClick,
                     )
                 }
                 uiState.currentTask != null -> {
@@ -142,12 +145,12 @@ internal fun RandomTaskScreenContent(
                         task = uiState.currentTask,
                         onSelectRandom = onSelectRandom,
                         onCompleteTask = onCompleteTask,
-                        onSkipTask = onSkipTask
+                        onSkipTask = onSkipTask,
                     )
                 }
                 else -> {
                     NoTaskSelectedContent(
-                        onSelectRandom = onSelectRandom
+                        onSelectRandom = onSelectRandom,
                     )
                 }
             }
@@ -158,34 +161,34 @@ internal fun RandomTaskScreenContent(
 @Composable
 private fun NoTaskSelectedContent(
     onSelectRandom: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(Spacing.medium),
     ) {
         Text(
             text = "Ready to tackle a task?",
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = "Tap the button below to randomly select a task from your list",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.medium))
         Button(
             onClick = onSelectRandom,
-            modifier = Modifier.fillMaxWidth(0.7f)
+            modifier = Modifier.fillMaxWidth(0.7f),
         ) {
             Icon(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = Spacing.small),
             )
             Text("Pick Random Task")
         }
@@ -196,18 +199,18 @@ private fun NoTaskSelectedContent(
 private fun ErrorContent(
     error: String,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(Spacing.medium),
     ) {
         Text(
             text = error,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
         )
         OutlinedButton(onClick = onRetry) {
             Text("Retry")
@@ -218,24 +221,24 @@ private fun ErrorContent(
 @Composable
 private fun NoTasksAvailableContent(
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(Spacing.medium),
     ) {
         Text(
             text = "No tasks available. Add some tasks first!",
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         OutlinedButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = Spacing.small),
             )
             Text("Go Back")
         }
@@ -248,92 +251,95 @@ private fun SelectedTaskContent(
     onSelectRandom: () -> Unit,
     onCompleteTask: () -> Unit,
     onSkipTask: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(Spacing.large),
     ) {
         Text(
             text = "Your Task:",
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                ),
+            elevation = CardDefaults.cardElevation(defaultElevation = Sizes.cardElevation),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(Spacing.extraLarge),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = task.title,
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
                 if (task.description != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Spacing.componentPadding))
                     Text(
                         text = task.description,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Spacing.small))
 
         Column(
             modifier = Modifier.fillMaxWidth(0.8f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(Spacing.componentPadding),
         ) {
             Button(
                 onClick = onCompleteTask,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50),
-                    contentColor = Color.White
-                )
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50),
+                        contentColor = Color.White,
+                    ),
             ) {
                 Icon(
                     imageVector = Icons.Default.Done,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = Spacing.small),
                 )
                 Text("Complete Task")
             }
 
             OutlinedButton(
                 onClick = onSkipTask,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = Spacing.small),
                 )
                 Text("Skip Task")
             }
 
             FilledTonalButton(
                 onClick = onSelectRandom,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = Spacing.small),
                 )
                 Text("Pick Another")
             }
