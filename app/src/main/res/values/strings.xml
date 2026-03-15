@@ -42,4 +42,26 @@
     <string name="priority_low">Low</string>
     <string name="priority_medium">Medium</string>
     <string name="priority_high">High</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_theme_section">Theme</string>
+    <string name="settings_sort_section">Default Sort Order</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_version_label">Version</string>
+
+    <!-- AppTheme options -->
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System Default</string>
+
+    <!-- SortOrder options -->
+    <string name="sort_created_date_desc">Newest First</string>
+    <string name="sort_due_date_asc">Due Date (Earliest)</string>
+    <string name="sort_priority_desc">Priority (Highest)</string>
+    <string name="sort_title_asc">Title (A-Z)</string>
+
+    <!-- Navigation content descriptions -->
+    <string name="navigate_back">Navigate back</string>
+    <string name="navigate_to_settings">Settings</string>
 </resources>
