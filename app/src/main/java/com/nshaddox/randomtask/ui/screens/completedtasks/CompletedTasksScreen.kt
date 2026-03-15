@@ -57,12 +57,52 @@ import java.util.Locale
  * (e.g., "Nov 14, 2023"). Compatible with API 24+ (no java.time dependency).
  *
  * @param epochMillis The timestamp in epoch milliseconds.
+ * @param locale The locale to use for formatting. Defaults to [Locale.getDefault].
  * @return A formatted date string.
  */
-fun formatCompletedDate(epochMillis: Long): String {
-    val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+fun formatCompletedDate(
+    epochMillis: Long,
+    locale: Locale = Locale.getDefault(),
+): String {
+    val formatter = SimpleDateFormat("MMM dd, yyyy", locale)
     return formatter.format(Date(epochMillis))
 }
+
+/**
+ * Represents the visual content state of the Completed Tasks screen.
+ *
+ * Used to determine which composable content to render based on
+ * [CompletedTasksUiState] values.
+ */
+sealed interface CompletedTasksContentState {
+    /** A loading operation is in progress. */
+    data object Loading : CompletedTasksContentState
+
+    /** No completed tasks to display. */
+    data object Empty : CompletedTasksContentState
+
+    /** Completed tasks are available. */
+    data class Populated(val tasks: List<Task>) : CompletedTasksContentState
+}
+
+/**
+ * Determines the content state to render from the given screen parameters.
+ *
+ * Priority: loading takes precedence, then empty check, then populated.
+ *
+ * @param isLoading Whether a loading operation is in progress.
+ * @param tasks The list of completed tasks.
+ * @return The resolved [CompletedTasksContentState].
+ */
+fun resolveContentState(
+    isLoading: Boolean,
+    tasks: List<Task>,
+): CompletedTasksContentState =
+    when {
+        isLoading -> CompletedTasksContentState.Loading
+        tasks.isEmpty() -> CompletedTasksContentState.Empty
+        else -> CompletedTasksContentState.Populated(tasks)
+    }
 
 /**
  * Stateful Completed Tasks Screen that integrates with ViewModel and NavController.
@@ -148,8 +188,8 @@ fun CompletedTasksScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier,
     ) { innerPadding ->
-        when {
-            isLoading -> {
+        when (val contentState = resolveContentState(isLoading, tasks)) {
+            is CompletedTasksContentState.Loading -> {
                 Box(
                     modifier =
                         Modifier
@@ -161,7 +201,7 @@ fun CompletedTasksScreen(
                 }
             }
 
-            tasks.isEmpty() -> {
+            is CompletedTasksContentState.Empty -> {
                 EmptyCompletedTasksContent(
                     modifier =
                         Modifier
@@ -170,7 +210,7 @@ fun CompletedTasksScreen(
                 )
             }
 
-            else -> {
+            is CompletedTasksContentState.Populated -> {
                 LazyColumn(
                     modifier =
                         Modifier
@@ -179,7 +219,7 @@ fun CompletedTasksScreen(
                             .padding(horizontal = Spacing.medium),
                     verticalArrangement = Arrangement.spacedBy(Spacing.small),
                 ) {
-                    items(tasks, key = { it.id }) { task ->
+                    items(contentState.tasks, key = { it.id }) { task ->
                         CompletedTaskItem(
                             task = task,
                             onDelete = { onDeleteTask(task) },
