@@ -1,5 +1,10 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.SortOrder
@@ -15,7 +20,9 @@ import com.nshaddox.randomtask.domain.usecase.SearchTasksUseCase
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -26,8 +33,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaskListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
@@ -40,10 +50,21 @@ class TaskListViewModelTest {
     private lateinit var searchTasksUseCase: SearchTasksUseCase
     private lateinit var getTasksByPriorityUseCase: GetTasksByPriorityUseCase
     private lateinit var getTasksByCategoryUseCase: GetTasksByCategoryUseCase
+    private lateinit var dataStoreScope: TestScope
+    private lateinit var dataStore: DataStore<Preferences>
+
+    @get:Rule
+    val tempFolder = TemporaryFolder()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        dataStoreScope = TestScope(testDispatcher + Job())
+        dataStore =
+            PreferenceDataStoreFactory.create(
+                scope = dataStoreScope,
+                produceFile = { tempFolder.newFile("test_tasklist.preferences_pb") },
+            )
         repository = FakeTaskRepository()
         getTasksUseCase = GetTasksUseCase(repository)
         addTaskUseCase = AddTaskUseCase(repository)
@@ -60,7 +81,7 @@ class TaskListViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel() =
+    private fun createViewModel(store: DataStore<Preferences> = dataStore) =
         TaskListViewModel(
             getTasksUseCase = getTasksUseCase,
             addTaskUseCase = addTaskUseCase,
@@ -70,6 +91,7 @@ class TaskListViewModelTest {
             searchTasksUseCase = searchTasksUseCase,
             getTasksByPriorityUseCase = getTasksByPriorityUseCase,
             getTasksByCategoryUseCase = getTasksByCategoryUseCase,
+            dataStore = store,
             ioDispatcher = testDispatcher,
         )
 
@@ -771,6 +793,65 @@ class TaskListViewModelTest {
                 assertEquals(Priority.MEDIUM, task.priority)
                 assertNull(task.dueDate)
                 assertNull(task.category)
+            }
+        }
+
+    // === Sort order persistence tests ===
+
+    @Test
+    fun `init reads persisted sort order from DataStore on startup`() =
+        runTest(testDispatcher) {
+            // Pre-write TITLE_ASC into DataStore before creating the ViewModel
+            val sortOrderKey = stringPreferencesKey("sort_order")
+            dataStore.edit { prefs ->
+                prefs[sortOrderKey] = SortOrder.TITLE_ASC.name
+            }
+            advanceUntilIdle()
+
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading state
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+
+                // Loaded state should have the persisted sort order
+                val loaded = awaitItem()
+                assertFalse(loaded.isLoading)
+                assertEquals(SortOrder.TITLE_ASC, loaded.sortOrder)
+            }
+        }
+
+    @Test
+    fun `setSortOrder persists new sort order so next VM init restores it`() =
+        runTest(testDispatcher) {
+            val viewModel1 = createViewModel()
+
+            viewModel1.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded empty
+                awaitItem()
+
+                viewModel1.setSortOrder(SortOrder.PRIORITY_DESC)
+                advanceUntilIdle()
+
+                val updated = awaitItem()
+                assertEquals(SortOrder.PRIORITY_DESC, updated.sortOrder)
+            }
+
+            // Create a second VM from the same DataStore — it should read PRIORITY_DESC
+            val viewModel2 = createViewModel()
+
+            viewModel2.uiState.test {
+                // Initial loading state
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
+
+                // Loaded state should have the persisted sort order
+                val loaded = awaitItem()
+                assertFalse(loaded.isLoading)
+                assertEquals(SortOrder.PRIORITY_DESC, loaded.sortOrder)
             }
         }
 }
