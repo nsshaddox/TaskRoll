@@ -1,6 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.randomtask
 
 import app.cash.turbine.test
+import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
@@ -134,6 +135,14 @@ class RandomTaskViewModelTest {
 
                     override fun getTaskById(id: Long): Flow<Task?> = flow { emit(null) }
 
+                    override fun getCompletedTasks(): Flow<List<Task>> = flow { emit(emptyList()) }
+
+                    override fun getTasksByPriority(priority: Priority): Flow<List<Task>> = flow { emit(emptyList()) }
+
+                    override fun getTasksByCategory(category: String): Flow<List<Task>> = flow { emit(emptyList()) }
+
+                    override fun searchTasks(query: String): Flow<List<Task>> = flow { emit(emptyList()) }
+
                     override suspend fun addTask(task: Task): Result<Long> = Result.success(1L)
 
                     override suspend fun updateTask(task: Task): Result<Unit> =
@@ -206,6 +215,23 @@ class RandomTaskViewModelTest {
                     override fun getIncompleteTasks(): Flow<List<Task>> = flow { throw RuntimeException("DB error") }
 
                     override fun getTaskById(id: Long): Flow<Task?> = flow { throw RuntimeException("DB error") }
+
+                    override fun getCompletedTasks(): Flow<List<Task>> = flow { throw RuntimeException("DB error") }
+
+                    override fun getTasksByPriority(priority: Priority): Flow<List<Task>> =
+                        flow {
+                            throw RuntimeException("DB error")
+                        }
+
+                    override fun getTasksByCategory(category: String): Flow<List<Task>> =
+                        flow {
+                            throw RuntimeException("DB error")
+                        }
+
+                    override fun searchTasks(query: String): Flow<List<Task>> =
+                        flow {
+                            throw RuntimeException("DB error")
+                        }
 
                     override suspend fun addTask(task: Task): Result<Long> =
                         Result.failure(

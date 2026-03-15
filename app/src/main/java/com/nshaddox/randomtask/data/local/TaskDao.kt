@@ -20,6 +20,21 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id")
     fun getTaskByIdFlow(id: Long): Flow<TaskEntity?>
 
+    @Query("SELECT * FROM tasks WHERE is_completed = 1")
+    fun getCompletedTasks(): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks WHERE priority = :priority AND is_completed = 0")
+    fun getTasksByPriority(priority: String): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks WHERE category = :category AND is_completed = 0")
+    fun getTasksByCategory(category: String): Flow<List<TaskEntity>>
+
+    @Query(
+        "SELECT * FROM tasks WHERE title LIKE '%' || :query || '%' " +
+            "OR description LIKE '%' || :query || '%'",
+    )
+    fun searchTasks(query: String): Flow<List<TaskEntity>>
+
     @Insert
     suspend fun insertTask(task: TaskEntity): Long
 
