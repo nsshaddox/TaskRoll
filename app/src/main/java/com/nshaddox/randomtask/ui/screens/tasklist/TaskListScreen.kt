@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -96,6 +97,7 @@ fun TaskListScreen(
         onAddTask = { viewModel.showAddDialog() },
         onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) },
         onNavigateToCompletedTasks = { navController.navigate(Screen.CompletedTasks.route) },
+        onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
     )
 }
 
@@ -113,6 +115,7 @@ fun TaskListScreen(
  * @param onAddTask Callback when FAB is clicked to add new task
  * @param onNavigateToRandomTask Callback when random task navigation button is clicked
  * @param onNavigateToCompletedTasks Callback when completed tasks history button is clicked
+ * @param onNavigateToSettings Callback when settings navigation button is clicked
  * @param modifier Modifier for customization
  */
 @Suppress("LongParameterList", "LongMethod")
@@ -131,6 +134,7 @@ fun TaskListScreen(
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
     onNavigateToCompletedTasks: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(errorMessage) {
@@ -163,6 +167,13 @@ fun TaskListScreen(
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Random Task",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.navigate_to_settings),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                     }
