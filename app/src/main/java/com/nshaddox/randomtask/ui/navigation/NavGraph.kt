@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.nshaddox.randomtask.ui.screens.completedtasks.CompletedTasksScreen
 import com.nshaddox.randomtask.ui.screens.randomtask.RandomTaskScreen
 import com.nshaddox.randomtask.ui.screens.taskeditor.EditTaskScreen
 import com.nshaddox.randomtask.ui.screens.tasklist.TaskListScreen
@@ -35,6 +36,9 @@ fun NavGraph(navController: NavHostController) {
             arguments = listOf(navArgument("taskId") { type = NavType.LongType }),
         ) {
             EditTaskScreen(navController = navController)
+        }
+        composable(Screen.CompletedTasks.route) {
+            CompletedTasksScreen(navController = navController)
         }
     }
 }
