@@ -1,8 +1,17 @@
 #!/bin/bash
 # Pre-commit hook for Android project
-# Runs lint and unit tests before allowing commit
+# Blocks direct commits to main and runs lint + unit tests
 
 set -e
+
+# Block direct commits to main
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || true)
+if [ "$BRANCH" = "main" ]; then
+    echo "❌ ERROR: Direct commits to main are not allowed."
+    echo "   Please create a feature branch first:"
+    echo "   git checkout -b your-branch-name"
+    exit 1
+fi
 
 echo "🔍 Running pre-commit checks..."
 
