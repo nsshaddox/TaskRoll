@@ -1,5 +1,9 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nshaddox.randomtask.domain.model.Priority
@@ -19,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +42,7 @@ class TaskListViewModel
         private val searchTasksUseCase: SearchTasksUseCase,
         private val getTasksByPriorityUseCase: GetTasksByPriorityUseCase,
         private val getTasksByCategoryUseCase: GetTasksByCategoryUseCase,
+        private val dataStore: DataStore<Preferences>,
         @Named("IO") private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(TaskListUiState())
@@ -49,6 +55,18 @@ class TaskListViewModel
 
         init {
             viewModelScope.launch(ioDispatcher) {
+                // Seed sortOrderFlow from persisted DataStore value before combine starts
+                val preferences = dataStore.data.first()
+                val persisted =
+                    preferences[SORT_ORDER_KEY]?.let { stored ->
+                        try {
+                            enumValueOf<SortOrder>(stored)
+                        } catch (_: IllegalArgumentException) {
+                            SortOrder.CREATED_DATE_DESC
+                        }
+                    } ?: SortOrder.CREATED_DATE_DESC
+                sortOrderFlow.value = persisted
+
                 combine(
                     getTasksUseCase(),
                     searchQueryFlow,
@@ -118,6 +136,11 @@ class TaskListViewModel
 
         fun setSortOrder(sortOrder: SortOrder) {
             sortOrderFlow.value = sortOrder
+            viewModelScope.launch(ioDispatcher) {
+                dataStore.edit { prefs ->
+                    prefs[SORT_ORDER_KEY] = sortOrder.name
+                }
+            }
         }
 
         fun addTask(
@@ -204,4 +227,8 @@ class TaskListViewModel
                 SortOrder.DUE_DATE_ASC ->
                     tasks.sortedWith(compareBy(nullsLast()) { it.dueDate })
             }
+
+        private companion object {
+            val SORT_ORDER_KEY = stringPreferencesKey("sort_order")
+        }
     }
