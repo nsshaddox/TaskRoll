@@ -3,6 +3,7 @@ package com.nshaddox.randomtask.ui.screens.randomtask
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,9 +37,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.theme.Sizes
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -54,6 +58,7 @@ fun RandomTaskScreen(
     viewModel: RandomTaskViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val useWeightedRandom by viewModel.useWeightedRandom.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadRandomTask()
@@ -73,6 +78,8 @@ fun RandomTaskScreen(
         onCompleteTask = viewModel::completeTask,
         onSkipTask = viewModel::skipTask,
         onBackClick = { navController.popBackStack() },
+        useWeightedRandom = useWeightedRandom,
+        onToggleWeightedRandom = viewModel::toggleWeightedRandom,
     )
 }
 
@@ -86,6 +93,7 @@ fun RandomTaskScreen(
  * @param onBackClick Callback for back navigation
  * @param modifier Modifier for customization
  */
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RandomTaskScreenContent(
@@ -94,6 +102,8 @@ internal fun RandomTaskScreenContent(
     onCompleteTask: () -> Unit = {},
     onSkipTask: () -> Unit = {},
     onBackClick: () -> Unit = {},
+    useWeightedRandom: Boolean = false,
+    onToggleWeightedRandom: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -117,42 +127,93 @@ internal fun RandomTaskScreenContent(
         },
         modifier = modifier,
     ) { innerPadding ->
-        Box(
+        Column(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(Spacing.medium),
-            contentAlignment = Alignment.Center,
         ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator()
-                }
-                uiState.error != null -> {
-                    ErrorContent(
-                        error = uiState.error,
-                        onRetry = onSelectRandom,
-                    )
-                }
-                uiState.noTasksAvailable -> {
-                    NoTasksAvailableContent(
-                        onBackClick = onBackClick,
-                    )
-                }
-                uiState.currentTask != null -> {
-                    SelectedTaskContent(
-                        task = uiState.currentTask,
-                        onSelectRandom = onSelectRandom,
-                        onCompleteTask = onCompleteTask,
-                        onSkipTask = onSkipTask,
-                    )
-                }
-                else -> {
-                    NoTaskSelectedContent(
-                        onSelectRandom = onSelectRandom,
-                    )
-                }
+            WeightedRandomToggle(
+                useWeightedRandom = useWeightedRandom,
+                onToggleWeightedRandom = onToggleWeightedRandom,
+            )
+            RandomTaskContent(
+                uiState = uiState,
+                onSelectRandom = onSelectRandom,
+                onCompleteTask = onCompleteTask,
+                onSkipTask = onSkipTask,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+}
+
+@Composable
+private fun WeightedRandomToggle(
+    useWeightedRandom: Boolean,
+    onToggleWeightedRandom: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.weighted_random_toggle_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Switch(
+            checked = useWeightedRandom,
+            onCheckedChange = { onToggleWeightedRandom() },
+        )
+    }
+}
+
+@Composable
+private fun RandomTaskContent(
+    uiState: RandomTaskUiState,
+    onSelectRandom: () -> Unit,
+    onCompleteTask: () -> Unit,
+    onSkipTask: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator()
+            }
+            uiState.error != null -> {
+                ErrorContent(
+                    error = uiState.error,
+                    onRetry = onSelectRandom,
+                )
+            }
+            uiState.noTasksAvailable -> {
+                NoTasksAvailableContent(
+                    onBackClick = onBackClick,
+                )
+            }
+            uiState.currentTask != null -> {
+                SelectedTaskContent(
+                    task = uiState.currentTask,
+                    onSelectRandom = onSelectRandom,
+                    onCompleteTask = onCompleteTask,
+                    onSkipTask = onSkipTask,
+                )
+            }
+            else -> {
+                NoTaskSelectedContent(
+                    onSelectRandom = onSelectRandom,
+                )
             }
         }
     }

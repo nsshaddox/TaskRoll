@@ -23,4 +23,7 @@
     <string name="due_date_picker_confirm">Confirm</string>
     <string name="due_date_picker_cancel">Cancel</string>
     <string name="due_date_picker_clear">Clear</string>
+
+    <!-- RandomTaskScreen -->
+    <string name="weighted_random_toggle_label">Prioritise high-priority tasks</string>
 </resources>
