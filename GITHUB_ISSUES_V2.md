@@ -6,16 +6,16 @@
 
 | Group                        | Issues                                      | What it unlocks             |
 |------------------------------|---------------------------------------------|-----------------------------|
-| 1 — Data Model Extensions    | #201, #202, #203, #204                      | Repo updates, use cases     |
-| 2 — Repository Updates       | #205, #206, #207                            | New use cases               |
-| 3 — New Use Cases            | #208, #209, #210, #211                      | ViewModel updates           |
-| 4 — UI State Updates         | #212, #213, #214, #215                      | ViewModels                  |
-| 5 — ViewModel Updates        | #216, #217, #218                            | Screens                     |
-| 6 — Navigation Routes        | #219                                        | Nav graph updates           |
-| 7 — UI Components            | #220, #221, #222, #223                      | Screens                     |
-| 8 — Screen Updates           | #224, #225, #226                            | Nav wiring                  |
-| 9 — Navigation Wiring        | #227, #228                                  | Feature completion          |
-| 10 — Feature Completion      | #229, #230, #231, #232, #233                | Done                        |
+| 1 — Data Model Extensions    | #199, #200, #201, #202                      | Repo updates, use cases     |
+| 2 — Repository Updates       | #203, #204, #205                            | New use cases               |
+| 3 — New Use Cases            | #206, #207, #208, #209                      | ViewModel updates           |
+| 4 — UI State Updates         | #210, #211, #212, #213                      | ViewModels                  |
+| 5 — ViewModel Updates        | #214, #215, #216                            | Screens                     |
+| 6 — Navigation Routes        | #217                                        | Nav graph updates           |
+| 7 — UI Components            | #218, #219, #220, #221                      | Screens                     |
+| 8 — Screen Updates           | #222, #223, #224                            | Nav wiring                  |
+| 9 — Navigation Wiring        | #225, #226                                  | Feature completion          |
+| 10 — Feature Completion      | #227, #228, #229, #230, #231                | Done                        |
 
 ---
 
@@ -24,10 +24,10 @@
 
 ---
 
-### Issue #201: Add Priority enum and field to Task and TaskEntity
+### Issue #199: Add Priority enum and field to Task and TaskEntity
 **Labels**: `v2.0`, `architecture`, `database`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-201-priority-enum`
+**Branch**: `issue-199-priority-enum`
 
 **Description**:
 Introduce a `Priority` enum to the domain layer and add the corresponding column to `TaskEntity`.
@@ -46,10 +46,10 @@ Priority is stored as a String in the database so it survives schema changes wit
 
 ---
 
-### Issue #202: Add due date field to Task and TaskEntity
+### Issue #200: Add due date field to Task and TaskEntity
 **Labels**: `v2.0`, `architecture`, `database`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-202-due-date`
+**Branch**: `issue-200-due-date`
 
 **Description**:
 Add an optional due date to tasks. The domain model uses `LocalDate` for clean business logic;
@@ -67,10 +67,10 @@ the entity stores it as epoch day (Long) for simple Room persistence.
 
 ---
 
-### Issue #203: Add category tag field to Task and TaskEntity
+### Issue #201: Add category tag field to Task and TaskEntity
 **Labels**: `v2.0`, `architecture`, `database`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-203-category-tag`
+**Branch**: `issue-201-category-tag`
 
 **Description**:
 Add an optional free-text category tag to tasks. Categories are plain strings (no separate
@@ -86,13 +86,13 @@ entity required) keeping the data model simple while enabling basic organisation
 
 ---
 
-### Issue #204: Create Room database migration (version 1 → 2)
+### Issue #202: Create Room database migration (version 1 → 2)
 **Labels**: `v2.0`, `database`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-204-db-migration`
+**Branch**: `issue-202-db-migration`
 
 **Description**:
-Create a single Room migration that adds all three new columns introduced in #201–#203.
+Create a single Room migration that adds all three new columns introduced in #199–#201.
 Existing rows receive sensible defaults so no data is lost on upgrade.
 
 **Acceptance Criteria**:
@@ -111,7 +111,7 @@ Existing rows receive sensible defaults so no data is lost on upgrade.
 - [ ] `exportSchema = true` (or schema exported and committed) so migration can be validated
 - [ ] Project builds and `./gradlew connectedAndroidTest` passes with migration
 
-**Dependencies**: #201, #202, #203, #87, #142 (v1.0)
+**Dependencies**: #199, #200, #201, #87, #142 (v1.0)
 
 ---
 
@@ -120,10 +120,10 @@ Existing rows receive sensible defaults so no data is lost on upgrade.
 
 ---
 
-### Issue #205: Update TaskRepository interface with filter and search methods
+### Issue #203: Update TaskRepository interface with filter and search methods
 **Labels**: `v2.0`, `architecture`, `P0-critical`, `repository`
 **Estimated Complexity**: Low
-**Branch**: `issue-205-repo-filters`
+**Branch**: `issue-203-repo-filters`
 
 **Description**:
 Extend the domain repository interface with query methods that expose the new Priority and
@@ -138,14 +138,14 @@ category fields, plus full-text search across title and description.
 - [ ] Documentation comments for each new method
 - [ ] No data-layer imports (clean domain interface)
 
-**Dependencies**: #149 (v1.0), #201, #203
+**Dependencies**: #149 (v1.0), #199, #201
 
 ---
 
-### Issue #206: Update TaskDao and TaskRepositoryImpl with new query implementations
+### Issue #204: Update TaskDao and TaskRepositoryImpl with new query implementations
 **Labels**: `v2.0`, `database`, `P0-critical`, `repository`
 **Estimated Complexity**: Medium
-**Branch**: `issue-206-dao-queries`
+**Branch**: `issue-204-dao-queries`
 
 **Description**:
 Add corresponding DAO queries and wire them through `TaskRepositoryImpl` with proper
@@ -169,14 +169,14 @@ entity-to-domain mapping.
 - [ ] `TaskRepositoryImpl` implements all four new methods with entity-domain mapping
 - [ ] Unit tests with a fake `TaskDao` covering each new method
 
-**Dependencies**: #205, #150 (v1.0), #204
+**Dependencies**: #203, #150 (v1.0), #202
 
 ---
 
-### Issue #207: Update AddTaskUseCase to accept priority, due date, and category
+### Issue #205: Update AddTaskUseCase to accept priority, due date, and category
 **Labels**: `v2.0`, `use-case`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-207-add-task-fields`
+**Branch**: `issue-205-add-task-fields`
 
 **Description**:
 Extend `AddTaskUseCase` to propagate the three new task fields introduced in v2.0.
@@ -197,19 +197,19 @@ Default values keep all existing call sites valid without modification.
 - [ ] Existing validation unchanged (blank title → `Result.failure`)
 - [ ] Unit tests for default values and each explicit combination
 
-**Dependencies**: #102 (v1.0), #201, #202, #203
+**Dependencies**: #102 (v1.0), #199, #200, #201
 
 ---
 
 ## Group 3: New Use Cases
-*Requires #205 and #206 (new repository methods available).*
+*Requires #203 and #204 (new repository methods available).*
 
 ---
 
-### Issue #208: Implement GetCompletedTasksUseCase
+### Issue #206: Implement GetCompletedTasksUseCase
 **Labels**: `v2.0`, `use-case`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-208-completed-usecase`
+**Branch**: `issue-206-completed-usecase`
 
 **Description**:
 Create a use case to retrieve all completed tasks for the history screen.
@@ -222,14 +222,14 @@ Create a use case to retrieve all completed tasks for the history screen.
 - [ ] Documentation explaining purpose
 - [ ] Unit test with mock repository
 
-**Dependencies**: #205, #151 (v1.0)
+**Dependencies**: #203, #151 (v1.0)
 
 ---
 
-### Issue #209: Implement SearchTasksUseCase
+### Issue #207: Implement SearchTasksUseCase
 **Labels**: `v2.0`, `use-case`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-209-search-usecase`
+**Branch**: `issue-207-search-usecase`
 
 **Description**:
 Create a use case that wraps task search, guarding against empty queries.
@@ -242,14 +242,14 @@ Create a use case that wraps task search, guarding against empty queries.
 - [ ] Otherwise delegates to `repository.searchTasks(query.trim())`
 - [ ] Unit tests: blank query returns empty list, non-blank delegates to repository
 
-**Dependencies**: #205, #151 (v1.0)
+**Dependencies**: #203, #151 (v1.0)
 
 ---
 
-### Issue #210: Implement GetTasksByPriorityUseCase
+### Issue #208: Implement GetTasksByPriorityUseCase
 **Labels**: `v2.0`, `use-case`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-210-priority-usecase`
+**Branch**: `issue-208-priority-usecase`
 
 **Description**:
 Create a use case to retrieve incomplete tasks filtered to a specific priority level.
@@ -261,14 +261,14 @@ Create a use case to retrieve incomplete tasks filtered to a specific priority l
 - [ ] Delegates to `repository.getTasksByPriority(priority)`
 - [ ] Unit test with mock repository
 
-**Dependencies**: #205, #151 (v1.0)
+**Dependencies**: #203, #151 (v1.0)
 
 ---
 
-### Issue #211: Implement GetTasksByCategoryUseCase
+### Issue #209: Implement GetTasksByCategoryUseCase
 **Labels**: `v2.0`, `use-case`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-211-category-usecase`
+**Branch**: `issue-209-category-usecase`
 
 **Description**:
 Create a use case to retrieve incomplete tasks belonging to a specific category tag.
@@ -280,7 +280,7 @@ Create a use case to retrieve incomplete tasks belonging to a specific category 
 - [ ] Delegates to `repository.getTasksByCategory(category)`
 - [ ] Unit test with mock repository
 
-**Dependencies**: #205, #151 (v1.0)
+**Dependencies**: #203, #151 (v1.0)
 
 ---
 
@@ -289,10 +289,10 @@ Create a use case to retrieve incomplete tasks belonging to a specific category 
 
 ---
 
-### Issue #212: Update TaskUiModel with priority, due date, and category display fields
+### Issue #210: Update TaskUiModel with priority, due date, and category display fields
 **Labels**: `v2.0`, `ui`, `P0-critical`, `model`
 **Estimated Complexity**: Low
-**Branch**: `issue-212-ui-model`
+**Branch**: `issue-210-ui-model`
 
 **Description**:
 Extend `TaskUiModel` with display-ready representations of the three new task fields.
@@ -307,14 +307,14 @@ Extend `TaskUiModel` with display-ready representations of the three new task fi
 - [ ] `Task.toUiModel()` mapper updated to populate all new fields
 - [ ] Unit tests for all new fields, including overdue logic
 
-**Dependencies**: #68 (v1.0), #201, #202, #203
+**Dependencies**: #68 (v1.0), #199, #200, #201
 
 ---
 
-### Issue #213: Create CompletedTasksUiState
+### Issue #211: Create CompletedTasksUiState
 **Labels**: `v2.0`, `ui`, `P0-critical`, `state`
 **Estimated Complexity**: Low
-**Branch**: `issue-213-completed-state`
+**Branch**: `issue-211-completed-state`
 
 **Description**:
 Define the UI state for the completed tasks history screen.
@@ -331,14 +331,14 @@ Define the UI state for the completed tasks history screen.
   ```
 - [ ] Documentation comments
 
-**Dependencies**: #212
+**Dependencies**: #210
 
 ---
 
-### Issue #214: Create SettingsUiState
+### Issue #212: Create SettingsUiState
 **Labels**: `v2.0`, `ui`, `P1-high`, `state`
 **Estimated Complexity**: Low
-**Branch**: `issue-214-settings-state`
+**Branch**: `issue-212-settings-state`
 
 **Description**:
 Define the UI state for the settings screen, including theme preference and default sort order.
@@ -363,10 +363,10 @@ Define the UI state for the settings screen, including theme preference and defa
 
 ---
 
-### Issue #215: Update TaskListUiState with search, filter, and sort fields
+### Issue #213: Update TaskListUiState with search, filter, and sort fields
 **Labels**: `v2.0`, `ui`, `P0-critical`, `state`
 **Estimated Complexity**: Low
-**Branch**: `issue-215-list-state`
+**Branch**: `issue-213-list-state`
 
 **Description**:
 Extend `TaskListUiState` to carry the active search query, filter selections, sort order,
@@ -384,7 +384,7 @@ and the list of distinct categories derived from current tasks.
 - [ ] Existing fields unchanged
 - [ ] Documentation comments for each new property
 
-**Dependencies**: #63 (v1.0), #212, #214
+**Dependencies**: #63 (v1.0), #210, #212
 
 ---
 
@@ -393,10 +393,10 @@ and the list of distinct categories derived from current tasks.
 
 ---
 
-### Issue #216: Update TaskListViewModel with search, filter, and sort
+### Issue #214: Update TaskListViewModel with search, filter, and sort
 **Labels**: `v2.0`, `ui`, `P0-critical`, `viewmodel`
 **Estimated Complexity**: High
-**Branch**: `issue-216-list-viewmodel`
+**Branch**: `issue-214-list-viewmodel`
 
 **Description**:
 Extend `TaskListViewModel` to orchestrate search, filtering by priority and category,
@@ -415,14 +415,14 @@ filters and sort order to the full task list from the use case.
 - [ ] Filtering and sorting applied in-memory after the active use case emits
 - [ ] Unit tests for each new function including combined filter + sort scenarios
 
-**Dependencies**: #97 (v1.0), #207, #209, #210, #211, #215
+**Dependencies**: #97 (v1.0), #205, #207, #208, #209, #213
 
 ---
 
-### Issue #217: Implement CompletedTasksViewModel
+### Issue #215: Implement CompletedTasksViewModel
 **Labels**: `v2.0`, `ui`, `P0-critical`, `viewmodel`
 **Estimated Complexity**: Low
-**Branch**: `issue-217-completed-vm`
+**Branch**: `issue-215-completed-vm`
 
 **Description**:
 Create the ViewModel for the completed tasks history screen.
@@ -437,14 +437,14 @@ Create the ViewModel for the completed tasks history screen.
 - [ ] Collects completed tasks into state on init
 - [ ] Unit tests with `TestCoroutineDispatcher`
 
-**Dependencies**: #213, #208, #118 (v1.0)
+**Dependencies**: #211, #206, #118 (v1.0)
 
 ---
 
-### Issue #218: Implement SettingsViewModel
+### Issue #216: Implement SettingsViewModel
 **Labels**: `v2.0`, `ui`, `P1-high`, `viewmodel`
 **Estimated Complexity**: Medium
-**Branch**: `issue-218-settings-vm`
+**Branch**: `issue-216-settings-vm`
 
 **Description**:
 Create the ViewModel for the settings screen. Preferences are persisted using
@@ -463,7 +463,7 @@ Create the ViewModel for the settings screen. Preferences are persisted using
 - [ ] Each function writes to DataStore and state updates reactively
 - [ ] Unit tests using `TestCoroutineDispatcher` and an in-memory DataStore
 
-**Dependencies**: #214
+**Dependencies**: #212
 
 ---
 
@@ -472,10 +472,10 @@ Create the ViewModel for the settings screen. Preferences are persisted using
 
 ---
 
-### Issue #219: Add CompletedTasks and Settings navigation routes
+### Issue #217: Add CompletedTasks and Settings navigation routes
 **Labels**: `v2.0`, `ui`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-219-nav-routes`
+**Branch**: `issue-217-nav-routes`
 
 **Description**:
 Extend the `Screen` sealed class with routes for the two new screens introduced in v2.0.
@@ -495,10 +495,10 @@ Extend the `Screen` sealed class with routes for the two new screens introduced 
 
 ---
 
-### Issue #220: Implement PriorityBadge composable
+### Issue #218: Implement PriorityBadge composable
 **Labels**: `v2.0`, `ui`, `P0-critical`, `component`
 **Estimated Complexity**: Low
-**Branch**: `issue-220-priority-badge`
+**Branch**: `issue-218-priority-badge`
 
 **Description**:
 Create a small reusable composable that displays a colour-coded badge for a task's priority.
@@ -514,14 +514,14 @@ Placed in a shared `ui.components` package for reuse across screens.
 - [ ] `@PreviewLightDark` annotation showing all three variants
 - [ ] No business logic — purely presentational
 
-**Dependencies**: #201, #212
+**Dependencies**: #199, #210
 
 ---
 
-### Issue #221: Implement EditTaskDialog composable
+### Issue #219: Implement EditTaskDialog composable
 **Labels**: `v2.0`, `ui`, `P0-critical`, `component`
 **Estimated Complexity**: Medium
-**Branch**: `issue-221-edit-dialog`
+**Branch**: `issue-219-edit-dialog`
 
 **Description**:
 Create a full-featured edit dialog that pre-populates all task fields and supports the
@@ -546,14 +546,14 @@ new v2.0 fields (priority, due date, category). Replaces the add flow's simple
 - [ ] Material3 `AlertDialog` styling
 - [ ] `@PreviewLightDark` in add mode and edit mode
 
-**Dependencies**: #85 (v1.0), #201, #202, #203, #212
+**Dependencies**: #85 (v1.0), #199, #200, #201, #210
 
 ---
 
-### Issue #222: Implement TaskFilterBar composable
+### Issue #220: Implement TaskFilterBar composable
 **Labels**: `v2.0`, `ui`, `P1-high`, `component`
 **Estimated Complexity**: Medium
-**Branch**: `issue-222-filter-bar`
+**Branch**: `issue-220-filter-bar`
 
 **Description**:
 Create a composable filter/search bar displayed within `TaskListScreen` that gives users
@@ -577,14 +577,14 @@ controls to search, filter by priority, filter by category, and choose sort orde
 - [ ] Material3 styling
 - [ ] `@PreviewLightDark` annotation
 
-**Dependencies**: #201, #203, #214, #215
+**Dependencies**: #199, #201, #212, #213
 
 ---
 
-### Issue #223: Implement DueDatePickerDialog composable
+### Issue #221: Implement DueDatePickerDialog composable
 **Labels**: `v2.0`, `ui`, `P1-high`, `component`
 **Estimated Complexity**: Low
-**Branch**: `issue-223-date-picker`
+**Branch**: `issue-221-date-picker`
 
 **Description**:
 Wrap Material3's `DatePicker` in a dialog composable that returns a `LocalDate` on confirm.
@@ -599,7 +599,7 @@ Used by `EditTaskDialog` to allow users to set or clear a due date.
 - [ ] `@Preview` annotation
 - [ ] No business logic — purely presentational
 
-**Dependencies**: #202
+**Dependencies**: #200
 
 ---
 
@@ -608,10 +608,10 @@ Used by `EditTaskDialog` to allow users to set or clear a due date.
 
 ---
 
-### Issue #224: Update TaskListScreen with search bar, filter bar, and full edit support
+### Issue #222: Update TaskListScreen with search bar, filter bar, and full edit support
 **Labels**: `v2.0`, `ui`, `P0-critical`, `screen`
 **Estimated Complexity**: High
-**Branch**: `issue-224-list-screen`
+**Branch**: `issue-222-list-screen`
 
 **Description**:
 Integrate the new `TaskFilterBar` and `EditTaskDialog` into `TaskListScreen`.
@@ -631,14 +631,14 @@ priority, due date, and category. The edit action on each `TaskListItem` opens
 - [ ] Due date label displayed in `TaskListItem` (overdue in error color)
 - [ ] Category label displayed in `TaskListItem` when present
 
-**Dependencies**: #108 (v1.0), #216, #220, #221, #222
+**Dependencies**: #108 (v1.0), #214, #218, #219, #220
 
 ---
 
-### Issue #225: Implement CompletedTasksScreen composable
+### Issue #223: Implement CompletedTasksScreen composable
 **Labels**: `v2.0`, `ui`, `P0-critical`, `screen`
 **Estimated Complexity**: Medium
-**Branch**: `issue-225-completed-screen`
+**Branch**: `issue-223-completed-screen`
 
 **Description**:
 Create a dedicated screen that shows the user's task completion history.
@@ -653,14 +653,14 @@ Create a dedicated screen that shows the user's task completion history.
 - [ ] Back navigation to `TaskListScreen`
 - [ ] Material3 `Scaffold` with `TopAppBar`
 
-**Dependencies**: #217, #220
+**Dependencies**: #215, #218
 
 ---
 
-### Issue #226: Implement SettingsScreen composable
+### Issue #224: Implement SettingsScreen composable
 **Labels**: `v2.0`, `ui`, `P1-high`, `screen`
 **Estimated Complexity**: Low
-**Branch**: `issue-226-settings-screen`
+**Branch**: `issue-224-settings-screen`
 
 **Description**:
 Create a settings screen that lets users choose the app theme and default sort order.
@@ -676,19 +676,19 @@ Create a settings screen that lets users choose the app theme and default sort o
 - [ ] Back navigation to `TaskListScreen`
 - [ ] Material3 `Scaffold` with `TopAppBar`
 
-**Dependencies**: #218
+**Dependencies**: #216
 
 ---
 
 ## Group 9: Navigation Wiring
-*Requires #219 (new routes) and screens from Group 8.*
+*Requires #217 (new routes) and screens from Group 8.*
 
 ---
 
-### Issue #227: Wire CompletedTasksScreen into navigation
+### Issue #225: Wire CompletedTasksScreen into navigation
 **Labels**: `v2.0`, `ui`, `navigation`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-227-completed-nav`
+**Branch**: `issue-225-completed-nav`
 
 **Acceptance Criteria**:
 - [ ] `CompletedTasksScreen` registered in `AppNavGraph` under `Screen.CompletedTasks.route`
@@ -696,14 +696,14 @@ Create a settings screen that lets users choose the app theme and default sort o
 - [ ] Back navigation returns to `TaskListScreen`
 - [ ] Integration tested manually on device/emulator
 
-**Dependencies**: #219, #225, #128 (v1.0)
+**Dependencies**: #217, #223, #128 (v1.0)
 
 ---
 
-### Issue #228: Wire SettingsScreen into navigation
+### Issue #226: Wire SettingsScreen into navigation
 **Labels**: `v2.0`, `ui`, `navigation`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-228-settings-nav`
+**Branch**: `issue-226-settings-nav`
 
 **Acceptance Criteria**:
 - [ ] `SettingsScreen` registered in `AppNavGraph` under `Screen.Settings.route`
@@ -711,7 +711,7 @@ Create a settings screen that lets users choose the app theme and default sort o
 - [ ] Back navigation returns to `TaskListScreen`
 - [ ] Integration tested manually on device/emulator
 
-**Dependencies**: #219, #226, #128 (v1.0)
+**Dependencies**: #217, #224, #128 (v1.0)
 
 ---
 
@@ -720,10 +720,10 @@ Create a settings screen that lets users choose the app theme and default sort o
 
 ---
 
-### Issue #229: Swipe-to-delete gesture on TaskListItem
+### Issue #227: Swipe-to-delete gesture on TaskListItem
 **Labels**: `v2.0`, `ui`, `feature`, `P1-high`
 **Estimated Complexity**: Low
-**Branch**: `issue-229-swipe-delete`
+**Branch**: `issue-227-swipe-delete`
 
 **Description**:
 Add a swipe-left-to-delete gesture to `TaskListItem` using Material3's `SwipeToDismissBox`.
@@ -736,14 +736,14 @@ Works in both `TaskListScreen` (incomplete tasks) and `CompletedTasksScreen`.
 - [ ] Item animates out of the list smoothly
 - [ ] Existing explicit delete button (if any) still works
 
-**Dependencies**: #224, #225
+**Dependencies**: #222, #223
 
 ---
 
-### Issue #230: Undo task deletion with Snackbar
+### Issue #228: Undo task deletion with Snackbar
 **Labels**: `v2.0`, `ui`, `feature`, `P1-high`
 **Estimated Complexity**: Medium
-**Branch**: `issue-230-undo-delete`
+**Branch**: `issue-228-undo-delete`
 
 **Description**:
 After any task deletion (swipe or button), show a Snackbar with an "Undo" action that
@@ -756,14 +756,14 @@ restores the task before it is permanently gone.
 - [ ] Works in both `TaskListScreen` and `CompletedTasksScreen`
 - [ ] Only one pending undo at a time (new deletion replaces previous undo)
 
-**Dependencies**: #229, #102 (v1.0)
+**Dependencies**: #227, #102 (v1.0)
 
 ---
 
-### Issue #231: Sort tasks by priority, due date, title, or creation date
+### Issue #229: Sort tasks by priority, due date, title, or creation date
 **Labels**: `v2.0`, `ui`, `feature`, `P0-critical`
 **Estimated Complexity**: Low
-**Branch**: `issue-231-sort-tasks`
+**Branch**: `issue-229-sort-tasks`
 
 **Description**:
 Implement in-memory task sorting in `TaskListViewModel` using the `SortOrder` enum.
@@ -779,14 +779,14 @@ The active sort order is applied after filtering and reflected in `TaskListUiSta
 - [ ] Sort order persisted via `SettingsViewModel` DataStore and restored on app restart
 - [ ] Unit tests for each sort order including edge cases (null due dates, mixed priorities)
 
-**Dependencies**: #216, #218
+**Dependencies**: #214, #216
 
 ---
 
-### Issue #232: Theme toggle (light / dark / system) in Settings
+### Issue #230: Theme toggle (light / dark / system) in Settings
 **Labels**: `v2.0`, `ui`, `feature`, `P1-high`
 **Estimated Complexity**: Medium
-**Branch**: `issue-232-theme-toggle`
+**Branch**: `issue-230-theme-toggle`
 
 **Description**:
 Apply the user's chosen theme from `SettingsViewModel` to `MaterialTheme` in `MainActivity`
@@ -801,14 +801,14 @@ so the entire app reflects the preference immediately and persistently.
 - [ ] Theme switches immediately when changed in Settings (no restart required)
 - [ ] Selection persists across app restarts via DataStore
 
-**Dependencies**: #218, #226
+**Dependencies**: #216, #224
 
 ---
 
-### Issue #233: Implement GetWeightedRandomTaskUseCase
+### Issue #231: Implement GetWeightedRandomTaskUseCase
 **Labels**: `v2.0`, `use-case`, `feature`, `P2-medium`, `core-feature`
 **Estimated Complexity**: Low
-**Branch**: `issue-233-weighted-random`
+**Branch**: `issue-231-weighted-random`
 
 **Description**:
 Add a priority-weighted variant of the random task selection: HIGH priority tasks have
@@ -831,4 +831,4 @@ is unchanged. `RandomTaskViewModel` gains a toggle to switch between modes.
   - Returns null when no incomplete tasks
   - Toggle in ViewModel switches between use cases
 
-**Dependencies**: #132 (v1.0), #201, #205
+**Dependencies**: #132 (v1.0), #199, #203
