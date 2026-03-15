@@ -1,5 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
+import com.nshaddox.randomtask.domain.model.Priority
+import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -91,5 +93,104 @@ class TaskListUiStateTest {
         val str = state.toString()
         assertTrue(str.contains("isLoading=true"))
         assertTrue(str.contains("errorMessage=fail"))
+    }
+
+    // ── New field default tests ──
+
+    @Test
+    fun `default state has empty searchQuery`() {
+        val state = TaskListUiState()
+        assertEquals("", state.searchQuery)
+    }
+
+    @Test
+    fun `default state has null filterPriority`() {
+        val state = TaskListUiState()
+        assertNull(state.filterPriority)
+    }
+
+    @Test
+    fun `default state has null filterCategory`() {
+        val state = TaskListUiState()
+        assertNull(state.filterCategory)
+    }
+
+    @Test
+    fun `default state has sortOrder CREATED_DATE_DESC`() {
+        val state = TaskListUiState()
+        assertEquals(SortOrder.CREATED_DATE_DESC, state.sortOrder)
+    }
+
+    @Test
+    fun `default state has empty availableCategories`() {
+        val state = TaskListUiState()
+        assertTrue(state.availableCategories.isEmpty())
+    }
+
+    // ── New field copy-transition tests ──
+
+    @Test
+    fun `copy with searchQuery`() {
+        val state = TaskListUiState()
+        val withSearch = state.copy(searchQuery = "buy")
+        assertEquals("buy", withSearch.searchQuery)
+    }
+
+    @Test
+    fun `copy with filterPriority`() {
+        val state = TaskListUiState()
+        val filtered = state.copy(filterPriority = Priority.HIGH)
+        assertEquals(Priority.HIGH, filtered.filterPriority)
+    }
+
+    @Test
+    fun `copy with filterCategory`() {
+        val state = TaskListUiState()
+        val filtered = state.copy(filterCategory = "Work")
+        assertEquals("Work", filtered.filterCategory)
+    }
+
+    @Test
+    fun `copy with sortOrder`() {
+        val state = TaskListUiState()
+        val sorted = state.copy(sortOrder = SortOrder.TITLE_ASC)
+        assertEquals(SortOrder.TITLE_ASC, sorted.sortOrder)
+    }
+
+    @Test
+    fun `copy with availableCategories`() {
+        val state = TaskListUiState()
+        val categories = listOf("Work", "Personal", "Shopping")
+        val withCategories = state.copy(availableCategories = categories)
+        assertEquals(3, withCategories.availableCategories.size)
+        assertEquals("Work", withCategories.availableCategories[0])
+        assertEquals("Personal", withCategories.availableCategories[1])
+        assertEquals("Shopping", withCategories.availableCategories[2])
+    }
+
+    @Test
+    fun `copy preserves new field defaults when not overridden`() {
+        val state = TaskListUiState()
+        val copied = state.copy(isLoading = false)
+        assertEquals("", copied.searchQuery)
+        assertNull(copied.filterPriority)
+        assertNull(copied.filterCategory)
+        assertEquals(SortOrder.CREATED_DATE_DESC, copied.sortOrder)
+        assertTrue(copied.availableCategories.isEmpty())
+    }
+
+    @Test
+    fun `equality for states with same new fields`() {
+        val state1 = TaskListUiState(searchQuery = "test", sortOrder = SortOrder.DUE_DATE_ASC)
+        val state2 = TaskListUiState(searchQuery = "test", sortOrder = SortOrder.DUE_DATE_ASC)
+        assertEquals(state1, state2)
+    }
+
+    @Test
+    fun `toString contains new field values`() {
+        val state = TaskListUiState(searchQuery = "groceries", sortOrder = SortOrder.PRIORITY_DESC)
+        val str = state.toString()
+        assertTrue(str.contains("searchQuery=groceries"))
+        assertTrue(str.contains("sortOrder=PRIORITY_DESC"))
     }
 }
