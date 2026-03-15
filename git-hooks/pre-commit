@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pre-commit hook for Android project
-# Blocks direct commits to main and runs lint + unit tests
+# Blocks direct commits to main and runs lint + unit tests + coverage verification
 
 set -e
 
@@ -22,5 +22,9 @@ echo "📝 Running lint checks..."
 # Run unit tests
 echo "🧪 Running unit tests..."
 ./gradlew testDebugUnitTest --quiet
+
+# Run coverage verification
+echo "📊 Running coverage verification..."
+./gradlew jacocoTestCoverageVerification --quiet
 
 echo "✅ All checks passed! Proceeding with commit."
