@@ -3,6 +3,8 @@ package com.nshaddox.randomtask.ui.screens.tasklist
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.nshaddox.randomtask.domain.model.Priority
+import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.ui.preview.SampleData
 import com.nshaddox.randomtask.ui.theme.RandomTaskTheme
 
@@ -14,7 +16,8 @@ import com.nshaddox.randomtask.ui.theme.RandomTaskTheme
 fun TaskListScreenPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = SampleData.sampleTasks,
+            tasks = SampleData.sampleTaskUiModels,
+            availableCategories = listOf("Work", "Personal"),
         )
     }
 }
@@ -27,7 +30,7 @@ fun TaskListScreenPreview() {
 fun TaskListScreenEmptyPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = SampleData.emptyTaskList,
+            tasks = emptyList(),
         )
     }
 }
@@ -40,7 +43,7 @@ fun TaskListScreenEmptyPreview() {
 fun TaskListScreenSingleTaskPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = listOf(SampleData.singleTask),
+            tasks = listOf(SampleData.sampleTaskUiModel),
         )
     }
 }
@@ -67,22 +70,25 @@ fun TaskListScreenLoadingPreview() {
 fun TaskListScreenErrorPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = SampleData.sampleTasks,
+            tasks = SampleData.sampleTaskUiModels,
             errorMessage = "Failed to load tasks",
         )
     }
 }
 
 /**
- * Preview for AddTaskDialog
+ * Preview for TaskListScreen with active filters
  */
 @Preview(showBackground = true)
 @Composable
-fun AddTaskDialogPreview() {
+fun TaskListScreenWithFiltersPreview() {
     RandomTaskTheme {
-        AddTaskDialog(
-            onConfirm = { _, _ -> },
-            onDismiss = {},
+        TaskListScreen(
+            tasks = SampleData.sampleTaskUiModels,
+            searchQuery = "project",
+            filterPriority = Priority.HIGH,
+            sortOrder = SortOrder.PRIORITY_DESC,
+            availableCategories = listOf("Work", "Personal"),
         )
     }
 }
@@ -95,7 +101,7 @@ fun AddTaskDialogPreview() {
 fun TaskListItemPreview() {
     RandomTaskTheme {
         TaskListItem(
-            task = SampleData.sampleTask,
+            task = SampleData.sampleTaskUiModel,
             onTaskClick = {},
             onCheckedChange = {},
             onEditClick = {},
@@ -112,7 +118,7 @@ fun TaskListItemPreview() {
 fun TaskListItemCompletedPreview() {
     RandomTaskTheme {
         TaskListItem(
-            task = SampleData.sampleTasks.first { it.isCompleted },
+            task = SampleData.sampleTaskUiModels.first { it.isCompleted },
             onTaskClick = {},
             onCheckedChange = {},
             onEditClick = {},
@@ -122,14 +128,32 @@ fun TaskListItemCompletedPreview() {
 }
 
 /**
- * Preview for AddTaskDialog with description field
+ * Preview for TaskListItem with overdue task
  */
 @Preview(showBackground = true)
 @Composable
-fun AddTaskDialogWithDescriptionPreview() {
+fun TaskListItemOverduePreview() {
     RandomTaskTheme {
-        AddTaskDialog(
-            onConfirm = { _, _ -> },
+        TaskListItem(
+            task = SampleData.sampleOverdueTaskUiModel,
+            onTaskClick = {},
+            onCheckedChange = {},
+            onEditClick = {},
+            onDeleteClick = {},
+        )
+    }
+}
+
+/**
+ * Preview for EditTaskDialog in add mode
+ */
+@Preview(showBackground = true)
+@Composable
+fun AddTaskDialogPreview() {
+    RandomTaskTheme {
+        EditTaskDialog(
+            task = null,
+            onConfirm = { _, _, _, _, _ -> },
             onDismiss = {},
         )
     }

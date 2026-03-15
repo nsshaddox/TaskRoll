@@ -822,6 +822,208 @@ class TaskListViewModelTest {
             }
         }
 
+    // === Edit dialog tests ===
+
+    @Test
+    fun `showEditDialog sets isEditDialogVisible true and editingTask`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                val initial = awaitItem()
+                assertFalse(initial.isEditDialogVisible)
+                assertNull(initial.editingTask)
+
+                val uiModel =
+                    TaskUiModel(
+                        id = 1L,
+                        title = "Test",
+                        description = null,
+                        isCompleted = false,
+                        createdAt = "Jan 1, 2025",
+                        updatedAt = "Jan 1, 2025",
+                    )
+                viewModel.showEditDialog(uiModel)
+
+                val withDialog = awaitItem()
+                assertTrue(withDialog.isEditDialogVisible)
+                assertEquals(uiModel, withDialog.editingTask)
+            }
+        }
+
+    @Test
+    fun `hideEditDialog sets isEditDialogVisible false and clears editingTask`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+            val uiModel =
+                TaskUiModel(
+                    id = 1L,
+                    title = "Test",
+                    description = null,
+                    isCompleted = false,
+                    createdAt = "Jan 1, 2025",
+                    updatedAt = "Jan 1, 2025",
+                )
+            viewModel.showEditDialog(uiModel)
+
+            viewModel.uiState.test {
+                val withDialog = awaitItem()
+                assertTrue(withDialog.isEditDialogVisible)
+
+                viewModel.hideEditDialog()
+
+                val hidden = awaitItem()
+                assertFalse(hidden.isEditDialogVisible)
+                assertNull(hidden.editingTask)
+            }
+        }
+
+    @Test
+    fun `editTask updates existing task via repository`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                assertEquals(1, loaded.tasks.size)
+                val existingTask = loaded.tasks[0]
+
+                viewModel.editTask(
+                    taskId = existingTask.id,
+                    title = "Updated",
+                    description = "New description",
+                    priority = Priority.HIGH,
+                    dueDate = 500L,
+                    category = "Work",
+                )
+                advanceUntilIdle()
+
+                // Consume items until we see the updated task
+                var state = awaitItem()
+                // May need to skip dialog-hide emission
+                if (state.tasks.isNotEmpty() && state.tasks[0].title != "Updated") {
+                    state = awaitItem()
+                }
+                assertEquals(1, state.tasks.size)
+                assertEquals("Updated", state.tasks[0].title)
+                assertEquals("New description", state.tasks[0].description)
+                assertEquals(Priority.HIGH, state.tasks[0].priority)
+                assertEquals(500L, state.tasks[0].dueDate)
+                assertEquals("Work", state.tasks[0].category)
+                assertFalse(state.isEditDialogVisible)
+            }
+        }
+
+    @Test
+    fun `editTask with nonexistent taskId sets error and hides dialog`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded empty
+                awaitItem()
+
+                viewModel.editTask(
+                    taskId = 999L,
+                    title = "Should fail",
+                )
+                advanceUntilIdle()
+
+                val errorState = awaitItem()
+                assertEquals("Task not found", errorState.errorMessage)
+                assertFalse(errorState.isEditDialogVisible)
+                assertNull(errorState.editingTask)
+            }
+        }
+
+    @Test
+    fun `editTask hides edit dialog on success`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                val existingTask = loaded.tasks[0]
+
+                // Show the edit dialog first
+                val uiModel =
+                    TaskUiModel(
+                        id = existingTask.id,
+                        title = existingTask.title,
+                        description = null,
+                        isCompleted = false,
+                        createdAt = "Jan 1, 2025",
+                        updatedAt = "Jan 1, 2025",
+                    )
+                viewModel.showEditDialog(uiModel)
+                val withDialog = awaitItem()
+                assertTrue(withDialog.isEditDialogVisible)
+
+                viewModel.editTask(
+                    taskId = existingTask.id,
+                    title = "Updated Title",
+                )
+                advanceUntilIdle()
+
+                // Consume items until we see the dialog hidden and task updated.
+                // Multiple emissions may occur: dialog-hide and task-update.
+                var state = awaitItem()
+                while (state.isEditDialogVisible || state.tasks.any { it.title != "Updated Title" }) {
+                    state = awaitItem()
+                }
+                assertFalse(state.isEditDialogVisible)
+                assertNull(state.editingTask)
+                assertEquals("Updated Title", state.tasks[0].title)
+            }
+        }
+
+    @Test
+    fun `editTask with default parameters keeps medium priority and null dueDate`() =
+        runTest(testDispatcher) {
+            repository.addTask(
+                createTask(
+                    title = "Original",
+                    priority = Priority.HIGH,
+                    dueDate = 100L,
+                    category = "Work",
+                ),
+            )
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                val existingTask = loaded.tasks[0]
+
+                viewModel.editTask(
+                    taskId = existingTask.id,
+                    title = "Updated",
+                )
+                advanceUntilIdle()
+
+                var state = awaitItem()
+                if (state.tasks.isNotEmpty() && state.tasks[0].title != "Updated") {
+                    state = awaitItem()
+                }
+                assertEquals("Updated", state.tasks[0].title)
+                assertEquals(Priority.MEDIUM, state.tasks[0].priority)
+                assertNull(state.tasks[0].dueDate)
+                assertNull(state.tasks[0].category)
+            }
+        }
+
     @Test
     fun `setSortOrder persists new sort order so next VM init restores it`() =
         runTest(testDispatcher) {

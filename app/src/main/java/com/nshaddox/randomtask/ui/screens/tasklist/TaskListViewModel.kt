@@ -196,6 +196,63 @@ class TaskListViewModel
             _uiState.update { it.copy(isAddDialogVisible = false) }
         }
 
+        fun showEditDialog(task: TaskUiModel) {
+            _uiState.update { it.copy(isEditDialogVisible = true, editingTask = task) }
+        }
+
+        fun hideEditDialog() {
+            _uiState.update { it.copy(isEditDialogVisible = false, editingTask = null) }
+        }
+
+        @Suppress("LongParameterList")
+        fun editTask(
+            taskId: Long,
+            title: String,
+            description: String? = null,
+            priority: Priority = Priority.MEDIUM,
+            dueDate: Long? = null,
+            category: String? = null,
+        ) {
+            viewModelScope.launch(ioDispatcher) {
+                // Fetch current task state from repository to preserve createdAt/updatedAt
+                val currentTasks = getTasksUseCase().first()
+                val existingTask = currentTasks.find { it.id == taskId }
+                if (existingTask == null) {
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = "Task not found",
+                            isEditDialogVisible = false,
+                            editingTask = null,
+                        )
+                    }
+                    return@launch
+                }
+                val updated =
+                    existingTask.copy(
+                        title = title,
+                        description = description,
+                        priority = priority,
+                        dueDate = dueDate,
+                        category = category,
+                    )
+                updateTaskUseCase(updated)
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(isEditDialogVisible = false, editingTask = null)
+                        }
+                    }
+                    .onFailure { error ->
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = error.message ?: "Failed to update task",
+                                isEditDialogVisible = false,
+                                editingTask = null,
+                            )
+                        }
+                    }
+            }
+        }
+
         fun clearError() {
             _uiState.update { it.copy(errorMessage = null) }
         }

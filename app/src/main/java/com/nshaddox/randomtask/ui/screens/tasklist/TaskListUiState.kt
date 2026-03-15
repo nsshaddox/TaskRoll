@@ -11,6 +11,8 @@ import com.nshaddox.randomtask.domain.model.Task
  * @property isLoading Whether a loading operation is in progress.
  * @property errorMessage An optional error message to display. Null when there is no error.
  * @property isAddDialogVisible Whether the add-task dialog is currently visible.
+ * @property isEditDialogVisible Whether the edit-task dialog is currently visible.
+ * @property editingTask The task currently being edited. Null when not editing.
  * @property searchQuery The current text entered in the search field. Empty string when inactive.
  * @property filterPriority The priority filter currently applied. Null when no priority filter is active.
  * @property filterCategory The category filter currently applied. Null when no category filter is active.
@@ -23,6 +25,8 @@ data class TaskListUiState(
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val isAddDialogVisible: Boolean = false,
+    val isEditDialogVisible: Boolean = false,
+    val editingTask: TaskUiModel? = null,
     val searchQuery: String = "",
     val filterPriority: Priority? = null,
     val filterCategory: String? = null,
