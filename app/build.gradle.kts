@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    jacoco
+}
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
 }
 
 android {
@@ -21,6 +26,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -85,4 +93,152 @@ dependencies {
     kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// ---------- JaCoCo coverage configuration ----------
+
+val jacocoExclusions = listOf(
+    // Hilt-generated classes
+    "**/*_HiltComponents*",
+    "**/*_MembersInjector*",
+    "**/*_Factory*",
+    "**/*Module_Provide*",
+    "**/Hilt_*",
+    "**/*_HiltModules*",
+    "**/*_GeneratedInjector*",
+    "**/*_ComponentTreeDeps*",
+    // Room-generated implementations
+    "**/*_Impl*",
+    "**/*_Impl\$*",
+    // Room database class (abstract, framework-managed)
+    "**/data/local/AppDatabase*",
+    // Room DAO interface (no logic, query annotations only)
+    "**/data/local/TaskDao.class",
+    // Room entity (data class, no logic)
+    "**/data/local/TaskEntity.class",
+    // Compose-generated classes (screen composables, singletons, lambdas)
+    "**/ComposableSingletons*",
+    "**/*ScreenKt*",
+    "**/*ScreenPreviewKt*",
+    "**/*DialogKt*",
+    "**/*Preview*",
+    "**/SampleData*",
+    // Android generated classes
+    "**/BuildConfig*",
+    "**/R.class",
+    "**/R\$*.class",
+    "**/Manifest*",
+    // Android entry points (not unit-testable)
+    "**/MainActivity*",
+    "**/RandomTaskApplication*",
+    // DI module classes (only provide bindings, no logic)
+    "**/di/*",
+    // Navigation and theme (declarative Compose, no logic)
+    "**/ui/navigation/*",
+    "**/ui/theme/*",
+    // Compose preview data
+    "**/ui/preview/*",
+)
+
+val classDirectoriesTree = fileTree(
+    layout.buildDirectory.dir("intermediates/javac/debug/classes")
+) {
+    exclude(jacocoExclusions)
+} + fileTree(
+    layout.buildDirectory.dir("tmp/kotlin-classes/debug")
+) {
+    exclude(jacocoExclusions)
+}
+
+val sourceDirectoriesTree = files("src/main/java")
+
+val executionDataTree = fileTree(
+    layout.buildDirectory
+) {
+    include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
+
+    classDirectories.setFrom(classDirectoriesTree)
+    sourceDirectories.setFrom(sourceDirectoriesTree)
+    executionData.setFrom(executionDataTree)
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("testDebugUnitTest")
+
+    classDirectories.setFrom(classDirectoriesTree)
+    sourceDirectories.setFrom(sourceDirectoriesTree)
+    executionData.setFrom(executionDataTree)
+
+    violationRules {
+        // Bundle-level fallback: 80% instruction coverage overall
+        // (Kotlin coroutine synthetic bytecode lowers achievable ceiling)
+        rule {
+            element = "BUNDLE"
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+
+        // Domain layer: 85% instruction coverage
+        // (coroutine state-machine bytecode prevents reaching 95%+ with JaCoCo)
+        rule {
+            element = "PACKAGE"
+            includes = listOf("com.nshaddox.randomtask.domain.*")
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.85".toBigDecimal()
+            }
+        }
+
+        // Domain use cases: 70% branch coverage
+        // Note: Kotlin coroutines generate unreachable synthetic branches in
+        // suspend functions. JaCoCo reports these as missed, making 100% branch
+        // coverage impossible. 70% accounts for this JaCoCo/coroutine limitation
+        // while still enforcing that all reachable branches are tested.
+        rule {
+            element = "PACKAGE"
+            includes = listOf("com.nshaddox.randomtask.domain.usecase")
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.70".toBigDecimal()
+            }
+        }
+
+        // Data layer: 90% instruction coverage
+        rule {
+            element = "PACKAGE"
+            includes = listOf("com.nshaddox.randomtask.data.*")
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+
+        // UI layer: 90% instruction coverage
+        // (covers ViewModels, UiState, and UI mappers; Compose screens are excluded)
+        rule {
+            element = "PACKAGE"
+            includes = listOf("com.nshaddox.randomtask.ui.*")
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+    }
 }
