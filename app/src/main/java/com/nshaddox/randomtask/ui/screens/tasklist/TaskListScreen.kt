@@ -42,21 +42,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
+import com.nshaddox.randomtask.domain.model.Priority
+import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
+import com.nshaddox.randomtask.ui.components.PriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
 import com.nshaddox.randomtask.ui.theme.Spacing
+import java.time.LocalDate
 
 /**
  * ViewModel-connected TaskListScreen wrapper.
  *
  * Collects UI state from [TaskListViewModel] and delegates to the stateless composable.
+ * Converts domain [Task] objects to [TaskUiModel] for display.
  *
  * @param navController Navigation controller for screen transitions.
  * @param viewModel The TaskListViewModel instance, provided by Hilt.
  */
+@Suppress("LongMethod")
 @Composable
 fun TaskListScreen(
     navController: NavController,
@@ -77,23 +84,81 @@ fun TaskListScreen(
         }
     }
 
-    if (uiState.isAddDialogVisible) {
-        AddTaskDialog(
-            onConfirm = { title, description -> viewModel.addTask(title, description) },
-            onDismiss = { viewModel.hideAddDialog() },
+    val currentEpochDay = LocalDate.now().toEpochDay()
+    val taskUiModels =
+        remember(uiState.tasks, currentEpochDay) {
+            uiState.tasks.map { it.toUiModel(currentEpochDay) }
+        }
+
+    if (uiState.isEditDialogVisible || uiState.isAddDialogVisible) {
+        val editingTask = uiState.editingTask
+        val initialDueDate =
+            editingTask?.let { task ->
+                uiState.tasks.find { it.id == task.id }?.dueDate?.let {
+                    LocalDate.ofEpochDay(it)
+                }
+            }
+        EditTaskDialog(
+            task = editingTask,
+            onConfirm = { title, description, priority, dueDate, category ->
+                if (editingTask != null) {
+                    viewModel.editTask(
+                        taskId = editingTask.id,
+                        title = title,
+                        description = description,
+                        priority = priority,
+                        dueDate = dueDate?.toEpochDay(),
+                        category = category,
+                    )
+                } else {
+                    viewModel.addTask(
+                        title = title,
+                        description = description,
+                        priority = priority,
+                        dueDate = dueDate?.toEpochDay(),
+                        category = category,
+                    )
+                    viewModel.hideAddDialog()
+                }
+            },
+            onDismiss = {
+                if (editingTask != null) {
+                    viewModel.hideEditDialog()
+                } else {
+                    viewModel.hideAddDialog()
+                }
+            },
+            initialDueDate = initialDueDate,
         )
     }
 
     TaskListScreen(
-        tasks = uiState.tasks,
+        tasks = taskUiModels,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
         snackbarHostState = snackbarHostState,
+        searchQuery = uiState.searchQuery,
+        filterPriority = uiState.filterPriority,
+        filterCategory = uiState.filterCategory,
+        sortOrder = uiState.sortOrder,
+        availableCategories = uiState.availableCategories,
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onPriorityFilterChange = { viewModel.setFilterPriority(it) },
+        onCategoryFilterChange = { viewModel.setFilterCategory(it) },
+        onSortOrderChange = { viewModel.setSortOrder(it) },
         onClearError = { viewModel.clearError() },
         onTaskClick = {},
-        onTaskCheckedChange = { task, _ -> viewModel.toggleTaskCompletion(task) },
-        onDeleteTask = { task -> viewModel.deleteTask(task) },
-        onEditTask = { task -> navController.navigate(Screen.EditTask.createRoute(task.id)) },
+        onTaskCheckedChange = { taskUiModel, _ ->
+            uiState.tasks.find { it.id == taskUiModel.id }?.let { task ->
+                viewModel.toggleTaskCompletion(task)
+            }
+        },
+        onDeleteTask = { taskUiModel ->
+            uiState.tasks.find { it.id == taskUiModel.id }?.let { task ->
+                viewModel.deleteTask(task)
+            }
+        },
+        onEditTask = { taskUiModel -> viewModel.showEditDialog(taskUiModel) },
         onAddTask = { viewModel.showAddDialog() },
         onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) },
         onNavigateToCompletedTasks = { navController.navigate(Screen.CompletedTasks.route) },
@@ -102,35 +167,54 @@ fun TaskListScreen(
 }
 
 /**
- * Task List Screen - Displays a list of tasks with CRUD operations
+ * Task List Screen - Displays a list of tasks with CRUD operations, filter bar, and v2 fields.
  *
- * @param tasks List of tasks to display
- * @param isLoading Whether a loading operation is in progress
- * @param errorMessage An optional error message to display
- * @param onClearError Callback to clear the current error message
- * @param onTaskClick Callback when a task is clicked
- * @param onTaskCheckedChange Callback when task completion status changes
- * @param onDeleteTask Callback when delete button is clicked
- * @param onEditTask Callback when edit button is clicked
- * @param onAddTask Callback when FAB is clicked to add new task
- * @param onNavigateToRandomTask Callback when random task navigation button is clicked
- * @param onNavigateToCompletedTasks Callback when completed tasks history button is clicked
- * @param onNavigateToSettings Callback when settings navigation button is clicked
- * @param modifier Modifier for customization
+ * @param tasks List of task UI models to display.
+ * @param isLoading Whether a loading operation is in progress.
+ * @param errorMessage An optional error message to display.
+ * @param snackbarHostState The snackbar host state for displaying messages.
+ * @param searchQuery The current search text.
+ * @param filterPriority The currently selected priority filter, or null for "All".
+ * @param filterCategory The currently selected category filter, or null for "All".
+ * @param sortOrder The current sort ordering.
+ * @param availableCategories The list of categories for the filter dropdown.
+ * @param onSearchQueryChange Called when the search text changes.
+ * @param onPriorityFilterChange Called when a priority filter is selected.
+ * @param onCategoryFilterChange Called when a category filter is selected.
+ * @param onSortOrderChange Called when a sort order is selected.
+ * @param onClearError Callback to clear the current error message.
+ * @param onTaskClick Callback when a task is clicked.
+ * @param onTaskCheckedChange Callback when task completion status changes.
+ * @param onDeleteTask Callback when delete button is clicked.
+ * @param onEditTask Callback when edit button is clicked.
+ * @param onAddTask Callback when FAB is clicked to add new task.
+ * @param onNavigateToRandomTask Callback when random task navigation button is clicked.
+ * @param onNavigateToCompletedTasks Callback when completed tasks history button is clicked.
+ * @param onNavigateToSettings Callback when settings navigation button is clicked.
+ * @param modifier Modifier for customization.
  */
 @Suppress("LongParameterList", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
-    tasks: List<Task>,
+    tasks: List<TaskUiModel>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    searchQuery: String = "",
+    filterPriority: Priority? = null,
+    filterCategory: String? = null,
+    sortOrder: SortOrder = SortOrder.CREATED_DATE_DESC,
+    availableCategories: List<String> = emptyList(),
+    onSearchQueryChange: (String) -> Unit = {},
+    onPriorityFilterChange: (Priority?) -> Unit = {},
+    onCategoryFilterChange: (String?) -> Unit = {},
+    onSortOrderChange: (SortOrder) -> Unit = {},
     onClearError: () -> Unit = {},
-    onTaskClick: (Task) -> Unit = {},
-    onTaskCheckedChange: (Task, Boolean) -> Unit = { _, _ -> },
-    onDeleteTask: (Task) -> Unit = {},
-    onEditTask: (Task) -> Unit = {},
+    onTaskClick: (TaskUiModel) -> Unit = {},
+    onTaskCheckedChange: (TaskUiModel, Boolean) -> Unit = { _, _ -> },
+    onDeleteTask: (TaskUiModel) -> Unit = {},
+    onEditTask: (TaskUiModel) -> Unit = {},
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
     onNavigateToCompletedTasks: () -> Unit = {},
@@ -201,7 +285,7 @@ fun TaskListScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else if (tasks.isEmpty()) {
+        } else if (tasks.isEmpty() && !hasActiveFilters(searchQuery, filterPriority, filterCategory)) {
             EmptyTaskListContent(
                 modifier =
                     Modifier
@@ -209,31 +293,58 @@ fun TaskListScreen(
                         .padding(innerPadding),
             )
         } else {
-            LazyColumn(
+            Column(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(horizontal = Spacing.medium),
-                verticalArrangement = Arrangement.spacedBy(Spacing.small),
+                        .padding(innerPadding),
             ) {
-                items(tasks, key = { it.id }) { task ->
-                    TaskListItem(
-                        task = task,
-                        onTaskClick = { onTaskClick(task) },
-                        onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
-                        onEditClick = { onEditTask(task) },
-                        onDeleteClick = { onDeleteTask(task) },
+                TaskFilterBar(
+                    searchQuery = searchQuery,
+                    onSearchQueryChange = onSearchQueryChange,
+                    filterPriority = filterPriority,
+                    onPriorityFilterChange = onPriorityFilterChange,
+                    filterCategory = filterCategory,
+                    onCategoryFilterChange = onCategoryFilterChange,
+                    sortOrder = sortOrder,
+                    onSortOrderChange = onSortOrderChange,
+                    availableCategories = availableCategories,
+                )
+                if (tasks.isEmpty()) {
+                    EmptyTaskListContent(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .weight(1f),
                     )
+                } else {
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = Spacing.medium),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.small),
+                    ) {
+                        items(tasks, key = { it.id }) { task ->
+                            TaskListItem(
+                                task = task,
+                                onTaskClick = { onTaskClick(task) },
+                                onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
+                                onEditClick = { onEditTask(task) },
+                                onDeleteClick = { onDeleteTask(task) },
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 internal fun TaskListItem(
-    task: Task,
+    task: TaskUiModel,
     onTaskClick: () -> Unit,
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
@@ -270,22 +381,37 @@ internal fun TaskListItem(
                     checked = task.isCompleted,
                     onCheckedChange = onCheckedChange,
                 )
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textDecoration =
-                        if (task.isCompleted) {
-                            TextDecoration.LineThrough
-                        } else {
-                            TextDecoration.None
-                        },
-                    color =
-                        if (task.isCompleted) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.extraSmall),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+                    ) {
+                        Text(
+                            text = task.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            textDecoration =
+                                if (task.isCompleted) {
+                                    TextDecoration.LineThrough
+                                } else {
+                                    TextDecoration.None
+                                },
+                            color =
+                                if (task.isCompleted) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        PriorityBadge(priority = task.priority)
+                    }
+                    TaskMetadataRow(task = task)
+                }
             }
             IconButton(onClick = onEditClick) {
                 Icon(
@@ -304,6 +430,48 @@ internal fun TaskListItem(
         }
     }
 }
+
+@Composable
+private fun TaskMetadataRow(task: TaskUiModel) {
+    val hasDueDate = task.dueDateLabel != null
+    val hasCategory = task.category != null
+
+    if (!hasDueDate && !hasCategory) return
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (hasDueDate) {
+            Text(
+                text = task.dueDateLabel!!,
+                style = MaterialTheme.typography.bodySmall,
+                color =
+                    if (task.isOverdue) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            )
+        }
+        if (hasCategory) {
+            Text(
+                text = task.category!!,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/**
+ * Returns true when any filter is actively applied (search, priority, or category).
+ */
+private fun hasActiveFilters(
+    searchQuery: String,
+    filterPriority: Priority?,
+    filterCategory: String?,
+): Boolean = searchQuery.isNotEmpty() || filterPriority != null || filterCategory != null
 
 @Composable
 private fun EmptyTaskListContent(modifier: Modifier = Modifier) {

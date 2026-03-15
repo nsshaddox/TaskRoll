@@ -34,17 +34,18 @@ import java.time.format.FormatStyle
  * when non-null it is in "edit" mode with fields pre-populated from the task.
  *
  * @param task The task to edit, or null for add mode.
- * @param onConfirm Called with title, optional description, priority, and optional due date
- *   when the user taps the confirm button.
+ * @param onConfirm Called with title, optional description, priority, optional due date,
+ *   and optional category when the user taps the confirm button.
  * @param onDismiss Called when the user cancels or dismisses the dialog.
  * @param initialDueDate The raw due date for pre-population in edit mode. Null when not set.
  * @param modifier Modifier for customization.
  */
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTaskDialog(
     task: TaskUiModel?,
-    onConfirm: (String, String?, Priority, LocalDate?) -> Unit,
+    onConfirm: (String, String?, Priority, LocalDate?, String?) -> Unit,
     onDismiss: () -> Unit,
     initialDueDate: LocalDate? = null,
     modifier: Modifier = Modifier,
@@ -54,6 +55,7 @@ fun EditTaskDialog(
     var description by remember { mutableStateOf(task?.description.orEmpty()) }
     var priority by remember { mutableStateOf(task?.priority ?: Priority.MEDIUM) }
     var dueDate by remember { mutableStateOf(initialDueDate) }
+    var category by remember { mutableStateOf(task?.category.orEmpty()) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     if (showDatePicker) {
@@ -80,6 +82,8 @@ fun EditTaskDialog(
                 onPriorityChange = { priority = it },
                 dueDate = dueDate,
                 onDueDateClick = { showDatePicker = true },
+                category = category,
+                onCategoryChange = { category = it },
             )
         },
         confirmButton = {
@@ -92,6 +96,7 @@ fun EditTaskDialog(
                         description.trim().ifBlank { null },
                         priority,
                         dueDate,
+                        category.trim().ifBlank { null },
                     )
                 },
             )
@@ -145,6 +150,8 @@ private fun EditTaskDialogContent(
     onPriorityChange: (Priority) -> Unit,
     dueDate: LocalDate?,
     onDueDateClick: () -> Unit,
+    category: String,
+    onCategoryChange: (String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.small)) {
         TextField(
@@ -166,6 +173,15 @@ private fun EditTaskDialogContent(
         )
         PrioritySelector(selected = priority, onSelect = onPriorityChange)
         DueDateField(dueDate = dueDate, onClick = onDueDateClick)
+        TextField(
+            value = category,
+            onValueChange = onCategoryChange,
+            placeholder = {
+                Text(stringResource(R.string.edit_task_dialog_placeholder_category))
+            },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

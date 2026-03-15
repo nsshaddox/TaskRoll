@@ -46,7 +46,7 @@ class EditTaskDialogTest {
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }
@@ -59,7 +59,7 @@ class EditTaskDialogTest {
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }
@@ -73,7 +73,7 @@ class EditTaskDialogTest {
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }
@@ -101,7 +101,7 @@ class EditTaskDialogTest {
             EditTaskDialog(
                 task = task,
                 initialDueDate = LocalDate.of(2026, 3, 14),
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }
@@ -124,15 +124,17 @@ class EditTaskDialogTest {
         var confirmedDescription: String? = null
         var confirmedPriority = Priority.MEDIUM
         var confirmedDueDate: LocalDate? = null
+        var confirmedCategory: String? = null
 
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { title, desc, priority, dueDate ->
+                onConfirm = { title, desc, priority, dueDate, category ->
                     confirmedTitle = title
                     confirmedDescription = desc
                     confirmedPriority = priority
                     confirmedDueDate = dueDate
+                    confirmedCategory = category
                 },
                 onDismiss = {},
             )
@@ -147,6 +149,7 @@ class EditTaskDialogTest {
         assertEquals("Some details", confirmedDescription)
         assertEquals(Priority.HIGH, confirmedPriority)
         assertNull(confirmedDueDate)
+        assertNull(confirmedCategory)
     }
 
     @Test
@@ -156,7 +159,7 @@ class EditTaskDialogTest {
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = { dismissCalled = true },
             )
         }
@@ -171,7 +174,7 @@ class EditTaskDialogTest {
         composeTestRule.setContent {
             EditTaskDialog(
                 task = null,
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }
@@ -192,7 +195,7 @@ class EditTaskDialogTest {
             EditTaskDialog(
                 task = task,
                 initialDueDate = LocalDate.of(2026, 3, 14),
-                onConfirm = { _, _, _, _ -> },
+                onConfirm = { _, _, _, _, _ -> },
                 onDismiss = {},
             )
         }

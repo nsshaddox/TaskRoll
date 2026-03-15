@@ -193,4 +193,49 @@ class TaskListUiStateTest {
         assertTrue(str.contains("searchQuery=groceries"))
         assertTrue(str.contains("sortOrder=PRIORITY_DESC"))
     }
+
+    // ── Edit dialog state tests ──
+
+    @Test
+    fun `default state has edit dialog hidden`() {
+        val state = TaskListUiState()
+        assertFalse(state.isEditDialogVisible)
+    }
+
+    @Test
+    fun `default state has null editingTask`() {
+        val state = TaskListUiState()
+        assertNull(state.editingTask)
+    }
+
+    @Test
+    fun `copy with isEditDialogVisible true`() {
+        val state = TaskListUiState()
+        val withDialog = state.copy(isEditDialogVisible = true)
+        assertTrue(withDialog.isEditDialogVisible)
+    }
+
+    @Test
+    fun `copy with editingTask`() {
+        val uiModel =
+            TaskUiModel(
+                id = 1L,
+                title = "Test",
+                description = null,
+                isCompleted = false,
+                createdAt = "Jan 1, 2025",
+                updatedAt = "Jan 1, 2025",
+            )
+        val state = TaskListUiState()
+        val withTask = state.copy(editingTask = uiModel)
+        assertEquals(uiModel, withTask.editingTask)
+    }
+
+    @Test
+    fun `copy preserves edit dialog defaults when not overridden`() {
+        val state = TaskListUiState()
+        val copied = state.copy(isLoading = false)
+        assertFalse(copied.isEditDialogVisible)
+        assertNull(copied.editingTask)
+    }
 }

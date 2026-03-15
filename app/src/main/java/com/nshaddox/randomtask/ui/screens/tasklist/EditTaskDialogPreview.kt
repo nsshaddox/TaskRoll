@@ -15,7 +15,7 @@ fun EditTaskDialogAddModePreview() {
     RandomTaskTheme {
         EditTaskDialog(
             task = null,
-            onConfirm = { _, _, _, _ -> },
+            onConfirm = { _, _, _, _, _ -> },
             onDismiss = {},
         )
     }
@@ -40,9 +40,10 @@ fun EditTaskDialogEditModePreview() {
                     priority = Priority.HIGH,
                     priorityLabel = "High",
                     dueDateLabel = "Mar 20, 2026",
+                    category = "Work",
                 ),
             initialDueDate = LocalDate.of(2026, 3, 20),
-            onConfirm = { _, _, _, _ -> },
+            onConfirm = { _, _, _, _, _ -> },
             onDismiss = {},
         )
     }

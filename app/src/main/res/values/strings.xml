@@ -18,6 +18,21 @@
     <string name="edit_task_dialog_priority_medium">Medium</string>
     <string name="edit_task_dialog_priority_high">High</string>
 
+    <string name="edit_task_dialog_placeholder_category">Category (optional)</string>
+    <string name="edit_task_dialog_field_category">Category</string>
+
+    <!-- TaskFilterBar -->
+    <string name="filter_bar_search_hint">Search tasks</string>
+    <string name="filter_bar_clear_search">Clear search</string>
+    <string name="filter_bar_priority_all">All</string>
+    <string name="filter_bar_category_all">All Categories</string>
+    <string name="filter_bar_sort_label">Sort</string>
+
+    <!-- TaskListItem -->
+    <string name="task_item_overdue">Overdue</string>
+    <string name="cd_task_due_date">Due: %1$s</string>
+    <string name="cd_task_category">Category: %1$s</string>
+
     <!-- DueDatePickerDialog -->
     <string name="due_date_picker_title">Select Due Date</string>
     <string name="due_date_picker_confirm">Confirm</string>
