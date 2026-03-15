@@ -35,7 +35,7 @@ ls -la .git/hooks/pre-commit
 
 ## What the Hook Does
 
-The pre-commit hook runs two checks sequentially:
+The pre-commit hook runs three checks sequentially:
 
 ```bash
 #!/bin/bash
@@ -44,6 +44,7 @@ set -e
 echo "Running pre-commit checks..."
 ./gradlew lintDebug --quiet
 ./gradlew testDebugUnitTest --quiet
+./gradlew jacocoTestCoverageVerification --quiet
 echo "All checks passed! Proceeding with commit."
 ```
 
@@ -59,7 +60,14 @@ echo "All checks passed! Proceeding with commit."
 - Covers use cases, ViewModels, mappers, and state classes
 - Reports are generated at `app/build/reports/tests/testDebugUnitTest/index.html`
 
-If either check fails, the commit is aborted. Fix the issues and try again.
+### 3. Coverage Verification (`jacocoTestCoverageVerification`)
+
+- Verifies per-package code coverage meets configured thresholds
+- Reuses the `.exec` file from the preceding test run (no test re-execution)
+- Thresholds: domain 85% instruction, data 90%, UI 90%, bundle 80%
+- See [Testing Guide](TESTING.md) for full threshold details
+
+If any check fails, the commit is aborted. Fix the issues and try again.
 
 ## Usage
 
@@ -90,14 +98,17 @@ Use `--no-verify` only when:
 You can run the same checks the hook runs at any time:
 
 ```bash
-# Run both checks (same as the hook)
-./gradlew lintDebug testDebugUnitTest
+# Run all three checks (same as the hook)
+./gradlew lintDebug testDebugUnitTest jacocoTestCoverageVerification
 
 # Run just lint
 ./gradlew lintDebug
 
 # Run just tests
 ./gradlew testDebugUnitTest
+
+# Run just coverage verification
+./gradlew jacocoTestCoverageVerification
 
 # Run with verbose output for debugging
 ./gradlew lintDebug testDebugUnitTest --info
@@ -170,9 +181,24 @@ Common test issues:
 - Turbine `.test {}` block not awaiting all emissions
 - Stale generated code — run `./gradlew clean` first
 
+### Coverage Failures
+
+```bash
+# Generate the HTML report to see exactly what's uncovered
+./gradlew jacocoTestReport
+
+# Open the coverage report in a browser
+open app/build/reports/jacoco/jacocoTestReport/html/index.html
+```
+
+Common coverage issues:
+- New code missing unit tests — write tests following the TDD Red-Green-Refactor cycle
+- Coverage below threshold for a specific package — check the HTML report to identify uncovered lines
+- False negatives from Kotlin coroutine synthetic branches — these are expected; see [Testing Guide](TESTING.md) for details on the coroutine coverage limitation
+
 ### Hook Is Slow
 
-The hook runs lint and all unit tests, which can take 30-60 seconds. To speed things up:
+The hook runs lint, all unit tests, and coverage verification, which can take 30-60 seconds. To speed things up:
 
 - Ensure Gradle daemon is running (`./gradlew --status`)
 - Use Gradle build cache (enabled by default)
@@ -197,9 +223,11 @@ The same checks run in the GitHub Actions CI pipeline (`.github/workflows/androi
 
 1. `lintDebug` — Same lint check as the hook
 2. `testDebugUnitTest` — Same unit tests as the hook
-3. `assembleDebug` — Additional build verification
+3. `jacocoTestReport` — Coverage report generation (HTML + XML)
+4. `jacocoTestCoverageVerification` — Same coverage check as the hook
+5. `assembleDebug` — Additional build verification
 
-This means the hook catches issues locally before they reach CI, providing faster feedback.
+The CI pipeline also uploads coverage reports as artifacts for debugging. This means the hook catches issues locally before they reach CI, providing faster feedback.
 
 ## Best Practices
 
