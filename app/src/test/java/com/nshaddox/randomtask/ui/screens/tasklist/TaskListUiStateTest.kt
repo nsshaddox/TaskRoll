@@ -238,4 +238,27 @@ class TaskListUiStateTest {
         assertFalse(copied.isEditDialogVisible)
         assertNull(copied.editingTask)
     }
+
+    // ── Pending delete task tests ──
+
+    @Test
+    fun `default state has null pendingDeleteTask`() {
+        val state = TaskListUiState()
+        assertNull(state.pendingDeleteTask)
+    }
+
+    @Test
+    fun `copy with pendingDeleteTask`() {
+        val task = Task(id = 1, title = "Deleted", createdAt = 1000L, updatedAt = 1000L)
+        val state = TaskListUiState()
+        val withPending = state.copy(pendingDeleteTask = task)
+        assertEquals(task, withPending.pendingDeleteTask)
+    }
+
+    @Test
+    fun `copy preserves pendingDeleteTask default when not overridden`() {
+        val state = TaskListUiState()
+        val copied = state.copy(isLoading = false)
+        assertNull(copied.pendingDeleteTask)
+    }
 }

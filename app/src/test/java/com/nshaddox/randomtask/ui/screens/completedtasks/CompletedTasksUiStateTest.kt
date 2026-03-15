@@ -111,4 +111,34 @@ class CompletedTasksUiStateTest {
         assertTrue(str.contains("isLoading=false"))
         assertTrue(str.contains("errorMessage=oops"))
     }
+
+    // ── Pending delete task tests ──
+
+    @Test
+    fun `default state has null pendingDeleteTask`() {
+        val state = CompletedTasksUiState()
+        assertNull(state.pendingDeleteTask)
+    }
+
+    @Test
+    fun `copy with pendingDeleteTask`() {
+        val task =
+            Task(
+                id = 1,
+                title = "Deleted",
+                isCompleted = true,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
+        val state = CompletedTasksUiState()
+        val withPending = state.copy(pendingDeleteTask = task)
+        assertEquals(task, withPending.pendingDeleteTask)
+    }
+
+    @Test
+    fun `copy preserves pendingDeleteTask default when not overridden`() {
+        val state = CompletedTasksUiState()
+        val copied = state.copy(isLoading = false)
+        assertNull(copied.pendingDeleteTask)
+    }
 }

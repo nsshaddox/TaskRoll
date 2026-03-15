@@ -174,6 +174,38 @@ class TaskListViewModel
             }
         }
 
+        fun deleteTaskWithUndo(task: Task) {
+            viewModelScope.launch(ioDispatcher) {
+                deleteTaskUseCase(task)
+                    .onSuccess {
+                        _uiState.update { it.copy(pendingDeleteTask = task) }
+                    }
+                    .onFailure { error ->
+                        _uiState.update { it.copy(errorMessage = error.message ?: "Failed to delete task") }
+                    }
+            }
+        }
+
+        fun undoDelete() {
+            val pending = _uiState.value.pendingDeleteTask ?: return
+            _uiState.update { it.copy(pendingDeleteTask = null) }
+            viewModelScope.launch(ioDispatcher) {
+                addTaskUseCase(
+                    title = pending.title,
+                    description = pending.description,
+                    priority = pending.priority,
+                    dueDate = pending.dueDate,
+                    category = pending.category,
+                ).onFailure { error ->
+                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to restore task") }
+                }
+            }
+        }
+
+        fun confirmDelete() {
+            _uiState.update { it.copy(pendingDeleteTask = null) }
+        }
+
         fun toggleTaskCompletion(task: Task) {
             viewModelScope.launch(ioDispatcher) {
                 val result =

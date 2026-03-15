@@ -8,9 +8,12 @@ import com.nshaddox.randomtask.domain.model.Task
  * @property tasks The list of completed tasks to display.
  * @property isLoading Whether a loading operation is in progress.
  * @property errorMessage An optional error message to display. Null when there is no error.
+ * @property pendingDeleteTask The task most recently deleted, held for potential undo.
+ *   Null when there is no pending undo action.
  */
 data class CompletedTasksUiState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
+    val pendingDeleteTask: Task? = null,
 )
