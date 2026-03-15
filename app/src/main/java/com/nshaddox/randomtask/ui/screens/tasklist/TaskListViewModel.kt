@@ -44,10 +44,8 @@ class TaskListViewModel
             title: String,
             description: String? = null,
         ) {
-            val now = System.currentTimeMillis()
-            val task = Task(title = title, description = description, createdAt = now, updatedAt = now)
             viewModelScope.launch(ioDispatcher) {
-                addTaskUseCase(task)
+                addTaskUseCase(title = title, description = description)
                     .onFailure { error ->
                         _uiState.update { it.copy(errorMessage = error.message ?: "Failed to add task") }
                     }

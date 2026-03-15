@@ -61,4 +61,6 @@ class FakeTaskRepository : TaskRepository {
         tasksFlow.update { tasks.toList() }
         return Result.success(Unit)
     }
+
+    fun getAllTasksSnapshot(): List<Task> = tasks.toList()
 }
