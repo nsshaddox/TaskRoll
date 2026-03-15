@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
@@ -38,9 +39,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.navigation.Screen
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -92,6 +95,7 @@ fun TaskListScreen(
         onEditTask = { task -> navController.navigate(Screen.EditTask.createRoute(task.id)) },
         onAddTask = { viewModel.showAddDialog() },
         onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) },
+        onNavigateToCompletedTasks = { navController.navigate(Screen.CompletedTasks.route) },
     )
 }
 
@@ -108,8 +112,10 @@ fun TaskListScreen(
  * @param onEditTask Callback when edit button is clicked
  * @param onAddTask Callback when FAB is clicked to add new task
  * @param onNavigateToRandomTask Callback when random task navigation button is clicked
+ * @param onNavigateToCompletedTasks Callback when completed tasks history button is clicked
  * @param modifier Modifier for customization
  */
+@Suppress("LongParameterList", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
@@ -124,6 +130,7 @@ fun TaskListScreen(
     onEditTask: (Task) -> Unit = {},
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
+    onNavigateToCompletedTasks: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(errorMessage) {
@@ -145,6 +152,13 @@ fun TaskListScreen(
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
                 actions = {
+                    IconButton(onClick = onNavigateToCompletedTasks) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = stringResource(R.string.cd_navigate_to_completed_tasks),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
                     IconButton(onClick = onNavigateToRandomTask) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
