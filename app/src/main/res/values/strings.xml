@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">Random Task</string>
+
+    <!-- EditTaskDialog -->
+    <string name="edit_task_dialog_title_add">Add Task</string>
+    <string name="edit_task_dialog_title_edit">Edit Task</string>
+    <string name="edit_task_dialog_field_title">Title</string>
+    <string name="edit_task_dialog_field_description">Description</string>
+    <string name="edit_task_dialog_field_priority">Priority</string>
+    <string name="edit_task_dialog_field_due_date">Due Date</string>
+    <string name="edit_task_dialog_placeholder_title">Task title</string>
+    <string name="edit_task_dialog_placeholder_description">Description (optional)</string>
+    <string name="edit_task_dialog_placeholder_due_date">No due date</string>
+    <string name="edit_task_dialog_button_add">Add</string>
+    <string name="edit_task_dialog_button_save">Save</string>
+    <string name="edit_task_dialog_button_cancel">Cancel</string>
+    <string name="edit_task_dialog_priority_low">Low</string>
+    <string name="edit_task_dialog_priority_medium">Medium</string>
+    <string name="edit_task_dialog_priority_high">High</string>
+
+    <!-- DueDatePickerDialog -->
+    <string name="due_date_picker_title">Select Due Date</string>
+    <string name="due_date_picker_confirm">Confirm</string>
+    <string name="due_date_picker_cancel">Cancel</string>
+    <string name="due_date_picker_clear">Clear</string>
 </resources>
