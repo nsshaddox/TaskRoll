@@ -62,12 +62,34 @@ cd RandomTask
 
 ## Development Workflow
 
+### Strict TDD Requirement
+
+**MANDATORY**: All development must follow the **Red-Green-Refactor** cycle. Never write production code without a failing test first.
+
+#### 1. RED Phase — Write Failing Test
+
+- Write a test that defines the desired behavior
+- Ensure the test fails for the correct reason (not a compilation error)
+- Test should be specific and focused on one behavior
+
+#### 2. GREEN Phase — Make Test Pass
+
+- Write the **minimum** code required to make the test pass
+- No extra functionality beyond what the test requires
+- Focus on making the test pass quickly
+
+#### 3. REFACTOR Phase — Improve Code
+
+- Improve code structure while keeping all tests green
+- Eliminate duplication and improve readability
+- Run all tests to confirm nothing broke
+
 ### Feature Development Process
 
 1. **Create a feature branch** from `main`
 2. **Understand requirements** — Read the relevant GitHub issue
-3. **Write tests first** — Follow the test patterns in [Testing Guide](TESTING.md)
-4. **Implement the feature** — Make tests pass with clean code
+3. **Design tests** — Write comprehensive failing tests (RED phase)
+4. **TDD implementation** — Follow Red-Green-Refactor cycle for each behavior
 5. **Run all checks** — `./gradlew lintDebug testDebugUnitTest`
 6. **Commit** — Pre-commit hooks validate automatically
 7. **Open a pull request** against `main`
@@ -105,15 +127,23 @@ Prefix conventions:
 
 ### Quality Gates
 
+#### Before Writing Code
+
+- [ ] Test is written and failing (RED phase)
+- [ ] Test clearly defines expected behavior
+- [ ] Test covers edge cases and error conditions
+
 #### Before Commit
 
 - [ ] All unit tests pass (`./gradlew test`)
 - [ ] Lint checks pass (`./gradlew lintDebug`)
+- [ ] Code coverage meets standards (>90% for new code)
 - [ ] Pre-commit hook passes (runs both automatically)
 - [ ] No hardcoded strings in UI (use string resources)
 
 #### Before Merge
 
+- [ ] Tests written before implementation (TDD verified)
 - [ ] PR reviewed
 - [ ] CI pipeline passes
 - [ ] No unresolved review comments

@@ -97,6 +97,24 @@ app/src/main/java/com/nshaddox/randomtask/
     └── theme/          # Color, Theme, Type
 ```
 
+## Critical Requirement: Strict TDD
+
+**MANDATORY**: All feature implementations must follow **Strict Test-Driven Development (TDD)**:
+
+1. **RED** — Write a failing test that defines the desired behavior
+2. **GREEN** — Write the minimum code required to make the test pass
+3. **REFACTOR** — Improve the code while keeping all tests green
+
+**Never write production code without a failing test first.**
+
+### TDD Coverage Requirements
+
+- **Minimum 90% line coverage** for new code
+- **100% branch coverage** for critical business logic (use cases, validation)
+- All edge cases must be explicitly tested
+
+Read `docs/TESTING.md` when writing or debugging tests.
+
 ## Testing Summary
 
 - **16 unit test files** covering use cases, ViewModels, mappers, and UI state
@@ -105,13 +123,11 @@ app/src/main/java/com/nshaddox/randomtask/
 - Pre-commit hook runs `lintDebug` + `testDebugUnitTest` before every commit
 - CI runs the same checks via GitHub Actions
 
-Read `docs/TESTING.md` when writing or debugging tests.
-
 ## Development Guardrails
 
+- **Strict TDD** — never write production code before a failing test
 - **Pre-commit hook** runs lint and unit tests — do not skip to avoid fixing failures
 - **Branch naming:** `issue-{number}-{short-description}`
-- **All new code must have tests** — test use cases, ViewModels, and mappers
 - **Domain layer stays pure Kotlin** — no Android imports in `domain/`
 - **Use named dispatchers** — inject `@Named("IO")` instead of hardcoding `Dispatchers.IO`
 - **Mappers are extension functions** — no mapper classes, no business logic in mappers
@@ -120,9 +136,10 @@ Read `docs/TESTING.md` when writing or debugging tests.
 
 Before committing:
 
+- [ ] Tests written before implementation (RED phase)
 - [ ] All tests pass (`./gradlew test`)
 - [ ] Lint passes (`./gradlew lintDebug`)
-- [ ] New code has corresponding tests
+- [ ] Code coverage meets requirements (>90% for new code)
 - [ ] No hardcoded strings in UI (use string resources)
 - [ ] Domain layer has no Android imports
 - [ ] Pre-commit hook passes
