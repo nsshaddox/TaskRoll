@@ -47,10 +47,16 @@
     <string name="completed_tasks_empty_title">No completed tasks yet</string>
     <string name="completed_tasks_empty_body">Tasks you complete will appear here</string>
 
+    <!-- Snackbar -->
+    <string name="snackbar_task_deleted">Task deleted</string>
+    <string name="snackbar_undo_action">Undo</string>
+
     <!-- Content Descriptions -->
     <string name="cd_navigate_back">Navigate back</string>
     <string name="cd_navigate_to_completed_tasks">View completed tasks</string>
     <string name="cd_swipe_to_delete">Swipe to delete</string>
+    <string name="cd_delete_task">Delete task</string>
+    <string name="cd_edit_task">Edit task</string>
     <string name="cd_priority_badge">Priority: %1$s</string>
 
     <!-- Priority Labels -->

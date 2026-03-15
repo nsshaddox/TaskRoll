@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -1021,6 +1022,229 @@ class TaskListViewModelTest {
                 assertEquals(Priority.MEDIUM, state.tasks[0].priority)
                 assertNull(state.tasks[0].dueDate)
                 assertNull(state.tasks[0].category)
+            }
+        }
+
+    // === Delete with undo tests ===
+
+    @Test
+    fun `deleteTaskWithUndo removes task and sets pendingDeleteTask`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Task to delete"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                assertEquals(1, loaded.tasks.size)
+                val taskToDelete = loaded.tasks[0]
+
+                viewModel.deleteTaskWithUndo(taskToDelete)
+
+                // Consume items until task list is empty and pending is set
+                var state = awaitItem()
+                // May need extra emission if pending and task-removal are separate
+                if (state.tasks.isNotEmpty()) {
+                    state = awaitItem()
+                }
+                assertTrue(state.tasks.isEmpty())
+                assertEquals(taskToDelete.title, state.pendingDeleteTask?.title)
+            }
+        }
+
+    @Test
+    fun `undoDelete restores pending task and clears pendingDeleteTask`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Task to undo"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                assertEquals(1, loaded.tasks.size)
+                val taskToDelete = loaded.tasks[0]
+
+                viewModel.deleteTaskWithUndo(taskToDelete)
+
+                // Wait for deletion to appear
+                var state = awaitItem()
+                if (state.tasks.isNotEmpty()) {
+                    state = awaitItem()
+                }
+                assertTrue(state.tasks.isEmpty())
+
+                viewModel.undoDelete()
+                advanceUntilIdle()
+
+                // Consume items until task reappears and pending is cleared
+                state = awaitItem()
+                if (state.tasks.isEmpty()) {
+                    state = awaitItem()
+                }
+                assertEquals(1, state.tasks.size)
+                assertEquals("Task to undo", state.tasks[0].title)
+                assertNull(state.pendingDeleteTask)
+            }
+        }
+
+    @Test
+    fun `confirmDelete clears pendingDeleteTask without restoring task`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Task to confirm delete"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                assertEquals(1, loaded.tasks.size)
+                val taskToDelete = loaded.tasks[0]
+
+                viewModel.deleteTaskWithUndo(taskToDelete)
+
+                // Wait for deletion
+                var state = awaitItem()
+                if (state.tasks.isNotEmpty()) {
+                    state = awaitItem()
+                }
+                assertTrue(state.tasks.isEmpty())
+                assertNotNull(state.pendingDeleteTask)
+
+                viewModel.confirmDelete()
+
+                val confirmed = awaitItem()
+                assertTrue(confirmed.tasks.isEmpty())
+                assertNull(confirmed.pendingDeleteTask)
+            }
+        }
+
+    @Test
+    fun `deleteTaskWithUndo replaces previous pending delete`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "First task"))
+            repository.addTask(createTask(title = "Second task"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with 2 tasks
+                val loaded = awaitItem()
+                assertEquals(2, loaded.tasks.size)
+
+                val firstTask = loaded.tasks.find { it.title == "First task" }!!
+                viewModel.deleteTaskWithUndo(firstTask)
+
+                // Wait for first delete
+                var state = awaitItem()
+                if (state.tasks.size != 1) {
+                    state = awaitItem()
+                }
+                assertEquals(1, state.tasks.size)
+                assertEquals("First task", state.pendingDeleteTask?.title)
+
+                val secondTask = state.tasks[0]
+                viewModel.deleteTaskWithUndo(secondTask)
+
+                // Wait for second delete
+                state = awaitItem()
+                if (state.tasks.isNotEmpty()) {
+                    state = awaitItem()
+                }
+                assertTrue(state.tasks.isEmpty())
+                assertEquals("Second task", state.pendingDeleteTask?.title)
+            }
+        }
+
+    @Test
+    fun `undoDelete with no pending task is a no-op`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded empty
+                val loaded = awaitItem()
+                assertNull(loaded.pendingDeleteTask)
+
+                viewModel.undoDelete()
+                advanceUntilIdle()
+
+                // No new emission expected; verify state hasn't changed
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `deleteTaskWithUndo failure sets error message and does not set pendingDeleteTask`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded empty
+                awaitItem()
+
+                // Try to delete a task that doesn't exist
+                viewModel.deleteTaskWithUndo(createTask(id = 999, title = "Nonexistent"))
+
+                val errorState = awaitItem()
+                assertEquals("Task not found", errorState.errorMessage)
+                assertNull(errorState.pendingDeleteTask)
+            }
+        }
+
+    @Test
+    fun `undoDelete preserves original task fields`() =
+        runTest(testDispatcher) {
+            repository.addTask(
+                createTask(
+                    title = "Important",
+                    priority = Priority.HIGH,
+                    dueDate = 500L,
+                    category = "Work",
+                ),
+            )
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with task
+                val loaded = awaitItem()
+                assertEquals(1, loaded.tasks.size)
+                val taskToDelete = loaded.tasks[0]
+
+                viewModel.deleteTaskWithUndo(taskToDelete)
+
+                // Wait for deletion
+                var state = awaitItem()
+                if (state.tasks.isNotEmpty()) {
+                    state = awaitItem()
+                }
+                assertTrue(state.tasks.isEmpty())
+
+                viewModel.undoDelete()
+                advanceUntilIdle()
+
+                // Consume items until task reappears
+                state = awaitItem()
+                if (state.tasks.isEmpty()) {
+                    state = awaitItem()
+                }
+                assertEquals(1, state.tasks.size)
+                val restoredTask = state.tasks[0]
+                assertEquals("Important", restoredTask.title)
+                assertEquals(Priority.HIGH, restoredTask.priority)
+                assertEquals(500L, restoredTask.dueDate)
+                assertEquals("Work", restoredTask.category)
             }
         }
 

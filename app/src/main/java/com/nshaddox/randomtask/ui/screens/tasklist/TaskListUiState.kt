@@ -19,6 +19,8 @@ import com.nshaddox.randomtask.domain.model.Task
  * @property sortOrder The current sort ordering for the task list.
  * @property availableCategories The list of distinct category values present in the task list,
  *   used to populate filter UI.
+ * @property pendingDeleteTask The task most recently deleted, held for potential undo.
+ *   Null when there is no pending undo action.
  */
 data class TaskListUiState(
     val tasks: List<Task> = emptyList(),
@@ -32,4 +34,5 @@ data class TaskListUiState(
     val filterCategory: String? = null,
     val sortOrder: SortOrder = SortOrder.CREATED_DATE_DESC,
     val availableCategories: List<String> = emptyList(),
+    val pendingDeleteTask: Task? = null,
 )

@@ -1,5 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,12 +28,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -132,6 +139,25 @@ fun TaskListScreen(
         )
     }
 
+    // Undo-delete Snackbar
+    val pendingDeleteTask = uiState.pendingDeleteTask
+    val taskDeletedMessage = stringResource(R.string.snackbar_task_deleted)
+    val undoLabel = stringResource(R.string.snackbar_undo_action)
+    LaunchedEffect(pendingDeleteTask) {
+        if (pendingDeleteTask != null) {
+            val result =
+                snackbarHostState.showSnackbar(
+                    message = taskDeletedMessage,
+                    actionLabel = undoLabel,
+                    duration = SnackbarDuration.Short,
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> viewModel.undoDelete()
+                SnackbarResult.Dismissed -> viewModel.confirmDelete()
+            }
+        }
+    }
+
     TaskListScreen(
         tasks = taskUiModels,
         isLoading = uiState.isLoading,
@@ -155,7 +181,7 @@ fun TaskListScreen(
         },
         onDeleteTask = { taskUiModel ->
             uiState.tasks.find { it.id == taskUiModel.id }?.let { task ->
-                viewModel.deleteTask(task)
+                viewModel.deleteTaskWithUndo(task)
             }
         },
         onEditTask = { taskUiModel -> viewModel.showEditDialog(taskUiModel) },
@@ -185,7 +211,7 @@ fun TaskListScreen(
  * @param onClearError Callback to clear the current error message.
  * @param onTaskClick Callback when a task is clicked.
  * @param onTaskCheckedChange Callback when task completion status changes.
- * @param onDeleteTask Callback when delete button is clicked.
+ * @param onDeleteTask Callback when delete button or swipe-to-delete is triggered.
  * @param onEditTask Callback when edit button is clicked.
  * @param onAddTask Callback when FAB is clicked to add new task.
  * @param onNavigateToRandomTask Callback when random task navigation button is clicked.
@@ -326,7 +352,7 @@ fun TaskListScreen(
                         verticalArrangement = Arrangement.spacedBy(Spacing.small),
                     ) {
                         items(tasks, key = { it.id }) { task ->
-                            TaskListItem(
+                            SwipeToDismissTaskItem(
                                 task = task,
                                 onTaskClick = { onTaskClick(task) },
                                 onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
@@ -338,6 +364,80 @@ fun TaskListScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * A task list item wrapped in a [SwipeToDismissBox] for swipe-to-delete.
+ *
+ * Swiping from end to start reveals a red background with a delete icon.
+ * On full swipe, the [onDeleteClick] callback is invoked.
+ *
+ * @param task The task UI model to display.
+ * @param onTaskClick Callback when the task card is clicked.
+ * @param onCheckedChange Callback when the task checkbox state changes.
+ * @param onEditClick Callback when the edit button is clicked.
+ * @param onDeleteClick Callback when the item is swiped to delete or the delete button is clicked.
+ * @param modifier Modifier for customization.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDismissTaskItem(
+    task: TaskUiModel,
+    onTaskClick: () -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dismissState =
+        rememberSwipeToDismissBoxState(
+            confirmValueChange = { value ->
+                if (value == SwipeToDismissBoxValue.EndToStart) {
+                    onDeleteClick()
+                    true
+                } else {
+                    false
+                }
+            },
+        )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            val color by animateColorAsState(
+                targetValue =
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                        else -> Color.Transparent
+                    },
+                label = "dismissBackground",
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color)
+                        .padding(horizontal = Spacing.medium),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.cd_swipe_to_delete),
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        },
+        modifier = modifier,
+        enableDismissFromStartToEnd = false,
+    ) {
+        TaskListItem(
+            task = task,
+            onTaskClick = onTaskClick,
+            onCheckedChange = onCheckedChange,
+            onEditClick = onEditClick,
+            onDeleteClick = onDeleteClick,
+        )
     }
 }
 
@@ -416,14 +516,14 @@ internal fun TaskListItem(
             IconButton(onClick = onEditClick) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit Task",
+                    contentDescription = stringResource(R.string.cd_edit_task),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Task",
+                    contentDescription = stringResource(R.string.cd_delete_task),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

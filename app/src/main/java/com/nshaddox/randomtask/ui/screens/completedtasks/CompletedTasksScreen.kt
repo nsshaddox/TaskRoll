@@ -22,8 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -120,11 +122,30 @@ fun CompletedTasksScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Undo-delete Snackbar
+    val pendingDeleteTask = uiState.pendingDeleteTask
+    val taskDeletedMessage = stringResource(R.string.snackbar_task_deleted)
+    val undoLabel = stringResource(R.string.snackbar_undo_action)
+    LaunchedEffect(pendingDeleteTask) {
+        if (pendingDeleteTask != null) {
+            val result =
+                snackbarHostState.showSnackbar(
+                    message = taskDeletedMessage,
+                    actionLabel = undoLabel,
+                    duration = SnackbarDuration.Short,
+                )
+            when (result) {
+                SnackbarResult.ActionPerformed -> viewModel.undoDelete()
+                SnackbarResult.Dismissed -> viewModel.confirmDelete()
+            }
+        }
+    }
+
     CompletedTasksScreen(
         tasks = uiState.tasks,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
-        onDeleteTask = { task -> viewModel.deleteTask(task) },
+        onDeleteTask = { task -> viewModel.deleteTaskWithUndo(task) },
         onNavigateBack = { navController.popBackStack() },
         onClearError = { viewModel.clearError() },
         snackbarHostState = snackbarHostState,
