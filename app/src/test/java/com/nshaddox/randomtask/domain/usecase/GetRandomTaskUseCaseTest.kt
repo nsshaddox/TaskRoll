@@ -9,7 +9,6 @@ import org.junit.Before
 import org.junit.Test
 
 class GetRandomTaskUseCaseTest {
-
     private lateinit var repository: FakeTaskRepository
     private lateinit var getRandomTaskUseCase: GetRandomTaskUseCase
 
@@ -20,30 +19,33 @@ class GetRandomTaskUseCaseTest {
     }
 
     @Test
-    fun `invoke returns null when no tasks exist`() = runTest {
-        val result = getRandomTaskUseCase()
+    fun `invoke returns null when no tasks exist`() =
+        runTest {
+            val result = getRandomTaskUseCase()
 
-        assertNull(result)
-    }
-
-    @Test
-    fun `invoke returns null when all tasks are completed`() = runTest {
-        repository.addTask(Task(title = "Done 1", isCompleted = true, createdAt = 1000L, updatedAt = 1000L))
-        repository.addTask(Task(title = "Done 2", isCompleted = true, createdAt = 2000L, updatedAt = 2000L))
-
-        val result = getRandomTaskUseCase()
-
-        assertNull(result)
-    }
+            assertNull(result)
+        }
 
     @Test
-    fun `invoke returns incomplete task when tasks exist`() = runTest {
-        repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
-        repository.addTask(Task(title = "Complete", isCompleted = true, createdAt = 2000L, updatedAt = 2000L))
+    fun `invoke returns null when all tasks are completed`() =
+        runTest {
+            repository.addTask(Task(title = "Done 1", isCompleted = true, createdAt = 1000L, updatedAt = 1000L))
+            repository.addTask(Task(title = "Done 2", isCompleted = true, createdAt = 2000L, updatedAt = 2000L))
 
-        val result = getRandomTaskUseCase()
+            val result = getRandomTaskUseCase()
 
-        assertNotNull(result)
-        assertTrue(!result!!.isCompleted)
-    }
+            assertNull(result)
+        }
+
+    @Test
+    fun `invoke returns incomplete task when tasks exist`() =
+        runTest {
+            repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
+            repository.addTask(Task(title = "Complete", isCompleted = true, createdAt = 2000L, updatedAt = 2000L))
+
+            val result = getRandomTaskUseCase()
+
+            assertNotNull(result)
+            assertTrue(!result!!.isCompleted)
+        }
 }

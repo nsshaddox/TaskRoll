@@ -6,17 +6,17 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class TaskMappersTest {
-
     @Test
     fun `entity to domain maps all fields correctly`() {
-        val entity = TaskEntity(
-            id = 1L,
-            title = "Test Task",
-            description = "Test Description",
-            isCompleted = true,
-            createdAt = 1000L,
-            updatedAt = 2000L
-        )
+        val entity =
+            TaskEntity(
+                id = 1L,
+                title = "Test Task",
+                description = "Test Description",
+                isCompleted = true,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
 
         val domain = entity.toDomain()
 
@@ -30,14 +30,15 @@ class TaskMappersTest {
 
     @Test
     fun `domain to entity maps all fields correctly`() {
-        val domain = Task(
-            id = 2L,
-            title = "Domain Task",
-            description = "Domain Description",
-            isCompleted = false,
-            createdAt = 3000L,
-            updatedAt = 4000L
-        )
+        val domain =
+            Task(
+                id = 2L,
+                title = "Domain Task",
+                description = "Domain Description",
+                isCompleted = false,
+                createdAt = 3000L,
+                updatedAt = 4000L,
+            )
 
         val entity = domain.toEntity()
 
@@ -51,14 +52,15 @@ class TaskMappersTest {
 
     @Test
     fun `round trip entity to domain to entity preserves all fields`() {
-        val original = TaskEntity(
-            id = 5L,
-            title = "Round Trip",
-            description = "Testing round trip",
-            isCompleted = true,
-            createdAt = 5000L,
-            updatedAt = 6000L
-        )
+        val original =
+            TaskEntity(
+                id = 5L,
+                title = "Round Trip",
+                description = "Testing round trip",
+                isCompleted = true,
+                createdAt = 5000L,
+                updatedAt = 6000L,
+            )
 
         val roundTripped = original.toDomain().toEntity()
 
@@ -67,14 +69,15 @@ class TaskMappersTest {
 
     @Test
     fun `null description maps correctly between entity and domain`() {
-        val entity = TaskEntity(
-            id = 3L,
-            title = "No Description",
-            description = null,
-            isCompleted = false,
-            createdAt = 9000L,
-            updatedAt = 10000L
-        )
+        val entity =
+            TaskEntity(
+                id = 3L,
+                title = "No Description",
+                description = null,
+                isCompleted = false,
+                createdAt = 9000L,
+                updatedAt = 10000L,
+            )
 
         val domain = entity.toDomain()
         assertEquals(null, domain.description)
@@ -86,14 +89,15 @@ class TaskMappersTest {
 
     @Test
     fun `round trip domain to entity to domain preserves all fields`() {
-        val original = Task(
-            id = 10L,
-            title = "Round Trip Domain",
-            description = "Testing domain round trip",
-            isCompleted = false,
-            createdAt = 7000L,
-            updatedAt = 8000L
-        )
+        val original =
+            Task(
+                id = 10L,
+                title = "Round Trip Domain",
+                description = "Testing domain round trip",
+                isCompleted = false,
+                createdAt = 7000L,
+                updatedAt = 8000L,
+            )
 
         val roundTripped = original.toEntity().toDomain()
 

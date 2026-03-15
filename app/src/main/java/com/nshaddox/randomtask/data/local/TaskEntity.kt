@@ -21,5 +21,5 @@ data class TaskEntity(
     @ColumnInfo(name = "description") val description: String? = null,
     @ColumnInfo(name = "is_completed") val isCompleted: Boolean = false,
     @ColumnInfo(name = "created_at") val createdAt: Long,
-    @ColumnInfo(name = "updated_at") val updatedAt: Long
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
 )

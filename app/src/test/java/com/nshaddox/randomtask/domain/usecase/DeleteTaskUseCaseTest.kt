@@ -9,7 +9,6 @@ import org.junit.Before
 import org.junit.Test
 
 class DeleteTaskUseCaseTest {
-
     private lateinit var repository: FakeTaskRepository
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
 
@@ -20,22 +19,24 @@ class DeleteTaskUseCaseTest {
     }
 
     @Test
-    fun `invoke deletes existing task successfully`() = runTest {
-        repository.addTask(Task(title = "To Delete", createdAt = 1000L, updatedAt = 1000L))
-        val tasks = repository.getAllTasks().first()
-        val task = tasks.first()
+    fun `invoke deletes existing task successfully`() =
+        runTest {
+            repository.addTask(Task(title = "To Delete", createdAt = 1000L, updatedAt = 1000L))
+            val tasks = repository.getAllTasks().first()
+            val task = tasks.first()
 
-        val result = deleteTaskUseCase(task)
+            val result = deleteTaskUseCase(task)
 
-        assertTrue(result.isSuccess)
-        assertEquals(0, repository.getAllTasks().first().size)
-    }
+            assertTrue(result.isSuccess)
+            assertEquals(0, repository.getAllTasks().first().size)
+        }
 
     @Test
-    fun `invoke with non-existent task returns failure`() = runTest {
-        val nonExistentTask = Task(id = 999L, title = "Ghost", createdAt = 1000L, updatedAt = 1000L)
-        val result = deleteTaskUseCase(nonExistentTask)
+    fun `invoke with non-existent task returns failure`() =
+        runTest {
+            val nonExistentTask = Task(id = 999L, title = "Ghost", createdAt = 1000L, updatedAt = 1000L)
+            val result = deleteTaskUseCase(nonExistentTask)
 
-        assertTrue(result.isFailure)
-    }
+            assertTrue(result.isFailure)
+        }
 }

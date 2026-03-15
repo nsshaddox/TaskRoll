@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:RandomTaskScreen.kt$@Composable private fun SelectedTaskContent( task: Task, onSelectRandom: () -&gt; Unit, onCompleteTask: () -&gt; Unit, onSkipTask: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:RandomTaskScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun RandomTaskScreenContent( uiState: RandomTaskUiState, onSelectRandom: () -&gt; Unit = {}, onCompleteTask: () -&gt; Unit = {}, onSkipTask: () -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:TaskEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TaskEditorScreen( taskTitle: String, isEditMode: Boolean = false, onTitleChange: (String) -&gt; Unit = {}, onSaveClick: () -&gt; Unit = {}, onCancelClick: () -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:TaskListScreen.kt$@Composable internal fun TaskListItem( task: Task, onTaskClick: () -&gt; Unit, onCheckedChange: (Boolean) -&gt; Unit, onEditClick: () -&gt; Unit, onDeleteClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:TaskListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TaskListScreen( tasks: List&lt;Task&gt;, isLoading: Boolean = false, errorMessage: String? = null, snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }, onClearError: () -&gt; Unit = {}, onTaskClick: (Task) -&gt; Unit = {}, onTaskCheckedChange: (Task, Boolean) -&gt; Unit = { _, _ -&gt; }, onDeleteTask: (Task) -&gt; Unit = {}, onEditTask: (Task) -&gt; Unit = {}, onAddTask: () -&gt; Unit = {}, onNavigateToRandomTask: () -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:TaskListScreen.kt$( tasks: List&lt;Task&gt;, isLoading: Boolean = false, errorMessage: String? = null, snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }, onClearError: () -&gt; Unit = {}, onTaskClick: (Task) -&gt; Unit = {}, onTaskCheckedChange: (Task, Boolean) -&gt; Unit = { _, _ -&gt; }, onDeleteTask: (Task) -&gt; Unit = {}, onEditTask: (Task) -&gt; Unit = {}, onAddTask: () -&gt; Unit = {}, onNavigateToRandomTask: () -&gt; Unit = {}, modifier: Modifier = Modifier, )</ID>
+    <ID>MagicNumber:Color.kt$0xFF001E2E</ID>
+    <ID>MagicNumber:Color.kt$0xFF00201B</ID>
+    <ID>MagicNumber:Color.kt$0xFF003730</ID>
+    <ID>MagicNumber:Color.kt$0xFF005047</ID>
+    <ID>MagicNumber:Color.kt$0xFF006B5E</ID>
+    <ID>MagicNumber:Color.kt$0xFF07201A</ID>
+    <ID>MagicNumber:Color.kt$0xFF103447</ID>
+    <ID>MagicNumber:Color.kt$0xFF191C1B</ID>
+    <ID>MagicNumber:Color.kt$0xFF1D352F</ID>
+    <ID>MagicNumber:Color.kt$0xFF2A4A5F</ID>
+    <ID>MagicNumber:Color.kt$0xFF344B45</ID>
+    <ID>MagicNumber:Color.kt$0xFF3F4945</ID>
+    <ID>MagicNumber:Color.kt$0xFF410002</ID>
+    <ID>MagicNumber:Color.kt$0xFF426278</ID>
+    <ID>MagicNumber:Color.kt$0xFF4B635C</ID>
+    <ID>MagicNumber:Color.kt$0xFF5CDBC6</ID>
+    <ID>MagicNumber:Color.kt$0xFF690005</ID>
+    <ID>MagicNumber:Color.kt$0xFF6F7975</ID>
+    <ID>MagicNumber:Color.kt$0xFF7AF8E2</ID>
+    <ID>MagicNumber:Color.kt$0xFF89938F</ID>
+    <ID>MagicNumber:Color.kt$0xFF93000A</ID>
+    <ID>MagicNumber:Color.kt$0xFFAACBE3</ID>
+    <ID>MagicNumber:Color.kt$0xFFB2CCC3</ID>
+    <ID>MagicNumber:Color.kt$0xFFBA1A1A</ID>
+    <ID>MagicNumber:Color.kt$0xFFBFC9C4</ID>
+    <ID>MagicNumber:Color.kt$0xFFC7E7FF</ID>
+    <ID>MagicNumber:Color.kt$0xFFCDE8DF</ID>
+    <ID>MagicNumber:Color.kt$0xFFDBE5E0</ID>
+    <ID>MagicNumber:Color.kt$0xFFE1E3DF</ID>
+    <ID>MagicNumber:Color.kt$0xFFFBFDF9</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFB4AB</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFDAD6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:MockData.kt$SampleData$3L</ID>
+    <ID>MagicNumber:MockData.kt$SampleData$4L</ID>
+    <ID>MagicNumber:MockData.kt$SampleData$5L</ID>
+    <ID>MagicNumber:MockData.kt$SampleData$6L</ID>
+    <ID>MagicNumber:MockData.kt$SampleData$7L</ID>
+    <ID>MagicNumber:SampleViewModel.kt$SampleViewModel$5_000</ID>
+    <ID>MatchingDeclarationName:MockData.kt$SampleData</ID>
+    <ID>MatchingDeclarationName:NavRoutes.kt$Screen</ID>
+    <ID>MaxLineLength:RandomTaskUiState.kt$RandomTaskUiState$*</ID>
+    <ID>TooGenericExceptionCaught:RandomTaskViewModel.kt$RandomTaskViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TaskRepositoryImpl.kt$TaskRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:RandomTaskViewModelTest.kt$RandomTaskViewModelTest.&lt;no name provided&gt;$throw RuntimeException("DB error")</ID>
+  </CurrentIssues>
+</SmellBaseline>

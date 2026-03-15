@@ -14,16 +14,18 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @HiltViewModel
-class SampleViewModel @Inject constructor(
-    getTasksUseCase: GetTasksUseCase,
-    @Named("IO") private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
-
-    val tasks: StateFlow<List<Task>> = getTasksUseCase()
-        .flowOn(ioDispatcher)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-}
+class SampleViewModel
+    @Inject
+    constructor(
+        getTasksUseCase: GetTasksUseCase,
+        @Named("IO") private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        val tasks: StateFlow<List<Task>> =
+            getTasksUseCase()
+                .flowOn(ioDispatcher)
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList(),
+                )
+    }

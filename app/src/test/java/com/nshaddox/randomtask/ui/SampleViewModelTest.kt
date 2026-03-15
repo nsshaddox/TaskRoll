@@ -18,7 +18,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SampleViewModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeTaskRepository
     private lateinit var getTasksUseCase: GetTasksUseCase
@@ -38,40 +37,43 @@ class SampleViewModelTest {
     }
 
     @Test
-    fun `tasks emits empty list initially`() = runTest(testDispatcher) {
-        viewModel.tasks.test {
-            val initial = awaitItem()
-            assertTrue(initial.isEmpty())
+    fun `tasks emits empty list initially`() =
+        runTest(testDispatcher) {
+            viewModel.tasks.test {
+                val initial = awaitItem()
+                assertTrue(initial.isEmpty())
+            }
         }
-    }
 
     @Test
-    fun `tasks emits updated list when repository changes`() = runTest(testDispatcher) {
-        viewModel.tasks.test {
-            assertTrue(awaitItem().isEmpty())
+    fun `tasks emits updated list when repository changes`() =
+        runTest(testDispatcher) {
+            viewModel.tasks.test {
+                assertTrue(awaitItem().isEmpty())
 
-            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+                repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
 
-            val updated = awaitItem()
-            assertEquals(1, updated.size)
-            assertEquals("Task 1", updated[0].title)
+                val updated = awaitItem()
+                assertEquals(1, updated.size)
+                assertEquals("Task 1", updated[0].title)
+            }
         }
-    }
 
     @Test
-    fun `tasks emits multiple tasks`() = runTest(testDispatcher) {
-        viewModel.tasks.test {
-            assertTrue(awaitItem().isEmpty())
+    fun `tasks emits multiple tasks`() =
+        runTest(testDispatcher) {
+            viewModel.tasks.test {
+                assertTrue(awaitItem().isEmpty())
 
-            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
-            awaitItem()
+                repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+                awaitItem()
 
-            repository.addTask(Task(title = "Task 2", createdAt = 2000L, updatedAt = 2000L))
+                repository.addTask(Task(title = "Task 2", createdAt = 2000L, updatedAt = 2000L))
 
-            val tasks = awaitItem()
-            assertEquals(2, tasks.size)
-            assertEquals("Task 1", tasks[0].title)
-            assertEquals("Task 2", tasks[1].title)
+                val tasks = awaitItem()
+                assertEquals(2, tasks.size)
+                assertEquals("Task 1", tasks[0].title)
+                assertEquals("Task 2", tasks[1].title)
+            }
         }
-    }
 }

@@ -8,7 +8,6 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class RandomTaskUiStateTest {
-
     @Test
     fun `default state has null currentTask, isLoading false, null error, noTasksAvailable false`() {
         val state = RandomTaskUiState()
@@ -32,14 +31,15 @@ class RandomTaskUiStateTest {
 
     @Test
     fun `copy with currentTask set produces expected state`() {
-        val task = Task(
-            id = 1L,
-            title = "Test Task",
-            description = "A test task",
-            isCompleted = false,
-            createdAt = 1000L,
-            updatedAt = 2000L
-        )
+        val task =
+            Task(
+                id = 1L,
+                title = "Test Task",
+                description = "A test task",
+                isCompleted = false,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
         val state = RandomTaskUiState().copy(currentTask = task)
 
         assertEquals(task, state.currentTask)
@@ -50,18 +50,20 @@ class RandomTaskUiStateTest {
 
     @Test
     fun `two instances with same values are equal`() {
-        val state1 = RandomTaskUiState(
-            currentTask = null,
-            isLoading = true,
-            error = "Something went wrong",
-            noTasksAvailable = false
-        )
-        val state2 = RandomTaskUiState(
-            currentTask = null,
-            isLoading = true,
-            error = "Something went wrong",
-            noTasksAvailable = false
-        )
+        val state1 =
+            RandomTaskUiState(
+                currentTask = null,
+                isLoading = true,
+                error = "Something went wrong",
+                noTasksAvailable = false,
+            )
+        val state2 =
+            RandomTaskUiState(
+                currentTask = null,
+                isLoading = true,
+                error = "Something went wrong",
+                noTasksAvailable = false,
+            )
 
         assertEquals(state1, state2)
     }

@@ -6,8 +6,8 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -22,7 +22,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaskEditorViewModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeTaskRepository
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
@@ -45,128 +44,134 @@ class TaskEditorViewModelTest {
             savedStateHandle = savedStateHandle,
             repository = repository,
             updateTaskUseCase = updateTaskUseCase,
-            ioDispatcher = testDispatcher
+            ioDispatcher = testDispatcher,
         )
     }
 
     private fun createTask(
         id: Long = 0,
-        title: String = "Test Task"
+        title: String = "Test Task",
     ) = Task(
         id = id,
         title = title,
         createdAt = 1000L,
-        updatedAt = 1000L
+        updatedAt = 1000L,
     )
 
     @Test
-    fun `initial state loads task title from repository by ID`() = runTest(testDispatcher) {
-        repository.addTask(createTask(title = "My Task"))
+    fun `initial state loads task title from repository by ID`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "My Task"))
 
-        val viewModel = createViewModel(taskId = 1L)
+            val viewModel = createViewModel(taskId = 1L)
 
-        viewModel.uiState.test {
-            val initial = awaitItem()
-            assertTrue(initial.isLoading)
+            viewModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
 
-            val loaded = awaitItem()
-            assertFalse(loaded.isLoading)
-            assertEquals("My Task", loaded.taskTitle)
-            assertNull(loaded.errorMessage)
+                val loaded = awaitItem()
+                assertFalse(loaded.isLoading)
+                assertEquals("My Task", loaded.taskTitle)
+                assertNull(loaded.errorMessage)
+            }
         }
-    }
 
     @Test
-    fun `initial state shows error when task not found`() = runTest(testDispatcher) {
-        val viewModel = createViewModel(taskId = 999L)
+    fun `initial state shows error when task not found`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel(taskId = 999L)
 
-        viewModel.uiState.test {
-            val initial = awaitItem()
-            assertTrue(initial.isLoading)
+            viewModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.isLoading)
 
-            val loaded = awaitItem()
-            assertFalse(loaded.isLoading)
-            assertEquals("Task not found", loaded.errorMessage)
+                val loaded = awaitItem()
+                assertFalse(loaded.isLoading)
+                assertEquals("Task not found", loaded.errorMessage)
+            }
         }
-    }
 
     @Test
-    fun `onTitleChange updates taskTitle in state`() = runTest(testDispatcher) {
-        repository.addTask(createTask(title = "Original"))
+    fun `onTitleChange updates taskTitle in state`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
 
-        val viewModel = createViewModel(taskId = 1L)
+            val viewModel = createViewModel(taskId = 1L)
 
-        viewModel.uiState.test {
-            awaitItem() // initial loading
-            awaitItem() // loaded
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
 
-            viewModel.onTitleChange("Updated Title")
+                viewModel.onTitleChange("Updated Title")
 
-            val updated = awaitItem()
-            assertEquals("Updated Title", updated.taskTitle)
+                val updated = awaitItem()
+                assertEquals("Updated Title", updated.taskTitle)
+            }
         }
-    }
 
     @Test
-    fun `saveTask with valid title sets isSaved to true`() = runTest(testDispatcher) {
-        repository.addTask(createTask(title = "Original"))
+    fun `saveTask with valid title sets isSaved to true`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
 
-        val viewModel = createViewModel(taskId = 1L)
+            val viewModel = createViewModel(taskId = 1L)
 
-        viewModel.uiState.test {
-            awaitItem() // initial loading
-            awaitItem() // loaded
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
 
-            viewModel.onTitleChange("New Title")
-            awaitItem() // title changed
+                viewModel.onTitleChange("New Title")
+                awaitItem() // title changed
 
-            viewModel.saveTask()
+                viewModel.saveTask()
 
-            val saved = awaitItem()
-            assertTrue(saved.isSaved)
+                val saved = awaitItem()
+                assertTrue(saved.isSaved)
+            }
         }
-    }
 
     @Test
-    fun `saveTask with blank title sets error message`() = runTest(testDispatcher) {
-        repository.addTask(createTask(title = "Original"))
+    fun `saveTask with blank title sets error message`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
 
-        val viewModel = createViewModel(taskId = 1L)
+            val viewModel = createViewModel(taskId = 1L)
 
-        viewModel.uiState.test {
-            awaitItem() // initial loading
-            awaitItem() // loaded
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
 
-            viewModel.onTitleChange("   ")
-            awaitItem() // title changed
+                viewModel.onTitleChange("   ")
+                awaitItem() // title changed
 
-            viewModel.saveTask()
+                viewModel.saveTask()
 
-            val errorState = awaitItem()
-            assertEquals("Task title cannot be blank", errorState.errorMessage)
-            assertFalse(errorState.isSaved)
+                val errorState = awaitItem()
+                assertEquals("Task title cannot be blank", errorState.errorMessage)
+                assertFalse(errorState.isSaved)
+            }
         }
-    }
 
     @Test
-    fun `saveTask calls UpdateTaskUseCase with correct task data`() = runTest(testDispatcher) {
-        repository.addTask(createTask(title = "Original"))
+    fun `saveTask calls UpdateTaskUseCase with correct task data`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
 
-        val viewModel = createViewModel(taskId = 1L)
+            val viewModel = createViewModel(taskId = 1L)
 
-        viewModel.uiState.test {
-            awaitItem() // initial loading
-            awaitItem() // loaded
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
 
-            viewModel.onTitleChange("Updated Title")
-            awaitItem() // title changed
+                viewModel.onTitleChange("Updated Title")
+                awaitItem() // title changed
 
-            viewModel.saveTask()
-            awaitItem() // saved
+                viewModel.saveTask()
+                awaitItem() // saved
 
-            val storedTask = repository.getAllTasks().first().first()
-            assertEquals("Updated Title", storedTask.title)
-            assertEquals(1L, storedTask.id)
+                val storedTask = repository.getAllTasks().first().first()
+                assertEquals("Updated Title", storedTask.title)
+                assertEquals(1L, storedTask.id)
+            }
         }
-    }
 }

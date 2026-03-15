@@ -9,7 +9,6 @@ import org.junit.Before
 import org.junit.Test
 
 class CompleteTaskUseCaseTest {
-
     private lateinit var repository: FakeTaskRepository
     private lateinit var completeTaskUseCase: CompleteTaskUseCase
 
@@ -20,25 +19,27 @@ class CompleteTaskUseCaseTest {
     }
 
     @Test
-    fun `invoke marks task as completed`() = runTest {
-        repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
-        val task = repository.getTaskById(1L).first()!!
+    fun `invoke marks task as completed`() =
+        runTest {
+            repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
+            val task = repository.getTaskById(1L).first()!!
 
-        val result = completeTaskUseCase(task)
+            val result = completeTaskUseCase(task)
 
-        assertTrue(result.isSuccess)
-        val stored = repository.getTaskById(task.id).first()
-        assertEquals(true, stored?.isCompleted)
-    }
+            assertTrue(result.isSuccess)
+            val stored = repository.getTaskById(task.id).first()
+            assertEquals(true, stored?.isCompleted)
+        }
 
     @Test
-    fun `invoke updates updatedAt timestamp`() = runTest {
-        repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
-        val task = repository.getTaskById(1L).first()!!
+    fun `invoke updates updatedAt timestamp`() =
+        runTest {
+            repository.addTask(Task(title = "Incomplete", isCompleted = false, createdAt = 1000L, updatedAt = 1000L))
+            val task = repository.getTaskById(1L).first()!!
 
-        completeTaskUseCase(task)
+            completeTaskUseCase(task)
 
-        val stored = repository.getTaskById(task.id).first()
-        assertTrue(stored!!.updatedAt >= task.updatedAt)
-    }
+            val stored = repository.getTaskById(task.id).first()
+            assertTrue(stored!!.updatedAt >= task.updatedAt)
+        }
 }

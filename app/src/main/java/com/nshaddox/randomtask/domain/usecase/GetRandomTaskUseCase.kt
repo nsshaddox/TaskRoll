@@ -5,11 +5,13 @@ import com.nshaddox.randomtask.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class GetRandomTaskUseCase @Inject constructor(
-    private val repository: TaskRepository
-) {
-    suspend operator fun invoke(): Task? {
-        val incompleteTasks = repository.getIncompleteTasks().first()
-        return if (incompleteTasks.isEmpty()) null else incompleteTasks.random()
+class GetRandomTaskUseCase
+    @Inject
+    constructor(
+        private val repository: TaskRepository,
+    ) {
+        suspend operator fun invoke(): Task? {
+            val incompleteTasks = repository.getIncompleteTasks().first()
+            return if (incompleteTasks.isEmpty()) null else incompleteTasks.random()
+        }
     }
-}

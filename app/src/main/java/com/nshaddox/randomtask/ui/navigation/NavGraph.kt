@@ -22,7 +22,7 @@ import com.nshaddox.randomtask.ui.screens.tasklist.TaskListScreen
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.TaskList.route
+        startDestination = Screen.TaskList.route,
     ) {
         composable(Screen.TaskList.route) {
             TaskListScreen(navController = navController)
@@ -32,7 +32,7 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(
             route = Screen.EditTask.route,
-            arguments = listOf(navArgument("taskId") { type = NavType.LongType })
+            arguments = listOf(navArgument("taskId") { type = NavType.LongType }),
         ) {
             EditTaskScreen(navController = navController)
         }

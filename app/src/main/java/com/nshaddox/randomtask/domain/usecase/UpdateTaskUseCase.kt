@@ -4,14 +4,16 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class UpdateTaskUseCase @Inject constructor(
-    private val repository: TaskRepository
-) {
-    suspend operator fun invoke(task: Task): Result<Unit> {
-        if (task.title.isBlank()) {
-            return Result.failure(IllegalArgumentException("Task title cannot be blank"))
+class UpdateTaskUseCase
+    @Inject
+    constructor(
+        private val repository: TaskRepository,
+    ) {
+        suspend operator fun invoke(task: Task): Result<Unit> {
+            if (task.title.isBlank()) {
+                return Result.failure(IllegalArgumentException("Task title cannot be blank"))
+            }
+            val updated = task.copy(updatedAt = System.currentTimeMillis())
+            return repository.updateTask(updated)
         }
-        val updated = task.copy(updatedAt = System.currentTimeMillis())
-        return repository.updateTask(updated)
     }
-}

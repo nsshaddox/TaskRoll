@@ -13,7 +13,6 @@ import org.junit.Test
 
 @HiltAndroidTest
 class ExampleInstrumentedTest {
-
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
@@ -22,10 +21,11 @@ class ExampleInstrumentedTest {
     @Before
     fun setUp() {
         hiltRule.inject()
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java
-        ).allowMainThreadQueries().build()
+        database =
+            Room.inMemoryDatabaseBuilder(
+                ApplicationProvider.getApplicationContext(),
+                AppDatabase::class.java,
+            ).allowMainThreadQueries().build()
     }
 
     @After

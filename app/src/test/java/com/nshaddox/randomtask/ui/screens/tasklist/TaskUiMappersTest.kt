@@ -9,7 +9,6 @@ import org.junit.Test
 import java.util.TimeZone
 
 class TaskUiMappersTest {
-
     private lateinit var originalTimeZone: TimeZone
 
     @Before
@@ -25,14 +24,15 @@ class TaskUiMappersTest {
 
     @Test
     fun `toUiModel maps all fields correctly`() {
-        val task = Task(
-            id = 1L,
-            title = "Test Task",
-            description = "Test Description",
-            isCompleted = true,
-            createdAt = 1000L,
-            updatedAt = 2000L
-        )
+        val task =
+            Task(
+                id = 1L,
+                title = "Test Task",
+                description = "Test Description",
+                isCompleted = true,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
 
         val uiModel = task.toUiModel()
 
@@ -46,14 +46,15 @@ class TaskUiMappersTest {
 
     @Test
     fun `toUiModel maps null description correctly`() {
-        val task = Task(
-            id = 2L,
-            title = "No Description",
-            description = null,
-            isCompleted = false,
-            createdAt = 1000L,
-            updatedAt = 2000L
-        )
+        val task =
+            Task(
+                id = 2L,
+                title = "No Description",
+                description = null,
+                isCompleted = false,
+                createdAt = 1000L,
+                updatedAt = 2000L,
+            )
 
         val uiModel = task.toUiModel()
 
@@ -62,14 +63,15 @@ class TaskUiMappersTest {
 
     @Test
     fun `toUiModel formats epoch 0 without error`() {
-        val task = Task(
-            id = 3L,
-            title = "Epoch Zero",
-            description = null,
-            isCompleted = false,
-            createdAt = 0L,
-            updatedAt = 0L
-        )
+        val task =
+            Task(
+                id = 3L,
+                title = "Epoch Zero",
+                description = null,
+                isCompleted = false,
+                createdAt = 0L,
+                updatedAt = 0L,
+            )
 
         val uiModel = task.toUiModel()
 
@@ -80,14 +82,15 @@ class TaskUiMappersTest {
     @Test
     fun `toUiModel formats known timestamp correctly`() {
         // 1737046200000L = Jan 16, 2025 4:50 PM UTC
-        val task = Task(
-            id = 4L,
-            title = "Known Timestamp",
-            description = "Testing known date",
-            isCompleted = false,
-            createdAt = 1737046200000L,
-            updatedAt = 1737046200000L
-        )
+        val task =
+            Task(
+                id = 4L,
+                title = "Known Timestamp",
+                description = "Testing known date",
+                isCompleted = false,
+                createdAt = 1737046200000L,
+                updatedAt = 1737046200000L,
+            )
 
         val uiModel = task.toUiModel()
 

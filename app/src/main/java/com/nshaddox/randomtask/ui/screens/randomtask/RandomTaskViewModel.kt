@@ -15,62 +15,63 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @HiltViewModel
-class RandomTaskViewModel @Inject constructor(
-    private val getRandomTaskUseCase: GetRandomTaskUseCase,
-    private val completeTaskUseCase: CompleteTaskUseCase,
-    @Named("IO") private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+class RandomTaskViewModel
+    @Inject
+    constructor(
+        private val getRandomTaskUseCase: GetRandomTaskUseCase,
+        private val completeTaskUseCase: CompleteTaskUseCase,
+        @Named("IO") private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(RandomTaskUiState())
+        val uiState: StateFlow<RandomTaskUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(RandomTaskUiState())
-    val uiState: StateFlow<RandomTaskUiState> = _uiState.asStateFlow()
-
-    fun loadRandomTask() {
-        viewModelScope.launch(ioDispatcher) {
-            loadRandomTaskInternal()
+        fun loadRandomTask() {
+            viewModelScope.launch(ioDispatcher) {
+                loadRandomTaskInternal()
+            }
         }
-    }
 
-    fun completeTask() {
-        val task = _uiState.value.currentTask ?: return
-        viewModelScope.launch(ioDispatcher) {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            completeTaskUseCase(task)
-                .onSuccess {
-                    _uiState.update { it.copy(isLoading = false, taskCompleted = true) }
-                }
-                .onFailure { e ->
-                    _uiState.update {
-                        it.copy(isLoading = false, error = e.message ?: "Failed to complete task")
+        fun completeTask() {
+            val task = _uiState.value.currentTask ?: return
+            viewModelScope.launch(ioDispatcher) {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                completeTaskUseCase(task)
+                    .onSuccess {
+                        _uiState.update { it.copy(isLoading = false, taskCompleted = true) }
                     }
+                    .onFailure { e ->
+                        _uiState.update {
+                            it.copy(isLoading = false, error = e.message ?: "Failed to complete task")
+                        }
+                    }
+            }
+        }
+
+        fun resetTaskCompleted() {
+            _uiState.update { it.copy(taskCompleted = false) }
+        }
+
+        fun skipTask() {
+            viewModelScope.launch(ioDispatcher) {
+                loadRandomTaskInternal()
+            }
+        }
+
+        private suspend fun loadRandomTaskInternal() {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val task = getRandomTaskUseCase()
+                _uiState.update {
+                    it.copy(
+                        currentTask = task,
+                        isLoading = false,
+                        noTasksAvailable = task == null,
+                    )
                 }
-        }
-    }
-
-    fun resetTaskCompleted() {
-        _uiState.update { it.copy(taskCompleted = false) }
-    }
-
-    fun skipTask() {
-        viewModelScope.launch(ioDispatcher) {
-            loadRandomTaskInternal()
-        }
-    }
-
-    private suspend fun loadRandomTaskInternal() {
-        _uiState.update { it.copy(isLoading = true, error = null) }
-        try {
-            val task = getRandomTaskUseCase()
-            _uiState.update {
-                it.copy(
-                    currentTask = task,
-                    isLoading = false,
-                    noTasksAvailable = task == null
-                )
-            }
-        } catch (e: Exception) {
-            _uiState.update {
-                it.copy(isLoading = false, error = e.message ?: "Unknown error")
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isLoading = false, error = e.message ?: "Unknown error")
+                }
             }
         }
     }
-}
