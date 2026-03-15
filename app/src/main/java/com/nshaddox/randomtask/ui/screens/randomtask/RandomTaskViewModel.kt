@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.GetRandomTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.GetWeightedRandomTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,14 @@ class RandomTaskViewModel
     constructor(
         private val getRandomTaskUseCase: GetRandomTaskUseCase,
         private val completeTaskUseCase: CompleteTaskUseCase,
+        private val getWeightedRandomTaskUseCase: GetWeightedRandomTaskUseCase,
         @Named("IO") private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(RandomTaskUiState())
         val uiState: StateFlow<RandomTaskUiState> = _uiState.asStateFlow()
+
+        private val _useWeightedRandom = MutableStateFlow(false)
+        val useWeightedRandom: StateFlow<Boolean> = _useWeightedRandom.asStateFlow()
 
         fun loadRandomTask() {
             viewModelScope.launch(ioDispatcher) {
@@ -51,6 +56,10 @@ class RandomTaskViewModel
             _uiState.update { it.copy(taskCompleted = false) }
         }
 
+        fun toggleWeightedRandom() {
+            _useWeightedRandom.update { !it }
+        }
+
         fun skipTask() {
             viewModelScope.launch(ioDispatcher) {
                 loadRandomTaskInternal()
@@ -60,7 +69,12 @@ class RandomTaskViewModel
         private suspend fun loadRandomTaskInternal() {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val task = getRandomTaskUseCase()
+                val task =
+                    if (_useWeightedRandom.value) {
+                        getWeightedRandomTaskUseCase()
+                    } else {
+                        getRandomTaskUseCase()
+                    }
                 _uiState.update {
                     it.copy(
                         currentTask = task,

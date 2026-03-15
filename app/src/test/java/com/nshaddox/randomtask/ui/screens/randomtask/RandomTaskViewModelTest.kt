@@ -7,6 +7,7 @@ import com.nshaddox.randomtask.domain.repository.TaskRepository
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
 import com.nshaddox.randomtask.domain.usecase.GetRandomTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.GetWeightedRandomTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,7 @@ class RandomTaskViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeTaskRepository
     private lateinit var getRandomTaskUseCase: GetRandomTaskUseCase
+    private lateinit var getWeightedRandomTaskUseCase: GetWeightedRandomTaskUseCase
     private lateinit var completeTaskUseCase: CompleteTaskUseCase
     private lateinit var viewModel: RandomTaskViewModel
 
@@ -38,8 +40,15 @@ class RandomTaskViewModelTest {
         Dispatchers.setMain(testDispatcher)
         repository = FakeTaskRepository()
         getRandomTaskUseCase = GetRandomTaskUseCase(repository)
+        getWeightedRandomTaskUseCase = GetWeightedRandomTaskUseCase(repository)
         completeTaskUseCase = CompleteTaskUseCase(repository)
-        viewModel = RandomTaskViewModel(getRandomTaskUseCase, completeTaskUseCase, testDispatcher)
+        viewModel =
+            RandomTaskViewModel(
+                getRandomTaskUseCase,
+                completeTaskUseCase,
+                getWeightedRandomTaskUseCase,
+                testDispatcher,
+            )
     }
 
     @After
@@ -156,8 +165,10 @@ class RandomTaskViewModelTest {
                         )
                 }
             val errorGetUseCase = GetRandomTaskUseCase(errorRepository)
+            val errorWeightedUseCase = GetWeightedRandomTaskUseCase(errorRepository)
             val errorCompleteUseCase = CompleteTaskUseCase(errorRepository)
-            val errorViewModel = RandomTaskViewModel(errorGetUseCase, errorCompleteUseCase, testDispatcher)
+            val errorViewModel =
+                RandomTaskViewModel(errorGetUseCase, errorCompleteUseCase, errorWeightedUseCase, testDispatcher)
 
             errorViewModel.loadRandomTask()
             advanceUntilIdle()
@@ -249,7 +260,9 @@ class RandomTaskViewModelTest {
                         )
                 }
             val errorUseCase = GetRandomTaskUseCase(errorRepository)
-            val errorViewModel = RandomTaskViewModel(errorUseCase, completeTaskUseCase, testDispatcher)
+            val errorWeightedUseCase = GetWeightedRandomTaskUseCase(errorRepository)
+            val errorViewModel =
+                RandomTaskViewModel(errorUseCase, completeTaskUseCase, errorWeightedUseCase, testDispatcher)
 
             errorViewModel.loadRandomTask()
             advanceUntilIdle()
@@ -258,5 +271,76 @@ class RandomTaskViewModelTest {
             assertFalse(state.isLoading)
             assertNotNull(state.error)
             assertEquals("DB error", state.error)
+        }
+
+    @Test
+    fun `useWeightedRandom initial value is false`() =
+        runTest(testDispatcher) {
+            assertFalse(viewModel.useWeightedRandom.value)
+        }
+
+    @Test
+    fun `toggleWeightedRandom flips from false to true`() =
+        runTest(testDispatcher) {
+            assertFalse(viewModel.useWeightedRandom.value)
+
+            viewModel.toggleWeightedRandom()
+
+            assertTrue(viewModel.useWeightedRandom.value)
+        }
+
+    @Test
+    fun `toggleWeightedRandom called twice flips back to false`() =
+        runTest(testDispatcher) {
+            viewModel.toggleWeightedRandom()
+            assertTrue(viewModel.useWeightedRandom.value)
+
+            viewModel.toggleWeightedRandom()
+            assertFalse(viewModel.useWeightedRandom.value)
+        }
+
+    @Test
+    fun `loadRandomTask uses weighted use case when useWeightedRandom is true`() =
+        runTest(testDispatcher) {
+            repository.addTask(
+                Task(
+                    title = "High Task",
+                    createdAt = 1000L,
+                    updatedAt = 1000L,
+                    priority = Priority.HIGH,
+                ),
+            )
+
+            viewModel.toggleWeightedRandom()
+            assertTrue(viewModel.useWeightedRandom.value)
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNotNull(state.currentTask)
+            assertEquals("High Task", state.currentTask!!.title)
+        }
+
+    @Test
+    fun `loadRandomTask uses uniform use case when useWeightedRandom is false`() =
+        runTest(testDispatcher) {
+            repository.addTask(
+                Task(
+                    title = "Regular Task",
+                    createdAt = 1000L,
+                    updatedAt = 1000L,
+                    priority = Priority.MEDIUM,
+                ),
+            )
+
+            assertFalse(viewModel.useWeightedRandom.value)
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNotNull(state.currentTask)
+            assertEquals("Regular Task", state.currentTask!!.title)
         }
 }
