@@ -8,7 +8,10 @@ import com.nshaddox.randomtask.domain.usecase.AddTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.DeleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
+import com.nshaddox.randomtask.domain.usecase.GetTasksByCategoryUseCase
+import com.nshaddox.randomtask.domain.usecase.GetTasksByPriorityUseCase
 import com.nshaddox.randomtask.domain.usecase.GetTasksUseCase
+import com.nshaddox.randomtask.domain.usecase.SearchTasksUseCase
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +37,9 @@ class TaskListViewModelTest {
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
     private lateinit var completeTaskUseCase: CompleteTaskUseCase
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
+    private lateinit var searchTasksUseCase: SearchTasksUseCase
+    private lateinit var getTasksByPriorityUseCase: GetTasksByPriorityUseCase
+    private lateinit var getTasksByCategoryUseCase: GetTasksByCategoryUseCase
 
     @Before
     fun setup() {
@@ -44,6 +50,9 @@ class TaskListViewModelTest {
         deleteTaskUseCase = DeleteTaskUseCase(repository)
         completeTaskUseCase = CompleteTaskUseCase(repository)
         updateTaskUseCase = UpdateTaskUseCase(repository)
+        searchTasksUseCase = SearchTasksUseCase(repository)
+        getTasksByPriorityUseCase = GetTasksByPriorityUseCase(repository)
+        getTasksByCategoryUseCase = GetTasksByCategoryUseCase(repository)
     }
 
     @After
@@ -58,6 +67,9 @@ class TaskListViewModelTest {
             deleteTaskUseCase = deleteTaskUseCase,
             completeTaskUseCase = completeTaskUseCase,
             updateTaskUseCase = updateTaskUseCase,
+            searchTasksUseCase = searchTasksUseCase,
+            getTasksByPriorityUseCase = getTasksByPriorityUseCase,
+            getTasksByCategoryUseCase = getTasksByCategoryUseCase,
             ioDispatcher = testDispatcher,
         )
 
@@ -398,6 +410,31 @@ class TaskListViewModelTest {
 
                 val updated = awaitItem()
                 assertEquals("test query", updated.searchQuery)
+            }
+        }
+
+    @Test
+    fun `updateSearchQuery is case-insensitive`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Buy groceries"))
+            repository.addTask(createTask(title = "Walk the dog"))
+            repository.addTask(createTask(title = "buy new shoes"))
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                // Initial loading
+                awaitItem()
+                // Loaded with 3 tasks
+                val loaded = awaitItem()
+                assertEquals(3, loaded.tasks.size)
+
+                viewModel.updateSearchQuery("buy")
+                advanceUntilIdle()
+
+                val filtered = awaitItem()
+                assertEquals(2, filtered.tasks.size)
+                assertTrue(filtered.tasks.any { it.title == "Buy groceries" })
+                assertTrue(filtered.tasks.any { it.title == "buy new shoes" })
             }
         }
 

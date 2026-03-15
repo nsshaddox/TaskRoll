@@ -8,7 +8,10 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.AddTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.DeleteTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.GetTasksByCategoryUseCase
+import com.nshaddox.randomtask.domain.usecase.GetTasksByPriorityUseCase
 import com.nshaddox.randomtask.domain.usecase.GetTasksUseCase
+import com.nshaddox.randomtask.domain.usecase.SearchTasksUseCase
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,7 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList", "UnusedPrivateProperty")
 @HiltViewModel
 class TaskListViewModel
     @Inject
@@ -31,6 +34,9 @@ class TaskListViewModel
         private val deleteTaskUseCase: DeleteTaskUseCase,
         private val completeTaskUseCase: CompleteTaskUseCase,
         private val updateTaskUseCase: UpdateTaskUseCase,
+        private val searchTasksUseCase: SearchTasksUseCase,
+        private val getTasksByPriorityUseCase: GetTasksByPriorityUseCase,
+        private val getTasksByCategoryUseCase: GetTasksByCategoryUseCase,
         @Named("IO") private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(TaskListUiState())
@@ -63,8 +69,8 @@ class TaskListViewModel
                             rawTasks
                         } else {
                             rawTasks.filter { task ->
-                                task.title.contains(query.trim()) ||
-                                    task.description?.contains(query.trim()) == true
+                                task.title.contains(query.trim(), ignoreCase = true) ||
+                                    task.description?.contains(query.trim(), ignoreCase = true) == true
                             }
                         }
 
