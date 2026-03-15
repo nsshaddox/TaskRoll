@@ -157,6 +157,7 @@ val jacocoExclusions =
         "**/*ScreenKt*",
         "**/*ScreenPreviewKt*",
         "**/*DialogKt*",
+        "**/*BadgeKt*",
         "**/*Preview*",
         "**/SampleData*",
         // Android generated classes
