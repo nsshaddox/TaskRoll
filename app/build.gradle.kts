@@ -96,6 +96,26 @@ dependencies {
 }
 
 // ---------- JaCoCo coverage configuration ----------
+//
+// Coverage Threshold Rationale
+// ----------------------------
+// The project's documented targets are 90% line coverage and 95%+ for the
+// domain layer (see docs/TESTING.md and CLAUDE.md). However, JaCoCo reports
+// instruction/branch coverage over *bytecode*, and the Kotlin compiler emits
+// synthetic state-machine branches for every `suspend` function and coroutine
+// builder. Those synthetic branches are unreachable from tests, so JaCoCo
+// counts them as missed. This makes the documented 95% domain / 100% branch
+// targets unachievable with JaCoCo alone.
+//
+// The thresholds below are calibrated just below the *actual* measured
+// coverage so they catch genuine regressions without false-failing on
+// coroutine synthetics:
+//   - Bundle overall:     90%  (actual ~93%)
+//   - domain.*:           85%  (actual ~87% for usecase, 100% for model)
+//   - domain.usecase:     70%  branch (actual ~71%, heavily impacted by synthetics)
+//   - data.*:             95%  (actual 100%)
+//   - ui.*:               90%  (actual ~93%)
+//
 
 val jacocoExclusions = listOf(
     // Hilt-generated classes
@@ -182,19 +202,18 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     executionData.setFrom(executionDataTree)
 
     violationRules {
-        // Bundle-level fallback: 80% instruction coverage overall
-        // (Kotlin coroutine synthetic bytecode lowers achievable ceiling)
+        // Bundle-level: 90% instruction coverage overall
         rule {
             element = "BUNDLE"
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.80".toBigDecimal()
+                minimum = "0.90".toBigDecimal()
             }
         }
 
         // Domain layer: 85% instruction coverage
-        // (coroutine state-machine bytecode prevents reaching 95%+ with JaCoCo)
+        // (applied per-package; domain.usecase is at ~87%, constrained by coroutine synthetics)
         rule {
             element = "PACKAGE"
             includes = listOf("com.nshaddox.randomtask.domain.*")
@@ -205,11 +224,7 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
             }
         }
 
-        // Domain use cases: 70% branch coverage
-        // Note: Kotlin coroutines generate unreachable synthetic branches in
-        // suspend functions. JaCoCo reports these as missed, making 100% branch
-        // coverage impossible. 70% accounts for this JaCoCo/coroutine limitation
-        // while still enforcing that all reachable branches are tested.
+        // Domain use cases: 70% branch coverage (actual ~71%, tightest margin)
         rule {
             element = "PACKAGE"
             includes = listOf("com.nshaddox.randomtask.domain.usecase")
@@ -220,19 +235,18 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
             }
         }
 
-        // Data layer: 90% instruction coverage
+        // Data layer: 95% instruction coverage (actual 100%)
         rule {
             element = "PACKAGE"
             includes = listOf("com.nshaddox.randomtask.data.*")
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.90".toBigDecimal()
+                minimum = "0.95".toBigDecimal()
             }
         }
 
-        // UI layer: 90% instruction coverage
-        // (covers ViewModels, UiState, and UI mappers; Compose screens are excluded)
+        // UI layer: 90% instruction coverage (actual ~93%)
         rule {
             element = "PACKAGE"
             includes = listOf("com.nshaddox.randomtask.ui.*")

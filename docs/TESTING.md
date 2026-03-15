@@ -128,11 +128,17 @@ Coverage thresholds are enforced automatically by `jacocoTestCoverageVerificatio
 
 | Package | Metric | Minimum | Notes |
 |---------|--------|---------|-------|
-| **Bundle (overall)** | Instruction | 80% | Adjusted for coroutine synthetic bytecode |
-| `domain.*` | Instruction | 85% | Pure Kotlin business logic |
+| **Bundle (overall)** | Instruction | 90% | See note below on coroutine synthetics |
+| `domain.*` | Instruction | 85% | Per-package; usecase ~87%, model 100% |
 | `domain.usecase` | Branch | 70% | Kotlin coroutines generate unreachable synthetic branches |
-| `data.*` | Instruction | 90% | Repository and mapper coverage |
+| `data.*` | Instruction | 95% | Repository and mapper coverage |
 | `ui.*` | Instruction | 90% | ViewModels, UiState, UI mappers |
+
+#### Why JaCoCo Thresholds Differ from Documented Targets
+
+The project's stated goals are 90% line coverage and 100% branch coverage for business logic. However, the JaCoCo enforcement thresholds in `app/build.gradle.kts` are set slightly below these targets. This is intentional: JaCoCo measures **instruction** and **branch** coverage over compiled bytecode, not source lines. The Kotlin compiler generates synthetic state-machine branches for every `suspend` function and coroutine builder that are unreachable from test code. JaCoCo counts these as missed, making the source-level targets impossible to achieve at the bytecode level.
+
+The enforcement thresholds are calibrated just below the actual measured coverage so they catch genuine regressions without false-failing on coroutine synthetics. When actual coverage improves (e.g., due to new tests), the thresholds should be raised to match.
 
 #### Excluded from Coverage
 
