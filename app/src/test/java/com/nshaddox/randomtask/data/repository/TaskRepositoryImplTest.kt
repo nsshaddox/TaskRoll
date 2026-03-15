@@ -1,5 +1,6 @@
 package com.nshaddox.randomtask.data.repository
 
+import app.cash.turbine.test
 import com.nshaddox.randomtask.data.local.TaskDao
 import com.nshaddox.randomtask.data.local.TaskEntity
 import com.nshaddox.randomtask.domain.model.Task
@@ -7,7 +8,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -145,21 +145,25 @@ class TaskRepositoryImplTest {
         )
         every { taskDao.getAllTasks() } returns flowOf(entities)
 
-        val tasks = repository.getAllTasks().first()
-
-        assertEquals(2, tasks.size)
-        assertEquals("Task 1", tasks[0].title)
-        assertEquals("Task 2", tasks[1].title)
-        assertEquals(true, tasks[1].isCompleted)
+        repository.getAllTasks().test {
+            val tasks = awaitItem()
+            assertEquals(2, tasks.size)
+            assertEquals("Task 1", tasks[0].title)
+            assertEquals("Task 2", tasks[1].title)
+            assertEquals(true, tasks[1].isCompleted)
+            awaitComplete()
+        }
     }
 
     @Test
     fun `getAllTasks returns empty list when dao has no tasks`() = runTest {
         every { taskDao.getAllTasks() } returns flowOf(emptyList())
 
-        val tasks = repository.getAllTasks().first()
-
-        assertTrue(tasks.isEmpty())
+        repository.getAllTasks().test {
+            val tasks = awaitItem()
+            assertTrue(tasks.isEmpty())
+            awaitComplete()
+        }
     }
 
     // --- getIncompleteTasks ---
@@ -171,20 +175,24 @@ class TaskRepositoryImplTest {
         )
         every { taskDao.getIncompleteTasks() } returns flowOf(entities)
 
-        val tasks = repository.getIncompleteTasks().first()
-
-        assertEquals(1, tasks.size)
-        assertEquals("Incomplete", tasks[0].title)
-        assertEquals(false, tasks[0].isCompleted)
+        repository.getIncompleteTasks().test {
+            val tasks = awaitItem()
+            assertEquals(1, tasks.size)
+            assertEquals("Incomplete", tasks[0].title)
+            assertEquals(false, tasks[0].isCompleted)
+            awaitComplete()
+        }
     }
 
     @Test
     fun `getIncompleteTasks returns empty list when all completed`() = runTest {
         every { taskDao.getIncompleteTasks() } returns flowOf(emptyList())
 
-        val tasks = repository.getIncompleteTasks().first()
-
-        assertTrue(tasks.isEmpty())
+        repository.getIncompleteTasks().test {
+            val tasks = awaitItem()
+            assertTrue(tasks.isEmpty())
+            awaitComplete()
+        }
     }
 
     // --- getTaskById ---
@@ -201,19 +209,23 @@ class TaskRepositoryImplTest {
         )
         every { taskDao.getTaskByIdFlow(7L) } returns flowOf(entity)
 
-        val task = repository.getTaskById(7L).first()
-
-        assertEquals(7L, task?.id)
-        assertEquals("Found Task", task?.title)
-        assertEquals("Details", task?.description)
+        repository.getTaskById(7L).test {
+            val task = awaitItem()
+            assertEquals(7L, task?.id)
+            assertEquals("Found Task", task?.title)
+            assertEquals("Details", task?.description)
+            awaitComplete()
+        }
     }
 
     @Test
     fun `getTaskById returns null when task not found`() = runTest {
         every { taskDao.getTaskByIdFlow(999L) } returns flowOf(null)
 
-        val task = repository.getTaskById(999L).first()
-
-        assertNull(task)
+        repository.getTaskById(999L).test {
+            val task = awaitItem()
+            assertNull(task)
+            awaitComplete()
+        }
     }
 }
