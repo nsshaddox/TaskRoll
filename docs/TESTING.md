@@ -4,7 +4,15 @@ This guide covers the testing strategy, patterns, and best practices for the Ran
 
 ## Overview
 
-Random Task uses a layered testing approach following the test pyramid principle. Tests validate behavior across domain logic, data access, ViewModels, and UI components.
+Random Task enforces **Strict Test-Driven Development (TDD)** with a layered testing approach following the test pyramid principle. All feature implementations must follow the **Red-Green-Refactor** cycle:
+
+1. **RED** — Write a failing test that defines the desired behavior
+2. **GREEN** — Write the minimum code required to make the test pass
+3. **REFACTOR** — Improve the code while keeping all tests green
+
+**Never write production code without a failing test first.**
+
+Tests validate behavior across domain logic, data access, ViewModels, and UI components.
 
 ## Test Structure
 
@@ -67,6 +75,48 @@ app/src/androidTest/java/com/nshaddox/randomtask/
 | **Room Testing** | Migration testing | `room-testing:2.8.4` |
 | **Compose UI Testing** | Compose component tests | `ui-test-junit4` (via BOM) |
 | **Espresso** | Android UI assertions | `espresso-core:3.6.1` |
+
+## TDD Implementation Patterns
+
+### Red-Green-Refactor Example
+
+```kotlin
+// 1. RED: Write failing test first
+@Test
+fun `invoke with valid title and priority returns success`() = runTest {
+    val result = addTaskUseCase("Buy groceries", null, Priority.HIGH)
+    assertTrue(result.isSuccess)
+    // This test FAILS because addTaskUseCase doesn't accept Priority yet
+}
+
+// 2. GREEN: Write minimum code to pass
+suspend operator fun invoke(
+    title: String,
+    description: String?,
+    priority: Priority = Priority.MEDIUM
+): Result<Long> {
+    if (title.isBlank()) return Result.failure(IllegalArgumentException("Title required"))
+    val task = Task(title = title, description = description, priority = priority, ...)
+    return repository.addTask(task)
+}
+
+// 3. REFACTOR: Improve while keeping tests green
+// Extract validation, improve naming, remove duplication — then re-run all tests
+```
+
+### TDD Quality Gates
+
+| Phase | Gate |
+|-------|------|
+| **RED** | Test is written, test fails, failure reason is correct |
+| **GREEN** | Test passes, only minimum code was written |
+| **REFACTOR** | Code improved, all tests still pass, no duplication |
+
+### Coverage Requirements
+
+- **Minimum 90% line coverage** for new code
+- **100% branch coverage** for critical business logic (use cases, validation)
+- All edge cases must be explicitly tested
 
 ## Unit Testing Patterns
 
