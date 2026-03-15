@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
  * Implementations may use any backing store (e.g., Room, network, in-memory).
  */
 interface TaskRepository {
-
     /**
      * Observes all tasks, ordered by creation date descending.
      *

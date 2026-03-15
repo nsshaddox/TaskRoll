@@ -8,7 +8,6 @@ package com.nshaddox.randomtask.ui.navigation
  * @property route The unique string identifier used by the navigation framework.
  */
 sealed class Screen(val route: String) {
-
     /** Route to the task list screen where users view and manage their tasks. */
     data object TaskList : Screen("task_list")
 

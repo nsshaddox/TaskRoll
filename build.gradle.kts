@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.ktlint.gradle) apply false
+    alias(libs.plugins.detekt) apply false
 }
 
 // Task to install Git hooks

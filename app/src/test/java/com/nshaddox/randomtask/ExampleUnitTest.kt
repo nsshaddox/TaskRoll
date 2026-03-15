@@ -14,7 +14,6 @@ interface TaskRepository {
 }
 
 class ExampleUnitTest {
-
     @Test
     fun `mock returns expected value`() {
         val repository = mockk<TaskRepository>()
@@ -27,18 +26,20 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun `flow emits expected values`() = runTest {
-        val values = flow {
-            emit("task1")
-            emit("task2")
-            emit("task3")
-        }
+    fun `flow emits expected values`() =
+        runTest {
+            val values =
+                flow {
+                    emit("task1")
+                    emit("task2")
+                    emit("task3")
+                }
 
-        values.test {
-            assertEquals("task1", awaitItem())
-            assertEquals("task2", awaitItem())
-            assertEquals("task3", awaitItem())
-            awaitComplete()
+            values.test {
+                assertEquals("task1", awaitItem())
+                assertEquals("task2", awaitItem())
+                assertEquals("task3", awaitItem())
+                awaitComplete()
+            }
         }
-    }
 }

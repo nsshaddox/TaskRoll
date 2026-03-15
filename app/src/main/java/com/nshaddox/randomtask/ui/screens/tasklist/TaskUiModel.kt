@@ -16,5 +16,5 @@ data class TaskUiModel(
     val description: String?,
     val isCompleted: Boolean,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
 )

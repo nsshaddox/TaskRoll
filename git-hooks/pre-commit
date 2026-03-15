@@ -27,4 +27,12 @@ echo "🧪 Running unit tests..."
 echo "📊 Running coverage verification..."
 ./gradlew jacocoTestCoverageVerification --quiet
 
+# Check code style (ktlint)
+echo "🎨 Checking code style (ktlint)..."
+./gradlew ktlintCheck --quiet
+
+# Run static analysis (detekt)
+echo "🔬 Running static analysis (detekt)..."
+./gradlew detekt --quiet
+
 echo "✅ All checks passed! Proceeding with commit."

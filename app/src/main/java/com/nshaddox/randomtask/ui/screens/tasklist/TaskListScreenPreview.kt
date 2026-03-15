@@ -14,7 +14,7 @@ import com.nshaddox.randomtask.ui.theme.RandomTaskTheme
 fun TaskListScreenPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = SampleData.sampleTasks
+            tasks = SampleData.sampleTasks,
         )
     }
 }
@@ -27,7 +27,7 @@ fun TaskListScreenPreview() {
 fun TaskListScreenEmptyPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = SampleData.emptyTaskList
+            tasks = SampleData.emptyTaskList,
         )
     }
 }
@@ -40,7 +40,7 @@ fun TaskListScreenEmptyPreview() {
 fun TaskListScreenSingleTaskPreview() {
     RandomTaskTheme {
         TaskListScreen(
-            tasks = listOf(SampleData.singleTask)
+            tasks = listOf(SampleData.singleTask),
         )
     }
 }
@@ -54,7 +54,7 @@ fun TaskListScreenLoadingPreview() {
     RandomTaskTheme {
         TaskListScreen(
             tasks = emptyList(),
-            isLoading = true
+            isLoading = true,
         )
     }
 }
@@ -68,7 +68,7 @@ fun TaskListScreenErrorPreview() {
     RandomTaskTheme {
         TaskListScreen(
             tasks = SampleData.sampleTasks,
-            errorMessage = "Failed to load tasks"
+            errorMessage = "Failed to load tasks",
         )
     }
 }
@@ -82,7 +82,7 @@ fun AddTaskDialogPreview() {
     RandomTaskTheme {
         AddTaskDialog(
             onConfirm = { _, _ -> },
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -99,7 +99,7 @@ fun TaskListItemPreview() {
             onTaskClick = {},
             onCheckedChange = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
         )
     }
 }
@@ -116,7 +116,7 @@ fun TaskListItemCompletedPreview() {
             onTaskClick = {},
             onCheckedChange = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
         )
     }
 }
@@ -130,7 +130,7 @@ fun AddTaskDialogWithDescriptionPreview() {
     RandomTaskTheme {
         AddTaskDialog(
             onConfirm = { _, _ -> },
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

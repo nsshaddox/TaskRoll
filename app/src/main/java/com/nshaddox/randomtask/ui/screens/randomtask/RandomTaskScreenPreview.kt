@@ -14,7 +14,7 @@ import com.nshaddox.randomtask.ui.theme.RandomTaskTheme
 fun RandomTaskScreenWithTaskPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(currentTask = SampleData.singleTask)
+            uiState = RandomTaskUiState(currentTask = SampleData.singleTask),
         )
     }
 }
@@ -27,7 +27,7 @@ fun RandomTaskScreenWithTaskPreview() {
 fun RandomTaskScreenEmptyPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState()
+            uiState = RandomTaskUiState(),
         )
     }
 }
@@ -40,7 +40,7 @@ fun RandomTaskScreenEmptyPreview() {
 fun RandomTaskScreenShortTitlePreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(currentTask = SampleData.sampleTask)
+            uiState = RandomTaskUiState(currentTask = SampleData.sampleTask),
         )
     }
 }
@@ -53,7 +53,7 @@ fun RandomTaskScreenShortTitlePreview() {
 fun RandomTaskScreenLoadingPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(isLoading = true)
+            uiState = RandomTaskUiState(isLoading = true),
         )
     }
 }
@@ -66,7 +66,7 @@ fun RandomTaskScreenLoadingPreview() {
 fun RandomTaskScreenErrorPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(error = "Something went wrong")
+            uiState = RandomTaskUiState(error = "Something went wrong"),
         )
     }
 }
@@ -79,7 +79,7 @@ fun RandomTaskScreenErrorPreview() {
 fun RandomTaskScreenNoTasksPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(noTasksAvailable = true)
+            uiState = RandomTaskUiState(noTasksAvailable = true),
         )
     }
 }
@@ -92,7 +92,7 @@ fun RandomTaskScreenNoTasksPreview() {
 fun RandomTaskScreenWithDescriptionPreview() {
     RandomTaskTheme {
         RandomTaskScreenContent(
-            uiState = RandomTaskUiState(currentTask = SampleData.sampleTaskWithDescription)
+            uiState = RandomTaskUiState(currentTask = SampleData.sampleTaskWithDescription),
         )
     }
 }

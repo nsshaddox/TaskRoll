@@ -14,7 +14,7 @@ fun TaskEditorScreenNewTaskPreview() {
     RandomTaskTheme {
         TaskEditorScreen(
             taskTitle = "",
-            isEditMode = false
+            isEditMode = false,
         )
     }
 }
@@ -28,7 +28,7 @@ fun TaskEditorScreenEditModePreview() {
     RandomTaskTheme {
         TaskEditorScreen(
             taskTitle = "Complete project wireframes and mockups",
-            isEditMode = true
+            isEditMode = true,
         )
     }
 }
@@ -42,7 +42,7 @@ fun TaskEditorScreenPartialInputPreview() {
     RandomTaskTheme {
         TaskEditorScreen(
             taskTitle = "Write unit tests for",
-            isEditMode = false
+            isEditMode = false,
         )
     }
 }
@@ -55,8 +55,8 @@ fun TaskEditorScreenPartialInputPreview() {
 fun TaskEditorScreenLongTextPreview() {
     RandomTaskTheme {
         TaskEditorScreen(
-            taskTitle = "Review all pull requests, merge approved changes, update documentation, and notify the team about the latest deployment",
-            isEditMode = true
+            taskTitle = "Review all PRs, merge approved changes, update docs, and notify the team",
+            isEditMode = true,
         )
     }
 }

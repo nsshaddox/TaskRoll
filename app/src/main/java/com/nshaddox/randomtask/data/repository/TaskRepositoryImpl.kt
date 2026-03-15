@@ -7,50 +7,51 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class TaskRepositoryImpl @Inject constructor(
-    private val taskDao: TaskDao
-) : TaskRepository {
+class TaskRepositoryImpl
+    @Inject
+    constructor(
+        private val taskDao: TaskDao,
+    ) : TaskRepository {
+        override fun getAllTasks(): Flow<List<Task>> {
+            return taskDao.getAllTasks().map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
 
-    override fun getAllTasks(): Flow<List<Task>> {
-        return taskDao.getAllTasks().map { entities ->
-            entities.map { it.toDomain() }
+        override fun getIncompleteTasks(): Flow<List<Task>> {
+            return taskDao.getIncompleteTasks().map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
+
+        override fun getTaskById(id: Long): Flow<Task?> {
+            return taskDao.getTaskByIdFlow(id).map { it?.toDomain() }
+        }
+
+        override suspend fun addTask(task: Task): Result<Long> {
+            return try {
+                val id = taskDao.insertTask(task.toEntity())
+                Result.success(id)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+        override suspend fun updateTask(task: Task): Result<Unit> {
+            return try {
+                taskDao.updateTask(task.toEntity())
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+        override suspend fun deleteTask(task: Task): Result<Unit> {
+            return try {
+                taskDao.deleteTaskById(task.id)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
     }
-
-    override fun getIncompleteTasks(): Flow<List<Task>> {
-        return taskDao.getIncompleteTasks().map { entities ->
-            entities.map { it.toDomain() }
-        }
-    }
-
-    override fun getTaskById(id: Long): Flow<Task?> {
-        return taskDao.getTaskByIdFlow(id).map { it?.toDomain() }
-    }
-
-    override suspend fun addTask(task: Task): Result<Long> {
-        return try {
-            val id = taskDao.insertTask(task.toEntity())
-            Result.success(id)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun updateTask(task: Task): Result<Unit> {
-        return try {
-            taskDao.updateTask(task.toEntity())
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun deleteTask(task: Task): Result<Unit> {
-        return try {
-            taskDao.deleteTaskById(task.id)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-}

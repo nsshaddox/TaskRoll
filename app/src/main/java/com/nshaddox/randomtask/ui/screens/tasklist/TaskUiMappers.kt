@@ -8,11 +8,12 @@ import java.util.Locale
 private fun formatTimestamp(epochMillis: Long): String =
     SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US).format(Date(epochMillis))
 
-fun Task.toUiModel(): TaskUiModel = TaskUiModel(
-    id = id,
-    title = title,
-    description = description,
-    isCompleted = isCompleted,
-    createdAt = formatTimestamp(createdAt),
-    updatedAt = formatTimestamp(updatedAt)
-)
+fun Task.toUiModel(): TaskUiModel =
+    TaskUiModel(
+        id = id,
+        title = title,
+        description = description,
+        isCompleted = isCompleted,
+        createdAt = formatTimestamp(createdAt),
+        updatedAt = formatTimestamp(updatedAt),
+    )

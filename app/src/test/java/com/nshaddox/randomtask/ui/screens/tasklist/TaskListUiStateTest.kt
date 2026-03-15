@@ -8,7 +8,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TaskListUiStateTest {
-
     @Test
     fun `default state has empty task list`() {
         val state = TaskListUiState()
@@ -60,10 +59,11 @@ class TaskListUiStateTest {
 
     @Test
     fun `copy with tasks`() {
-        val tasks = listOf(
-            Task(id = 1, title = "Task 1", createdAt = 1000L, updatedAt = 1000L),
-            Task(id = 2, title = "Task 2", createdAt = 2000L, updatedAt = 2000L)
-        )
+        val tasks =
+            listOf(
+                Task(id = 1, title = "Task 1", createdAt = 1000L, updatedAt = 1000L),
+                Task(id = 2, title = "Task 2", createdAt = 2000L, updatedAt = 2000L),
+            )
         val state = TaskListUiState().copy(tasks = tasks)
         assertEquals(2, state.tasks.size)
         assertEquals("Task 1", state.tasks[0].title)

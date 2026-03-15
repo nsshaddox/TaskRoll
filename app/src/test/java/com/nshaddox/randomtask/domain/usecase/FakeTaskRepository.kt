@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class FakeTaskRepository : TaskRepository {
-
     private val tasks = mutableListOf<Task>()
     private val tasksFlow = MutableStateFlow<List<Task>>(emptyList())
     private var nextId = 1L

@@ -19,71 +19,76 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @HiltViewModel
-class TaskListViewModel @Inject constructor(
-    private val getTasksUseCase: GetTasksUseCase,
-    private val addTaskUseCase: AddTaskUseCase,
-    private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val completeTaskUseCase: CompleteTaskUseCase,
-    private val updateTaskUseCase: UpdateTaskUseCase,
-    @Named("IO") private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+class TaskListViewModel
+    @Inject
+    constructor(
+        private val getTasksUseCase: GetTasksUseCase,
+        private val addTaskUseCase: AddTaskUseCase,
+        private val deleteTaskUseCase: DeleteTaskUseCase,
+        private val completeTaskUseCase: CompleteTaskUseCase,
+        private val updateTaskUseCase: UpdateTaskUseCase,
+        @Named("IO") private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(TaskListUiState())
+        val uiState: StateFlow<TaskListUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(TaskListUiState())
-    val uiState: StateFlow<TaskListUiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch(ioDispatcher) {
-            getTasksUseCase().collect { tasks ->
-                _uiState.update { it.copy(tasks = tasks, isLoading = false) }
+        init {
+            viewModelScope.launch(ioDispatcher) {
+                getTasksUseCase().collect { tasks ->
+                    _uiState.update { it.copy(tasks = tasks, isLoading = false) }
+                }
             }
         }
-    }
 
-    fun addTask(title: String, description: String? = null) {
-        val now = System.currentTimeMillis()
-        val task = Task(title = title, description = description, createdAt = now, updatedAt = now)
-        viewModelScope.launch(ioDispatcher) {
-            addTaskUseCase(task)
-                .onFailure { error ->
-                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to add task") }
-                }
-                .onSuccess {
-                    _uiState.update { it.copy(isAddDialogVisible = false) }
-                }
-        }
-    }
-
-    fun deleteTask(task: Task) {
-        viewModelScope.launch(ioDispatcher) {
-            deleteTaskUseCase(task)
-                .onFailure { error ->
-                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to delete task") }
-                }
-        }
-    }
-
-    fun toggleTaskCompletion(task: Task) {
-        viewModelScope.launch(ioDispatcher) {
-            val result = if (!task.isCompleted) {
-                completeTaskUseCase(task)
-            } else {
-                updateTaskUseCase(task.copy(isCompleted = false))
-            }
-            result.onFailure { error ->
-                _uiState.update { it.copy(errorMessage = error.message ?: "Failed to update task") }
+        fun addTask(
+            title: String,
+            description: String? = null,
+        ) {
+            val now = System.currentTimeMillis()
+            val task = Task(title = title, description = description, createdAt = now, updatedAt = now)
+            viewModelScope.launch(ioDispatcher) {
+                addTaskUseCase(task)
+                    .onFailure { error ->
+                        _uiState.update { it.copy(errorMessage = error.message ?: "Failed to add task") }
+                    }
+                    .onSuccess {
+                        _uiState.update { it.copy(isAddDialogVisible = false) }
+                    }
             }
         }
-    }
 
-    fun showAddDialog() {
-        _uiState.update { it.copy(isAddDialogVisible = true) }
-    }
+        fun deleteTask(task: Task) {
+            viewModelScope.launch(ioDispatcher) {
+                deleteTaskUseCase(task)
+                    .onFailure { error ->
+                        _uiState.update { it.copy(errorMessage = error.message ?: "Failed to delete task") }
+                    }
+            }
+        }
 
-    fun hideAddDialog() {
-        _uiState.update { it.copy(isAddDialogVisible = false) }
-    }
+        fun toggleTaskCompletion(task: Task) {
+            viewModelScope.launch(ioDispatcher) {
+                val result =
+                    if (!task.isCompleted) {
+                        completeTaskUseCase(task)
+                    } else {
+                        updateTaskUseCase(task.copy(isCompleted = false))
+                    }
+                result.onFailure { error ->
+                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to update task") }
+                }
+            }
+        }
 
-    fun clearError() {
-        _uiState.update { it.copy(errorMessage = null) }
+        fun showAddDialog() {
+            _uiState.update { it.copy(isAddDialogVisible = true) }
+        }
+
+        fun hideAddDialog() {
+            _uiState.update { it.copy(isAddDialogVisible = false) }
+        }
+
+        fun clearError() {
+            _uiState.update { it.copy(errorMessage = null) }
+        }
     }
-}

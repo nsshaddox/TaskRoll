@@ -4,10 +4,12 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class DeleteTaskUseCase @Inject constructor(
-    private val repository: TaskRepository
-) {
-    suspend operator fun invoke(task: Task): Result<Unit> {
-        return repository.deleteTask(task)
+class DeleteTaskUseCase
+    @Inject
+    constructor(
+        private val repository: TaskRepository,
+    ) {
+        suspend operator fun invoke(task: Task): Result<Unit> {
+            return repository.deleteTask(task)
+        }
     }
-}

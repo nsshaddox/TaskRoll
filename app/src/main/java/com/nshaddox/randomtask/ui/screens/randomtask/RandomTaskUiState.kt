@@ -16,5 +16,5 @@ data class RandomTaskUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val noTasksAvailable: Boolean = false,
-    val taskCompleted: Boolean = false
+    val taskCompleted: Boolean = false,
 )
