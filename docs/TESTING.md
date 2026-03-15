@@ -27,7 +27,8 @@ app/src/test/java/com/nshaddox/randomtask/
 │   ├── GetTasksUseCaseTest.kt
 │   └── GetRandomTaskUseCaseTest.kt
 ├── data/repository/
-│   └── TaskMappersTest.kt
+│   ├── TaskMappersTest.kt
+│   └── TaskRepositoryImplTest.kt
 └── ui/screens/
     ├── tasklist/
     │   ├── TaskListViewModelTest.kt
@@ -75,6 +76,7 @@ app/src/androidTest/java/com/nshaddox/randomtask/
 | **Room Testing** | Migration testing | `room-testing:2.8.4` |
 | **Compose UI Testing** | Compose component tests | `ui-test-junit4` (via BOM) |
 | **Espresso** | Android UI assertions | `espresso-core:3.6.1` |
+| **JaCoCo** | Code coverage reporting and verification | `jacoco:0.8.12` (Gradle plugin) |
 
 ## TDD Implementation Patterns
 
@@ -117,6 +119,35 @@ suspend operator fun invoke(
 - **Minimum 90% line coverage** for new code
 - **100% branch coverage** for critical business logic (use cases, validation)
 - All edge cases must be explicitly tested
+
+### JaCoCo Coverage Enforcement
+
+Coverage thresholds are enforced automatically by `jacocoTestCoverageVerification`. The pre-commit hook and CI pipeline both run this check.
+
+#### Per-Package Thresholds
+
+| Package | Metric | Minimum | Notes |
+|---------|--------|---------|-------|
+| **Bundle (overall)** | Instruction | 80% | Adjusted for coroutine synthetic bytecode |
+| `domain.*` | Instruction | 85% | Pure Kotlin business logic |
+| `domain.usecase` | Branch | 70% | Kotlin coroutines generate unreachable synthetic branches |
+| `data.*` | Instruction | 90% | Repository and mapper coverage |
+| `ui.*` | Instruction | 90% | ViewModels, UiState, UI mappers |
+
+#### Excluded from Coverage
+
+The following classes are excluded from coverage metrics because they are generated code, framework boilerplate, or declarative UI that cannot be meaningfully unit-tested:
+
+- **Hilt-generated**: `*_HiltComponents*`, `*_MembersInjector*`, `*_Factory*`, `*Module_Provide*`
+- **Room-generated**: `*_Impl*`, `AppDatabase*`, `TaskDao`, `TaskEntity`
+- **Compose-generated**: `ComposableSingletons*`, `*ScreenKt*`, `*DialogKt*`, `*Preview*`
+- **Kotlin inline synthetics**: `*$$inlined$*` (Flow.map and other inline function artifacts)
+- **Android entry points**: `MainActivity`, `RandomTaskApplication`
+- **Declarative code**: DI modules, navigation, theme, preview data
+
+#### Coroutine Coverage Limitation
+
+JaCoCo reports phantom missed branches in Kotlin `suspend` functions because the Kotlin compiler generates a state machine with branches that are unreachable from normal test execution. This is a known JaCoCo limitation. The branch coverage threshold for `domain.usecase` is set to 70% to account for this. All reachable branches must still be tested.
 
 ## Unit Testing Patterns
 
@@ -347,6 +378,15 @@ class MigrationTest {
 
 # Both lint and tests (same as pre-commit hook)
 ./gradlew lintDebug testDebugUnitTest
+
+# Generate coverage report (HTML + XML)
+./gradlew jacocoTestReport
+
+# Verify coverage thresholds pass
+./gradlew jacocoTestCoverageVerification
+
+# Full pre-commit check (lint + tests + coverage)
+./gradlew lintDebug testDebugUnitTest jacocoTestCoverageVerification
 ```
 
 ### Android Studio
@@ -361,6 +401,8 @@ class MigrationTest {
 After running tests, reports are generated at:
 - **Unit tests**: `app/build/reports/tests/testDebugUnitTest/index.html`
 - **Test results**: `app/build/test-results/testDebugUnitTest/`
+- **Coverage report**: `app/build/reports/jacoco/jacocoTestReport/html/index.html` (run `./gradlew jacocoTestReport` first)
+- **Coverage XML**: `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`
 
 ## Test Data
 
@@ -429,8 +471,10 @@ The test suite uses a `FakeTaskRepository` backed by `MutableStateFlow<List<Task
 The GitHub Actions workflow (`.github/workflows/android-ci.yml`) runs:
 1. `lintDebug` — Android lint checks
 2. `testDebugUnitTest` — All unit tests
-3. `assembleDebug` — Debug build
+3. `jacocoTestReport` — Generate coverage report (HTML + XML)
+4. `jacocoTestCoverageVerification` — Verify per-package coverage thresholds
+5. `assembleDebug` — Debug build
 
-Test results and lint reports are uploaded as workflow artifacts with 7-day retention.
+Test results, lint reports, and coverage reports are uploaded as workflow artifacts with 7-day retention. The coverage report is uploaded with `if: always()` so it is available for debugging even when the verification step fails.
 
-The pre-commit hook runs the same `lintDebug` and `testDebugUnitTest` checks locally before each commit. See the **[Pre-commit Guide](PRECOMMIT.md)** for details.
+The pre-commit hook runs `lintDebug`, `testDebugUnitTest`, and `jacocoTestCoverageVerification` locally before each commit. See the **[Pre-commit Guide](PRECOMMIT.md)** for details.
