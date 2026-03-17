@@ -3,19 +3,11 @@
 package com.nshaddox.randomtask.ui.components
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
-import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
  * Tonal container color for LOW priority.
@@ -88,11 +80,10 @@ fun priorityLabelResId(priority: Priority): Int =
     }
 
 /**
- * A tonal badge composable that displays the task priority level.
+ * A theme-aware priority badge composable that delegates to [ThemedPriorityBadge].
  *
- * Uses [Surface] with priority-specific container colors and a text label
- * pulled from string resources. The badge includes a semantic content
- * description for accessibility.
+ * Renders a priority indicator appropriate to the current theme variant:
+ * dot (Obsidian), block badge (Neo Brutalist), or pill (Vapor).
  *
  * @param priority The [Priority] level to display.
  * @param modifier Optional [Modifier] for layout customization.
@@ -102,22 +93,8 @@ fun PriorityBadge(
     priority: Priority,
     modifier: Modifier = Modifier,
 ) {
-    val label = stringResource(priorityLabelResId(priority))
-    val description = stringResource(R.string.cd_priority_badge, label)
-
-    Surface(
-        modifier =
-            modifier.semantics {
-                contentDescription = description
-            },
-        shape = MaterialTheme.shapes.small,
-        color = priorityContainerColor(priority),
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = Spacing.small, vertical = Spacing.extraSmall),
-            style = MaterialTheme.typography.labelSmall,
-            color = priorityOnContainerColor(priority),
-        )
-    }
+    ThemedPriorityBadge(
+        priority = priority,
+        modifier = modifier,
+    )
 }

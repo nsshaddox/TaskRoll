@@ -1,7 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.settings
 
-import com.nshaddox.randomtask.domain.model.AppTheme
 import com.nshaddox.randomtask.domain.model.SortOrder
+import com.nshaddox.randomtask.domain.model.ThemeVariant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -12,9 +12,9 @@ class SettingsUiStateTest {
     // ── Default value tests ──
 
     @Test
-    fun `default state has appTheme SYSTEM`() {
+    fun `default state has appTheme OBSIDIAN`() {
         val state = SettingsUiState()
-        assertEquals(AppTheme.SYSTEM, state.appTheme)
+        assertEquals(ThemeVariant.OBSIDIAN, state.appTheme)
     }
 
     @Test
@@ -38,17 +38,17 @@ class SettingsUiStateTest {
     // ── Copy transition tests ──
 
     @Test
-    fun `copy with appTheme LIGHT`() {
+    fun `copy with appTheme NEO_BRUTALIST`() {
         val state = SettingsUiState()
-        val updated = state.copy(appTheme = AppTheme.LIGHT)
-        assertEquals(AppTheme.LIGHT, updated.appTheme)
+        val updated = state.copy(appTheme = ThemeVariant.NEO_BRUTALIST)
+        assertEquals(ThemeVariant.NEO_BRUTALIST, updated.appTheme)
     }
 
     @Test
-    fun `copy with appTheme DARK`() {
+    fun `copy with appTheme VAPOR`() {
         val state = SettingsUiState()
-        val updated = state.copy(appTheme = AppTheme.DARK)
-        assertEquals(AppTheme.DARK, updated.appTheme)
+        val updated = state.copy(appTheme = ThemeVariant.VAPOR)
+        assertEquals(ThemeVariant.VAPOR, updated.appTheme)
     }
 
     @Test
@@ -89,8 +89,8 @@ class SettingsUiStateTest {
     @Test
     fun `copy preserves other defaults`() {
         val state = SettingsUiState()
-        val updated = state.copy(appTheme = AppTheme.DARK)
-        assertEquals(AppTheme.DARK, updated.appTheme)
+        val updated = state.copy(appTheme = ThemeVariant.VAPOR)
+        assertEquals(ThemeVariant.VAPOR, updated.appTheme)
         assertEquals(SortOrder.CREATED_DATE_DESC, updated.sortOrder)
         assertFalse(updated.isLoading)
         assertNull(updated.errorMessage)
@@ -107,8 +107,8 @@ class SettingsUiStateTest {
 
     @Test
     fun `equality for states with same values`() {
-        val state1 = SettingsUiState(appTheme = AppTheme.DARK, sortOrder = SortOrder.TITLE_ASC)
-        val state2 = SettingsUiState(appTheme = AppTheme.DARK, sortOrder = SortOrder.TITLE_ASC)
+        val state1 = SettingsUiState(appTheme = ThemeVariant.VAPOR, sortOrder = SortOrder.TITLE_ASC)
+        val state2 = SettingsUiState(appTheme = ThemeVariant.VAPOR, sortOrder = SortOrder.TITLE_ASC)
         assertEquals(state1, state2)
     }
 
@@ -116,9 +116,9 @@ class SettingsUiStateTest {
 
     @Test
     fun `toString contains field values`() {
-        val state = SettingsUiState(appTheme = AppTheme.LIGHT, sortOrder = SortOrder.PRIORITY_DESC)
+        val state = SettingsUiState(appTheme = ThemeVariant.NEO_BRUTALIST, sortOrder = SortOrder.PRIORITY_DESC)
         val str = state.toString()
-        assertTrue(str.contains("appTheme=LIGHT"))
+        assertTrue(str.contains("appTheme=NEO_BRUTALIST"))
         assertTrue(str.contains("sortOrder=PRIORITY_DESC"))
     }
 }

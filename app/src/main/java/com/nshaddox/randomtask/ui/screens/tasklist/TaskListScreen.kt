@@ -18,12 +18,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,8 +31,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +50,10 @@ import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
-import com.nshaddox.randomtask.ui.components.PriorityBadge
+import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedCheckbox
+import com.nshaddox.randomtask.ui.components.ThemedFAB
+import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
 import com.nshaddox.randomtask.ui.theme.Spacing
 import java.time.LocalDate
@@ -194,30 +191,6 @@ fun TaskListScreen(
 
 /**
  * Task List Screen - Displays a list of tasks with CRUD operations, filter bar, and v2 fields.
- *
- * @param tasks List of task UI models to display.
- * @param isLoading Whether a loading operation is in progress.
- * @param errorMessage An optional error message to display.
- * @param snackbarHostState The snackbar host state for displaying messages.
- * @param searchQuery The current search text.
- * @param filterPriority The currently selected priority filter, or null for "All".
- * @param filterCategory The currently selected category filter, or null for "All".
- * @param sortOrder The current sort ordering.
- * @param availableCategories The list of categories for the filter dropdown.
- * @param onSearchQueryChange Called when the search text changes.
- * @param onPriorityFilterChange Called when a priority filter is selected.
- * @param onCategoryFilterChange Called when a category filter is selected.
- * @param onSortOrderChange Called when a sort order is selected.
- * @param onClearError Callback to clear the current error message.
- * @param onTaskClick Callback when a task is clicked.
- * @param onTaskCheckedChange Callback when task completion status changes.
- * @param onDeleteTask Callback when delete button or swipe-to-delete is triggered.
- * @param onEditTask Callback when edit button is clicked.
- * @param onAddTask Callback when FAB is clicked to add new task.
- * @param onNavigateToRandomTask Callback when random task navigation button is clicked.
- * @param onNavigateToCompletedTasks Callback when completed tasks history button is clicked.
- * @param onNavigateToSettings Callback when settings navigation button is clicked.
- * @param modifier Modifier for customization.
  */
 @Suppress("LongParameterList", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -257,46 +230,55 @@ fun TaskListScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("My Tasks") },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    ),
-                actions = {
-                    IconButton(onClick = onNavigateToCompletedTasks) {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = stringResource(R.string.cd_navigate_to_completed_tasks),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
+            Column {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(horizontal = Spacing.medium, vertical = Spacing.medium),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "My Tasks",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Row {
+                        IconButton(onClick = onNavigateToCompletedTasks) {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = stringResource(R.string.cd_navigate_to_completed_tasks),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        IconButton(onClick = onNavigateToRandomTask) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Random Task",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.navigate_to_settings),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
-                    IconButton(onClick = onNavigateToRandomTask) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Random Task",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                    }
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = stringResource(R.string.navigate_to_settings),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                    }
-                },
-            )
+                }
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddTask) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Task",
-                )
-            }
+            ThemedFAB(
+                onClick = onAddTask,
+                icon = Icons.Default.Add,
+                contentDescription = "Add Task",
+            )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier,
@@ -309,7 +291,9 @@ fun TaskListScreen(
                         .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         } else if (tasks.isEmpty() && !hasActiveFilters(searchQuery, filterPriority, filterCategory)) {
             EmptyTaskListContent(
@@ -369,16 +353,6 @@ fun TaskListScreen(
 
 /**
  * A task list item wrapped in a [SwipeToDismissBox] for swipe-to-delete.
- *
- * Swiping from end to start reveals a red background with a delete icon.
- * On full swipe, the [onDeleteClick] callback is invoked.
- *
- * @param task The task UI model to display.
- * @param onTaskClick Callback when the task card is clicked.
- * @param onCheckedChange Callback when the task checkbox state changes.
- * @param onEditClick Callback when the edit button is clicked.
- * @param onDeleteClick Callback when the item is swiped to delete or the delete button is clicked.
- * @param modifier Modifier for customization.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -408,7 +382,7 @@ private fun SwipeToDismissTaskItem(
             val color by animateColorAsState(
                 targetValue =
                     when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
                         else -> Color.Transparent
                     },
                 label = "dismissBackground",
@@ -424,7 +398,7 @@ private fun SwipeToDismissTaskItem(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(R.string.cd_swipe_to_delete),
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         },
@@ -451,24 +425,13 @@ internal fun TaskListItem(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    ThemedCard(
+        priority = task.priority,
         onClick = onTaskClick,
         modifier = modifier.fillMaxWidth(),
-        colors =
-            CardDefaults.cardColors(
-                containerColor =
-                    if (task.isCompleted) {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    },
-            ),
     ) {
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(Spacing.componentPadding),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -477,7 +440,7 @@ internal fun TaskListItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Spacing.small),
             ) {
-                Checkbox(
+                ThemedCheckbox(
                     checked = task.isCompleted,
                     onCheckedChange = onCheckedChange,
                 )
@@ -508,7 +471,7 @@ internal fun TaskListItem(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false),
                         )
-                        PriorityBadge(priority = task.priority)
+                        ThemedPriorityBadge(priority = task.priority)
                     }
                     TaskMetadataRow(task = task)
                 }

@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,9 +21,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val uiState by settingsViewModel.uiState.collectAsState()
-            val darkTheme = resolveTheme(uiState.appTheme, isSystemInDarkTheme())
 
-            RandomTaskTheme(darkTheme = darkTheme) {
+            RandomTaskTheme(variant = uiState.appTheme) {
                 val navController = rememberNavController()
                 NavGraph(navController)
             }

@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,8 +27,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,12 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
-import com.nshaddox.randomtask.ui.components.PriorityBadge
+import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.theme.Spacing
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -72,29 +70,17 @@ fun formatCompletedDate(
 
 /**
  * Represents the visual content state of the Completed Tasks screen.
- *
- * Used to determine which composable content to render based on
- * [CompletedTasksUiState] values.
  */
 sealed interface CompletedTasksContentState {
-    /** A loading operation is in progress. */
     data object Loading : CompletedTasksContentState
 
-    /** No completed tasks to display. */
     data object Empty : CompletedTasksContentState
 
-    /** Completed tasks are available. */
     data class Populated(val tasks: List<Task>) : CompletedTasksContentState
 }
 
 /**
  * Determines the content state to render from the given screen parameters.
- *
- * Priority: loading takes precedence, then empty check, then populated.
- *
- * @param isLoading Whether a loading operation is in progress.
- * @param tasks The list of completed tasks.
- * @return The resolved [CompletedTasksContentState].
  */
 fun resolveContentState(
     isLoading: Boolean,
@@ -108,11 +94,6 @@ fun resolveContentState(
 
 /**
  * Stateful Completed Tasks Screen that integrates with ViewModel and NavController.
- *
- * Collects UI state from [CompletedTasksViewModel] and delegates to the stateless composable.
- *
- * @param navController Navigation controller for back navigation.
- * @param viewModel Hilt-injected ViewModel managing completed tasks state.
  */
 @Composable
 fun CompletedTasksScreen(
@@ -122,7 +103,6 @@ fun CompletedTasksScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Undo-delete Snackbar
     val pendingDeleteTask = uiState.pendingDeleteTask
     val taskDeletedMessage = stringResource(R.string.snackbar_task_deleted)
     val undoLabel = stringResource(R.string.snackbar_undo_action)
@@ -154,18 +134,6 @@ fun CompletedTasksScreen(
 
 /**
  * Stateless Completed Tasks Screen content.
- *
- * Displays a list of completed tasks with swipe-to-delete functionality,
- * a loading indicator, or an empty state message.
- *
- * @param tasks List of completed tasks to display.
- * @param isLoading Whether a loading operation is in progress.
- * @param errorMessage An optional error message to display via snackbar.
- * @param onDeleteTask Callback when a task is swiped to delete.
- * @param onNavigateBack Callback for back navigation.
- * @param onClearError Callback to clear the current error message.
- * @param snackbarHostState State for the snackbar host.
- * @param modifier Modifier for customization.
  */
 @Suppress("LongParameterList", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -188,23 +156,29 @@ fun CompletedTasksScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.completed_tasks_screen_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_navigate_back),
-                        )
-                    }
-                },
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    ),
-            )
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(horizontal = Spacing.small, vertical = Spacing.small),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.cd_navigate_back),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.completed_tasks_screen_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier,
@@ -218,7 +192,9 @@ fun CompletedTasksScreen(
                             .padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
 
@@ -254,13 +230,6 @@ fun CompletedTasksScreen(
 
 /**
  * A single completed task item with swipe-to-delete support.
- *
- * Wraps the task card in a [SwipeToDismissBox] that triggers the
- * [onDelete] callback when swiped from end to start.
- *
- * @param task The completed task to display.
- * @param onDelete Callback invoked when the item is swiped to dismiss.
- * @param modifier Modifier for customization.
  */
 @Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -288,7 +257,7 @@ private fun CompletedTaskItem(
             val color by animateColorAsState(
                 targetValue =
                     when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
                         else -> Color.Transparent
                     },
                 label = "dismissBackground",
@@ -304,25 +273,19 @@ private fun CompletedTaskItem(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = stringResource(R.string.cd_swipe_to_delete),
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    tint = MaterialTheme.colorScheme.error,
                 )
             }
         },
         modifier = modifier,
         enableDismissFromStartToEnd = false,
     ) {
-        Card(
+        ThemedCard(
+            priority = task.priority,
             modifier = Modifier.fillMaxWidth(),
-            colors =
-                CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
         ) {
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(Spacing.componentPadding),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -336,6 +299,7 @@ private fun CompletedTaskItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textDecoration = TextDecoration.LineThrough,
                     )
                     Text(
                         text = formatCompletedDate(task.updatedAt),
@@ -343,7 +307,7 @@ private fun CompletedTaskItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                PriorityBadge(
+                ThemedPriorityBadge(
                     priority = task.priority,
                     modifier = Modifier.padding(start = Spacing.small),
                 )
@@ -354,8 +318,6 @@ private fun CompletedTaskItem(
 
 /**
  * Empty state content displayed when there are no completed tasks.
- *
- * @param modifier Modifier for customization.
  */
 @Composable
 private fun EmptyCompletedTasksContent(modifier: Modifier = Modifier) {

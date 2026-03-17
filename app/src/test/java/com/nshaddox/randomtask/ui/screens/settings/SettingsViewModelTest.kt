@@ -4,8 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import app.cash.turbine.test
-import com.nshaddox.randomtask.domain.model.AppTheme
 import com.nshaddox.randomtask.domain.model.SortOrder
+import com.nshaddox.randomtask.domain.model.ThemeVariant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -59,13 +59,13 @@ class SettingsViewModelTest {
 
             viewModel.uiState.test {
                 val initial = awaitItem()
-                assertEquals(AppTheme.SYSTEM, initial.appTheme)
+                assertEquals(ThemeVariant.OBSIDIAN, initial.appTheme)
                 assertEquals(SortOrder.CREATED_DATE_DESC, initial.sortOrder)
             }
         }
 
     @Test
-    fun `setTheme DARK updates uiState appTheme to DARK`() =
+    fun `setTheme VAPOR updates uiState appTheme to VAPOR`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -73,10 +73,10 @@ class SettingsViewModelTest {
                 // Initial defaults
                 awaitItem()
 
-                viewModel.setTheme(AppTheme.DARK)
+                viewModel.setTheme(ThemeVariant.VAPOR)
 
                 val updated = awaitItem()
-                assertEquals(AppTheme.DARK, updated.appTheme)
+                assertEquals(ThemeVariant.VAPOR, updated.appTheme)
             }
         }
 
@@ -105,7 +105,7 @@ class SettingsViewModelTest {
                 // Initial defaults
                 awaitItem()
 
-                viewModel1.setTheme(AppTheme.LIGHT)
+                viewModel1.setTheme(ThemeVariant.NEO_BRUTALIST)
                 viewModel1.setSortOrder(SortOrder.PRIORITY_DESC)
 
                 // Consume updates until we see both changes applied
@@ -113,7 +113,7 @@ class SettingsViewModelTest {
                 if (state.sortOrder != SortOrder.PRIORITY_DESC) {
                     state = awaitItem()
                 }
-                assertEquals(AppTheme.LIGHT, state.appTheme)
+                assertEquals(ThemeVariant.NEO_BRUTALIST, state.appTheme)
                 assertEquals(SortOrder.PRIORITY_DESC, state.sortOrder)
             }
 
@@ -123,12 +123,12 @@ class SettingsViewModelTest {
             viewModel2.uiState.test {
                 val initial = awaitItem()
                 // May be defaults briefly; await the DataStore-loaded state
-                if (initial.appTheme == AppTheme.SYSTEM) {
+                if (initial.appTheme == ThemeVariant.OBSIDIAN) {
                     val loaded = awaitItem()
-                    assertEquals(AppTheme.LIGHT, loaded.appTheme)
+                    assertEquals(ThemeVariant.NEO_BRUTALIST, loaded.appTheme)
                     assertEquals(SortOrder.PRIORITY_DESC, loaded.sortOrder)
                 } else {
-                    assertEquals(AppTheme.LIGHT, initial.appTheme)
+                    assertEquals(ThemeVariant.NEO_BRUTALIST, initial.appTheme)
                     assertEquals(SortOrder.PRIORITY_DESC, initial.sortOrder)
                 }
             }

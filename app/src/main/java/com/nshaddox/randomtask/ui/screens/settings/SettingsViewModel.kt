@@ -6,8 +6,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nshaddox.randomtask.domain.model.AppTheme
 import com.nshaddox.randomtask.domain.model.SortOrder
+import com.nshaddox.randomtask.domain.model.ThemeVariant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,14 +30,14 @@ class SettingsViewModel
         init {
             viewModelScope.launch(ioDispatcher) {
                 dataStore.data.collect { preferences ->
-                    val theme = preferences.readEnum(THEME_KEY, AppTheme.SYSTEM)
+                    val theme = preferences.readEnum(THEME_KEY, ThemeVariant.OBSIDIAN)
                     val sortOrder = preferences.readEnum(SORT_ORDER_KEY, SortOrder.CREATED_DATE_DESC)
                     _uiState.value = SettingsUiState(appTheme = theme, sortOrder = sortOrder)
                 }
             }
         }
 
-        fun setTheme(theme: AppTheme) {
+        fun setTheme(theme: ThemeVariant) {
             viewModelScope.launch(ioDispatcher) {
                 dataStore.edit { prefs ->
                     prefs[THEME_KEY] = theme.name
