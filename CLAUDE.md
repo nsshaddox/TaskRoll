@@ -18,6 +18,7 @@ Random Task is a native Android app built with Kotlin and Jetpack Compose that h
 
 The `docs/` directory contains detailed guides. **Read them on-demand, not upfront.**
 
+- **`docs/DESIGN_SYSTEM.md`** — **Read when creating or modifying ANY UI element.** Contains the complete design spec for all three themes (Obsidian, Neo Brutalist, Vapor) — colors, typography, shapes, spacing, component patterns. Every screen and component must be built for all three themes using this reference.
 - **`docs/ARCHITECTURE.md`** — Read when making architectural decisions, adding new layers/modules, or needing to understand data flow and design patterns.
 - **`docs/DEVELOPMENT.md`** — Read when setting up the project, adding dependencies, or troubleshooting build/environment issues.
 - **`docs/TESTING.md`** — Read when writing or debugging tests, or when you need test patterns and the coroutine testing checklist.
@@ -131,6 +132,7 @@ Read `docs/TESTING.md` when writing or debugging tests.
 - **Domain layer stays pure Kotlin** — no Android imports in `domain/`
 - **Use named dispatchers** — inject `@Named("IO")` instead of hardcoding `Dispatchers.IO`
 - **Mappers are extension functions** — no mapper classes, no business logic in mappers
+- **Three-theme UI** — every UI element must support Obsidian, Neo Brutalist, and Vapor themes. Read `docs/DESIGN_SYSTEM.md` before writing any UI code.
 
 ## Review Checklist
 
@@ -141,6 +143,7 @@ Before committing:
 - [ ] Lint passes (`./gradlew lintDebug`)
 - [ ] Code coverage meets requirements (>90% for new code)
 - [ ] No hardcoded strings in UI (use string resources)
+- [ ] UI elements render correctly in all three themes (Obsidian, Neo Brutalist, Vapor)
 - [ ] Domain layer has no Android imports
 - [ ] Pre-commit hook passes
 
