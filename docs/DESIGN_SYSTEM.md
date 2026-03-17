@@ -416,5 +416,5 @@ When the themes are implemented as proper `ColorScheme` objects:
 - `priorityHighBg`, `priorityMediumBg`, `priorityLowBg` (Vapor card tints)
 - `borderWidth` (0dp for Obsidian/Vapor, 3dp for Neo Brutalist)
 - `shadowOffset` (0dp for Obsidian/Vapor, 4dp for Neo Brutalist)
-- `useSolidShadow` (false/false/true)
+- `useSolidShadow` (false/true/false)
 - `useUppercaseTitles` (false/true/false)
