@@ -33,8 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.BuildConfig
 import com.nshaddox.randomtask.R
-import com.nshaddox.randomtask.domain.model.AppTheme
 import com.nshaddox.randomtask.domain.model.SortOrder
+import com.nshaddox.randomtask.domain.model.ThemeVariant
 import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
@@ -71,7 +71,7 @@ fun SettingsScreen(
 @Composable
 internal fun SettingsScreenContent(
     uiState: SettingsUiState,
-    onThemeSelected: (AppTheme) -> Unit = {},
+    onThemeSelected: (ThemeVariant) -> Unit = {},
     onSortOrderSelected: (SortOrder) -> Unit = {},
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -152,12 +152,12 @@ private fun SettingsSectionHeader(
 
 @Composable
 private fun ThemeSelectionGroup(
-    selectedTheme: AppTheme,
-    onThemeSelected: (AppTheme) -> Unit,
+    selectedTheme: ThemeVariant,
+    onThemeSelected: (ThemeVariant) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.selectableGroup()) {
-        AppTheme.entries.forEach { theme ->
+        ThemeVariant.entries.forEach { theme ->
             RadioOptionRow(
                 text = theme.displayName(),
                 selected = theme == selectedTheme,
@@ -216,14 +216,14 @@ private fun RadioOptionRow(
 }
 
 /**
- * Returns the user-facing display name for this [AppTheme] value.
+ * Returns the user-facing display name for this [ThemeVariant] value.
  */
 @Composable
-private fun AppTheme.displayName(): String =
+private fun ThemeVariant.displayName(): String =
     when (this) {
-        AppTheme.LIGHT -> stringResource(R.string.theme_light)
-        AppTheme.DARK -> stringResource(R.string.theme_dark)
-        AppTheme.SYSTEM -> stringResource(R.string.theme_system)
+        ThemeVariant.OBSIDIAN -> stringResource(R.string.theme_obsidian)
+        ThemeVariant.NEO_BRUTALIST -> stringResource(R.string.theme_neo_brutalist)
+        ThemeVariant.VAPOR -> stringResource(R.string.theme_vapor)
     }
 
 /**

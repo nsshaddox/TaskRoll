@@ -71,10 +71,10 @@
     <string name="settings_about_section">About</string>
     <string name="settings_version_label">Version</string>
 
-    <!-- AppTheme options -->
-    <string name="theme_light">Light</string>
-    <string name="theme_dark">Dark</string>
-    <string name="theme_system">System Default</string>
+    <!-- ThemeVariant options -->
+    <string name="theme_obsidian">Obsidian</string>
+    <string name="theme_neo_brutalist">Neo Brutalist</string>
+    <string name="theme_vapor">Vapor</string>
 
     <!-- SortOrder options -->
     <string name="sort_created_date_desc">Newest First</string>
