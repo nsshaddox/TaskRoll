@@ -15,6 +15,7 @@ class RandomTaskUiStateTest {
         assertNull(state.currentTask)
         assertFalse(state.isLoading)
         assertNull(state.error)
+        assertNull(state.errorResId)
         assertFalse(state.noTasksAvailable)
     }
 
