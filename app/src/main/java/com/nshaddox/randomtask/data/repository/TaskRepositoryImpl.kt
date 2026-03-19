@@ -5,6 +5,7 @@ import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -14,41 +15,38 @@ class TaskRepositoryImpl
     constructor(
         private val taskDao: TaskDao,
     ) : TaskRepository {
-        override fun getAllTasks(): Flow<List<Task>> {
-            return taskDao.getAllTasks().map { entities ->
+        override fun getAllTasks(): Flow<List<Task>> =
+            taskDao.getAllTasks().map { entities ->
                 entities.map { it.toDomain() }
-            }
-        }
+            }.catch { emit(emptyList()) }
 
-        override fun getIncompleteTasks(): Flow<List<Task>> {
-            return taskDao.getIncompleteTasks().map { entities ->
+        override fun getIncompleteTasks(): Flow<List<Task>> =
+            taskDao.getIncompleteTasks().map { entities ->
                 entities.map { it.toDomain() }
-            }
-        }
+            }.catch { emit(emptyList()) }
 
-        override fun getTaskById(id: Long): Flow<Task?> {
-            return taskDao.getTaskByIdFlow(id).map { it?.toDomain() }
-        }
+        override fun getTaskById(id: Long): Flow<Task?> =
+            taskDao.getTaskByIdFlow(id).map { it?.toDomain() }.catch { emit(null) }
 
         override fun getCompletedTasks(): Flow<List<Task>> =
             taskDao.getCompletedTasks().map { entities ->
                 entities.map { it.toDomain() }
-            }
+            }.catch { emit(emptyList()) }
 
         override fun getTasksByPriority(priority: Priority): Flow<List<Task>> =
             taskDao.getTasksByPriority(priority.name).map { entities ->
                 entities.map { it.toDomain() }
-            }
+            }.catch { emit(emptyList()) }
 
         override fun getTasksByCategory(category: String): Flow<List<Task>> =
             taskDao.getTasksByCategory(category).map { entities ->
                 entities.map { it.toDomain() }
-            }
+            }.catch { emit(emptyList()) }
 
         override fun searchTasks(query: String): Flow<List<Task>> =
             taskDao.searchTasks(query).map { entities ->
                 entities.map { it.toDomain() }
-            }
+            }.catch { emit(emptyList()) }
 
         override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
             taskDao.getCompletedTasksSince(sinceEpochMs).map { entities ->
