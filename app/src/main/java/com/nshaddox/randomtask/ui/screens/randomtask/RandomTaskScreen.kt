@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +42,7 @@ import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.theme.Spacing
 
@@ -203,9 +203,7 @@ private fun RandomTaskContent(
     ) {
         when {
             uiState.isLoading -> {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                ThemedLoadingIndicator()
             }
             uiState.error != null -> {
                 ErrorContent(
