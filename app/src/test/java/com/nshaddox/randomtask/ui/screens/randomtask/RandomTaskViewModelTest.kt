@@ -152,6 +152,14 @@ class RandomTaskViewModelTest {
 
                     override fun searchTasks(query: String): Flow<List<Task>> = flow { emit(emptyList()) }
 
+                    override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
+                        flow { emit(emptyList()) }
+
+                    override fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<Task>> =
+                        flow { emit(emptyList()) }
+
+                    override fun getIncompleteTaskCount(): Flow<Int> = flow { emit(0) }
+
                     override suspend fun addTask(task: Task): Result<Long> = Result.success(1L)
 
                     override suspend fun updateTask(task: Task): Result<Unit> =
@@ -243,6 +251,14 @@ class RandomTaskViewModelTest {
                         flow {
                             throw RuntimeException("DB error")
                         }
+
+                    override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
+                        flow { throw RuntimeException("DB error") }
+
+                    override fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<Task>> =
+                        flow { throw RuntimeException("DB error") }
+
+                    override fun getIncompleteTaskCount(): Flow<Int> = flow { throw RuntimeException("DB error") }
 
                     override suspend fun addTask(task: Task): Result<Long> =
                         Result.failure(
