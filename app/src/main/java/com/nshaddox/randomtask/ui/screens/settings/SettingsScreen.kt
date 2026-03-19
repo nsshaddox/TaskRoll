@@ -1,5 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.settings
 
+import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,12 +52,32 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val feedbackEmailAddress = stringResource(R.string.feedback_email_address)
+    val feedbackSubject = stringResource(R.string.feedback_email_subject, BuildConfig.VERSION_NAME)
+    val feedbackBody =
+        stringResource(
+            R.string.feedback_email_body,
+            BuildConfig.VERSION_NAME,
+            Build.VERSION.RELEASE,
+            Build.MODEL,
+        )
 
     SettingsScreenContent(
         uiState = uiState,
         onThemeSelected = viewModel::setTheme,
         onSortOrderSelected = viewModel::setSortOrder,
         onBackClick = { navController.popBackStack() },
+        onSendFeedback = {
+            val intent =
+                buildFeedbackEmailIntent(
+                    emailAddress = feedbackEmailAddress,
+                    subject = feedbackSubject,
+                    body = feedbackBody,
+                )
+            safeLaunchFeedbackIntent(intent) { context.startActivity(it) }
+        },
     )
 }
 
@@ -74,6 +97,7 @@ internal fun SettingsScreenContent(
     onThemeSelected: (ThemeVariant) -> Unit = {},
     onSortOrderSelected: (SortOrder) -> Unit = {},
     onBackClick: () -> Unit = {},
+    onSendFeedback: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -128,12 +152,33 @@ internal fun SettingsScreenContent(
             // About section
             SettingsSectionHeader(text = stringResource(R.string.settings_about_section))
             Spacer(modifier = Modifier.height(Spacing.small))
-            Text(
-                text = "${stringResource(R.string.settings_version_label)}: ${BuildConfig.VERSION_NAME}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            AboutSection(onSendFeedback = onSendFeedback)
         }
+    }
+}
+
+@Composable
+private fun AboutSection(
+    onSendFeedback: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = "${stringResource(R.string.settings_version_label)}: ${BuildConfig.VERSION_NAME}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(Spacing.small))
+        Text(
+            text = stringResource(R.string.feedback_send_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onSendFeedback)
+                    .padding(vertical = Spacing.componentPadding),
+        )
     }
 }
 
