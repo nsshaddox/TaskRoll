@@ -13,31 +13,48 @@ class FakeTaskRepository : TaskRepository {
     private val tasksFlow = MutableStateFlow<List<Task>>(emptyList())
     private var nextId = 1L
 
-    override fun getAllTasks(): Flow<List<Task>> = tasksFlow
+    var shouldFailMutations: Boolean = false
+    var shouldFailQueries: Boolean = false
+
+    override fun getAllTasks(): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
+        return tasksFlow
+    }
 
     override fun getIncompleteTasks(): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
         return tasksFlow.map { list -> list.filter { !it.isCompleted } }
     }
 
     override fun getTaskById(id: Long): Flow<Task?> {
+        if (shouldFailQueries) return MutableStateFlow(null)
         return tasksFlow.map { list -> list.find { it.id == id } }
     }
 
-    override fun getCompletedTasks(): Flow<List<Task>> = tasksFlow.map { list -> list.filter { it.isCompleted } }
+    override fun getCompletedTasks(): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
+        return tasksFlow.map { list -> list.filter { it.isCompleted } }
+    }
 
-    override fun getTasksByPriority(priority: Priority): Flow<List<Task>> =
-        tasksFlow.map { list -> list.filter { it.priority == priority && !it.isCompleted } }
+    override fun getTasksByPriority(priority: Priority): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
+        return tasksFlow.map { list -> list.filter { it.priority == priority && !it.isCompleted } }
+    }
 
-    override fun getTasksByCategory(category: String): Flow<List<Task>> =
-        tasksFlow.map { list -> list.filter { it.category == category && !it.isCompleted } }
+    override fun getTasksByCategory(category: String): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
+        return tasksFlow.map { list -> list.filter { it.category == category && !it.isCompleted } }
+    }
 
-    override fun searchTasks(query: String): Flow<List<Task>> =
-        tasksFlow.map { list ->
+    override fun searchTasks(query: String): Flow<List<Task>> {
+        if (shouldFailQueries) return MutableStateFlow(emptyList())
+        return tasksFlow.map { list ->
             list.filter {
                 it.title.contains(query) ||
                     it.description?.contains(query) == true
             }
         }
+    }
 
     override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
         tasksFlow.map { list -> list.filter { it.isCompleted && it.updatedAt >= sinceEpochMs } }
@@ -50,6 +67,7 @@ class FakeTaskRepository : TaskRepository {
     override fun getIncompleteTaskCount(): Flow<Int> = tasksFlow.map { list -> list.count { !it.isCompleted } }
 
     override suspend fun addTask(task: Task): Result<Long> {
+        if (shouldFailMutations) return Result.failure(RuntimeException("Simulated failure"))
         val id = nextId++
         val newTask = task.copy(id = id)
         tasks.add(newTask)
@@ -57,7 +75,9 @@ class FakeTaskRepository : TaskRepository {
         return Result.success(id)
     }
 
+    @Suppress("ReturnCount")
     override suspend fun updateTask(task: Task): Result<Unit> {
+        if (shouldFailMutations) return Result.failure(RuntimeException("Simulated failure"))
         val index = tasks.indexOfFirst { it.id == task.id }
         if (index == -1) return Result.failure(NoSuchElementException("Task not found"))
         tasks[index] = task
@@ -65,7 +85,9 @@ class FakeTaskRepository : TaskRepository {
         return Result.success(Unit)
     }
 
+    @Suppress("ReturnCount")
     override suspend fun deleteTask(task: Task): Result<Unit> {
+        if (shouldFailMutations) return Result.failure(RuntimeException("Simulated failure"))
         val removed = tasks.removeAll { it.id == task.id }
         if (!removed) return Result.failure(NoSuchElementException("Task not found"))
         tasksFlow.update { tasks.toList() }
