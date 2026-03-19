@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Clipboard outline with a plus mark -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M36,8 L36,12 L28,12 C25.8,12 24,13.8 24,16 L24,80 C24,82.2 25.8,84 28,84 L68,84 C70.2,84 72,82.2 72,80 L72,16 C72,13.8 70.2,12 68,12 L60,12 L60,8 L36,8 Z M40,12 L56,12 L56,16 C56,17.1 55.1,18 54,18 L42,18 C40.9,18 40,17.1 40,16 L40,12 Z M28,16 L36,16 C36,19.3 38.7,22 42,22 L54,22 C57.3,22 60,19.3 60,16 L68,16 L68,80 L28,80 L28,16 Z M46,36 L46,50 L38,50 L38,54 L46,54 L46,68 L50,68 L50,54 L58,54 L58,50 L50,50 L50,36 L46,36 Z" />
+</vector>

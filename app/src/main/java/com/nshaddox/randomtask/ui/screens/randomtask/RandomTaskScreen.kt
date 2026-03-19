@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,6 +43,7 @@ import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -303,26 +305,23 @@ private fun NoTasksAvailableContent(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    ThemedEmptyStateContent(
+        illustration = painterResource(R.drawable.ic_empty_random_task),
+        illustrationContentDescription = stringResource(R.string.cd_empty_random_task_illustration),
+        title = stringResource(R.string.empty_state_random_task_title),
+        body = stringResource(R.string.empty_state_random_task_body),
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Spacing.medium),
-    ) {
-        Text(
-            text = "No tasks available. Add some tasks first!",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        OutlinedButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = null,
-                modifier = Modifier.padding(end = Spacing.small),
-            )
-            Text("Go Back")
-        }
-    }
+        action = {
+            OutlinedButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = Spacing.small),
+                )
+                Text(stringResource(R.string.action_go_back))
+            }
+        },
+    )
 }
 
 @Composable

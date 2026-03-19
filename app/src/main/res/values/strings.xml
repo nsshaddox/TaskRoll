@@ -42,6 +42,14 @@
     <!-- RandomTaskScreen -->
     <string name="weighted_random_toggle_label">Prioritise high-priority tasks</string>
 
+    <!-- Task List Empty State -->
+    <string name="empty_state_task_list_title">No tasks yet</string>
+    <string name="empty_state_task_list_body">Tap + to add your first task</string>
+
+    <!-- Random Task Empty State -->
+    <string name="empty_state_random_task_title">No tasks available</string>
+    <string name="empty_state_random_task_body">Add some tasks first</string>
+
     <!-- Completed Tasks Screen -->
     <string name="completed_tasks_screen_title">Completed Tasks</string>
     <string name="completed_tasks_empty_title">No completed tasks yet</string>
@@ -62,6 +70,8 @@
     <string name="snackbar_undo_action">Undo</string>
 
     <!-- Content Descriptions -->
+    <string name="cd_empty_task_list_illustration">Empty task list illustration</string>
+    <string name="cd_empty_random_task_illustration">No tasks available illustration</string>
     <string name="cd_navigate_back">Navigate back</string>
     <string name="cd_navigate_to_completed_tasks">View completed tasks</string>
     <string name="cd_swipe_to_delete">Swipe to delete</string>
@@ -97,6 +107,9 @@
     <string name="feedback_email_address">randomtask-feedback@example.com</string>
     <string name="feedback_email_subject">RandomTask Feedback — v%1$s</string>
     <string name="feedback_email_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\n[Your feedback here]</string>
+
+    <!-- Action Buttons -->
+    <string name="action_go_back">Go Back</string>
 
     <!-- Navigation content descriptions -->
     <string name="navigate_back">Navigate back</string>
