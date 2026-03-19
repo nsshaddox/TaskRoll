@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.completedtasks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.AddTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
@@ -42,9 +43,9 @@ class CompletedTasksViewModel
         fun deleteTask(task: Task) {
             viewModelScope.launch(ioDispatcher) {
                 deleteTaskUseCase(task)
-                    .onFailure { error ->
+                    .onFailure { _ ->
                         _uiState.update {
-                            it.copy(errorMessage = error.message ?: "Failed to delete task")
+                            it.copy(errorResId = R.string.error_delete_task)
                         }
                     }
             }
@@ -56,9 +57,9 @@ class CompletedTasksViewModel
                     .onSuccess {
                         _uiState.update { it.copy(pendingDeleteTask = task) }
                     }
-                    .onFailure { error ->
+                    .onFailure { _ ->
                         _uiState.update {
-                            it.copy(errorMessage = error.message ?: "Failed to delete task")
+                            it.copy(errorResId = R.string.error_delete_task)
                         }
                     }
             }
@@ -82,8 +83,7 @@ class CompletedTasksViewModel
                     category = pending.category,
                 )
             if (addResult.isFailure) {
-                val msg = addResult.exceptionOrNull()?.message ?: "Failed to restore task"
-                _uiState.update { it.copy(errorMessage = msg) }
+                _uiState.update { it.copy(errorResId = R.string.error_restore_task) }
                 return
             }
             // Restored task must be re-completed since AddTaskUseCase creates incomplete tasks
@@ -97,8 +97,7 @@ class CompletedTasksViewModel
                     )
                 val completeResult = completeTaskUseCase(restoredTask)
                 if (completeResult.isFailure) {
-                    val msg = completeResult.exceptionOrNull()?.message ?: "Failed to restore task"
-                    _uiState.update { it.copy(errorMessage = msg) }
+                    _uiState.update { it.copy(errorResId = R.string.error_restore_task) }
                 }
             }
         }
@@ -108,6 +107,6 @@ class CompletedTasksViewModel
         }
 
         fun clearError() {
-            _uiState.update { it.copy(errorMessage = null) }
+            _uiState.update { it.copy(errorMessage = null, errorResId = null) }
         }
     }

@@ -1,6 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.randomtask
 
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
@@ -188,7 +189,7 @@ class RandomTaskViewModelTest {
 
             val state = errorViewModel.uiState.value
             assertFalse(state.taskCompleted)
-            assertNotNull(state.error)
+            assertEquals(R.string.error_complete_task, state.errorResId)
         }
 
     @Test

@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.taskeditor
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
@@ -87,7 +88,7 @@ class TaskEditorViewModelTest {
 
                 val loaded = awaitItem()
                 assertFalse(loaded.isLoading)
-                assertEquals("Task not found", loaded.errorMessage)
+                assertEquals(R.string.error_task_not_found, loaded.errorResId)
             }
         }
 
@@ -131,7 +132,7 @@ class TaskEditorViewModelTest {
         }
 
     @Test
-    fun `saveTask with blank title sets error message`() =
+    fun `saveTask with blank title sets errorResId`() =
         runTest(testDispatcher) {
             repository.addTask(createTask(title = "Original"))
 
@@ -147,7 +148,7 @@ class TaskEditorViewModelTest {
                 viewModel.saveTask()
 
                 val errorState = awaitItem()
-                assertEquals("Task title cannot be blank", errorState.errorMessage)
+                assertEquals(R.string.error_save_task, errorState.errorResId)
                 assertFalse(errorState.isSaved)
             }
         }
