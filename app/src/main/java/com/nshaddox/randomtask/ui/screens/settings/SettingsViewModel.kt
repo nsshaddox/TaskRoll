@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.settings
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -32,7 +33,13 @@ class SettingsViewModel
                 dataStore.data.collect { preferences ->
                     val theme = preferences.readEnum(THEME_KEY, ThemeVariant.OBSIDIAN)
                     val sortOrder = preferences.readEnum(SORT_ORDER_KEY, SortOrder.CREATED_DATE_DESC)
-                    _uiState.value = SettingsUiState(appTheme = theme, sortOrder = sortOrder)
+                    val hapticEnabled = preferences[HAPTIC_KEY] ?: true
+                    _uiState.value =
+                        SettingsUiState(
+                            appTheme = theme,
+                            sortOrder = sortOrder,
+                            hapticEnabled = hapticEnabled,
+                        )
                 }
             }
         }
@@ -53,9 +60,18 @@ class SettingsViewModel
             }
         }
 
+        fun setHapticEnabled(enabled: Boolean) {
+            viewModelScope.launch(ioDispatcher) {
+                dataStore.edit { prefs ->
+                    prefs[HAPTIC_KEY] = enabled
+                }
+            }
+        }
+
         private companion object {
             val THEME_KEY = stringPreferencesKey("app_theme")
             val SORT_ORDER_KEY = stringPreferencesKey("sort_order")
+            val HAPTIC_KEY = booleanPreferencesKey("haptic_enabled")
         }
     }
 

@@ -16,6 +16,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -93,6 +95,76 @@ class SettingsViewModelTest {
 
                 val updated = awaitItem()
                 assertEquals(SortOrder.TITLE_ASC, updated.sortOrder)
+            }
+        }
+
+    @Test
+    fun `initial state has hapticEnabled true`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                val initial = awaitItem()
+                assertTrue(initial.hapticEnabled)
+            }
+        }
+
+    @Test
+    fun `setHapticEnabled false updates uiState hapticEnabled to false`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                awaitItem() // initial
+
+                viewModel.setHapticEnabled(false)
+
+                val updated = awaitItem()
+                assertFalse(updated.hapticEnabled)
+            }
+        }
+
+    @Test
+    fun `setHapticEnabled true after false emits hapticEnabled true`() =
+        runTest(testDispatcher) {
+            val viewModel = createViewModel()
+
+            viewModel.uiState.test {
+                awaitItem() // initial
+
+                viewModel.setHapticEnabled(false)
+                val disabledState = awaitItem()
+                assertFalse(disabledState.hapticEnabled)
+
+                viewModel.setHapticEnabled(true)
+                val enabledState = awaitItem()
+                assertTrue(enabledState.hapticEnabled)
+            }
+        }
+
+    @Test
+    fun `hapticEnabled persists across new VM instance`() =
+        runTest(testDispatcher) {
+            val viewModel1 = createViewModel()
+
+            viewModel1.uiState.test {
+                awaitItem() // initial
+
+                viewModel1.setHapticEnabled(false)
+                val updated = awaitItem()
+                assertFalse(updated.hapticEnabled)
+            }
+
+            val viewModel2 = createViewModel()
+
+            viewModel2.uiState.test {
+                val initial = awaitItem()
+                if (initial.hapticEnabled) {
+                    val loaded = awaitItem()
+                    assertFalse(loaded.hapticEnabled)
+                } else {
+                    assertFalse(initial.hapticEnabled)
+                }
             }
         }
 

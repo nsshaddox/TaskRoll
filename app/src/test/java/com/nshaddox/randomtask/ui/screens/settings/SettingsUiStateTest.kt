@@ -35,6 +35,12 @@ class SettingsUiStateTest {
         assertNull(state.errorMessage)
     }
 
+    @Test
+    fun `default state has hapticEnabled true`() {
+        val state = SettingsUiState()
+        assertTrue(state.hapticEnabled)
+    }
+
     // ── Copy transition tests ──
 
     @Test
@@ -84,6 +90,13 @@ class SettingsUiStateTest {
         val state = SettingsUiState()
         val updated = state.copy(errorMessage = "Save failed")
         assertEquals("Save failed", updated.errorMessage)
+    }
+
+    @Test
+    fun `copy with hapticEnabled false`() {
+        val state = SettingsUiState()
+        val updated = state.copy(hapticEnabled = false)
+        assertFalse(updated.hapticEnabled)
     }
 
     @Test
