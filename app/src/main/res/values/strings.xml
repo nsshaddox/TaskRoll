@@ -108,6 +108,9 @@
     <string name="feedback_email_subject">RandomTask Feedback — v%1$s</string>
     <string name="feedback_email_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\n[Your feedback here]</string>
 
+    <!-- Action Buttons -->
+    <string name="action_go_back">Go Back</string>
+
     <!-- Navigation content descriptions -->
     <string name="navigate_back">Navigate back</string>
     <string name="navigate_to_settings">Settings</string>

@@ -318,7 +318,7 @@ private fun NoTasksAvailableContent(
                     contentDescription = null,
                     modifier = Modifier.padding(end = Spacing.small),
                 )
-                Text("Go Back")
+                Text(stringResource(R.string.action_go_back))
             }
         },
     )

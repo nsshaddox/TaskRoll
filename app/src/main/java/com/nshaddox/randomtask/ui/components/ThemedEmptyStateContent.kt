@@ -95,11 +95,16 @@ fun ThemedEmptyStateContent(
                 text = if (isNeoBrutalist) title.uppercase() else title,
                 fontSize = emptyStateTitleFontSize(variant),
                 fontWeight = emptyStateTitleFontWeight(variant),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color =
+                    if (variant == ThemeVariant.NEO_BRUTALIST) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
             )
             EmptyStateBody(variant = variant, body = body)
             if (action != null) {
-                Spacer(modifier = Modifier.height(Spacing.small))
+                Spacer(modifier = Modifier.height(Spacing.medium))
                 action()
             }
         }
