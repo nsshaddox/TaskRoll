@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 class TaskRepositoryImpl
     @Inject
     constructor(
@@ -48,6 +49,18 @@ class TaskRepositoryImpl
             taskDao.searchTasks(query).map { entities ->
                 entities.map { it.toDomain() }
             }
+
+        override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
+            taskDao.getCompletedTasksSince(sinceEpochMs).map { entities ->
+                entities.map { it.toDomain() }
+            }
+
+        override fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<Task>> =
+            taskDao.getOverdueIncompleteTasks(todayEpochDays).map { entities ->
+                entities.map { it.toDomain() }
+            }
+
+        override fun getIncompleteTaskCount(): Flow<Int> = taskDao.getIncompleteTaskCount()
 
         override suspend fun addTask(task: Task): Result<Long> {
             return try {

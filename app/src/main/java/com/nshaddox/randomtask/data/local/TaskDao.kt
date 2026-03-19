@@ -35,6 +35,15 @@ interface TaskDao {
     )
     fun searchTasks(query: String): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks WHERE is_completed = 1 AND updated_at >= :sinceEpochMs")
+    fun getCompletedTasksSince(sinceEpochMs: Long): Flow<List<TaskEntity>>
+
+    @Query("SELECT * FROM tasks WHERE is_completed = 0 AND due_date IS NOT NULL AND due_date < :todayEpochDays")
+    fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<TaskEntity>>
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE is_completed = 0")
+    fun getIncompleteTaskCount(): Flow<Int>
+
     @Insert
     suspend fun insertTask(task: TaskEntity): Long
 

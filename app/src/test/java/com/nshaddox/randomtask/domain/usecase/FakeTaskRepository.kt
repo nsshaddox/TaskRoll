@@ -39,6 +39,16 @@ class FakeTaskRepository : TaskRepository {
             }
         }
 
+    override fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>> =
+        tasksFlow.map { list -> list.filter { it.isCompleted && it.updatedAt >= sinceEpochMs } }
+
+    override fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<Task>> =
+        tasksFlow.map { list ->
+            list.filter { !it.isCompleted && it.dueDate != null && it.dueDate < todayEpochDays }
+        }
+
+    override fun getIncompleteTaskCount(): Flow<Int> = tasksFlow.map { list -> list.count { !it.isCompleted } }
+
     override suspend fun addTask(task: Task): Result<Long> {
         val id = nextId++
         val newTask = task.copy(id = id)

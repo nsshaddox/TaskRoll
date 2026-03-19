@@ -71,6 +71,29 @@ interface TaskRepository {
     fun searchTasks(query: String): Flow<List<Task>>
 
     /**
+     * Observes tasks completed since the given epoch millisecond timestamp.
+     *
+     * @param sinceEpochMs the epoch millisecond cutoff; only tasks with updatedAt >= this value are included.
+     * @return a [Flow] emitting completed tasks since the cutoff whenever the data changes.
+     */
+    fun getTasksCompletedSince(sinceEpochMs: Long): Flow<List<Task>>
+
+    /**
+     * Observes incomplete tasks whose due date is before the given epoch day.
+     *
+     * @param todayEpochDays today's date as epoch days (days since 1970-01-01).
+     * @return a [Flow] emitting overdue incomplete tasks whenever the data changes.
+     */
+    fun getOverdueIncompleteTasks(todayEpochDays: Long): Flow<List<Task>>
+
+    /**
+     * Observes the count of incomplete tasks.
+     *
+     * @return a [Flow] emitting the incomplete task count whenever the data changes.
+     */
+    fun getIncompleteTaskCount(): Flow<Int>
+
+    /**
      * Adds a new task to the repository.
      *
      * @param task the task to add. The [Task.id] field is ignored; a new id is generated.

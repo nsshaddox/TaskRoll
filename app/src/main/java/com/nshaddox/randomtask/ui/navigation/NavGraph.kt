@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.nshaddox.randomtask.ui.screens.completedtasks.CompletedTasksScreen
+import com.nshaddox.randomtask.ui.screens.home.HomeScreen
 import com.nshaddox.randomtask.ui.screens.randomtask.RandomTaskScreen
 import com.nshaddox.randomtask.ui.screens.settings.SettingsScreen
 import com.nshaddox.randomtask.ui.screens.taskeditor.EditTaskScreen
@@ -16,7 +17,7 @@ import com.nshaddox.randomtask.ui.screens.tasklist.TaskListScreen
  * Defines the navigation graph for the RandomTask app.
  *
  * Sets up the [NavHost] with all composable destinations and their routes.
- * The start destination is [Screen.TaskList].
+ * The start destination is [Screen.Home].
  *
  * @param navController The [NavHostController] used to navigate between screens.
  */
@@ -24,8 +25,11 @@ import com.nshaddox.randomtask.ui.screens.tasklist.TaskListScreen
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.TaskList.route,
+        startDestination = Screen.Home.route,
     ) {
+        composable(Screen.Home.route) {
+            HomeScreen(navController = navController)
+        }
         composable(Screen.TaskList.route) {
             TaskListScreen(navController = navController)
         }

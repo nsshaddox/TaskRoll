@@ -438,4 +438,108 @@ class TaskRepositoryImplTest {
                 awaitComplete()
             }
         }
+
+    // --- getTasksCompletedSince ---
+
+    @Test
+    fun `getTasksCompletedSince returns mapped completed tasks from dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 1L,
+                        title = "Done Today",
+                        description = null,
+                        isCompleted = true,
+                        createdAt = 1000L,
+                        updatedAt = 5000L,
+                    ),
+                )
+            every { taskDao.getCompletedTasksSince(4000L) } returns flowOf(entities)
+
+            repository.getTasksCompletedSince(4000L).test {
+                val tasks = awaitItem()
+                assertEquals(1, tasks.size)
+                assertEquals("Done Today", tasks[0].title)
+                assertTrue(tasks[0].isCompleted)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getTasksCompletedSince returns empty list when none completed since cutoff`() =
+        runTest {
+            every { taskDao.getCompletedTasksSince(9000L) } returns flowOf(emptyList())
+
+            repository.getTasksCompletedSince(9000L).test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    // --- getOverdueIncompleteTasks ---
+
+    @Test
+    fun `getOverdueIncompleteTasks returns mapped overdue tasks from dao`() =
+        runTest {
+            val entities =
+                listOf(
+                    TaskEntity(
+                        id = 2L,
+                        title = "Overdue Task",
+                        description = null,
+                        isCompleted = false,
+                        createdAt = 1000L,
+                        updatedAt = 2000L,
+                        dueDate = 19000L,
+                    ),
+                )
+            every { taskDao.getOverdueIncompleteTasks(20000L) } returns flowOf(entities)
+
+            repository.getOverdueIncompleteTasks(20000L).test {
+                val tasks = awaitItem()
+                assertEquals(1, tasks.size)
+                assertEquals("Overdue Task", tasks[0].title)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getOverdueIncompleteTasks returns empty list when no overdue tasks`() =
+        runTest {
+            every { taskDao.getOverdueIncompleteTasks(20000L) } returns flowOf(emptyList())
+
+            repository.getOverdueIncompleteTasks(20000L).test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    // --- getIncompleteTaskCount ---
+
+    @Test
+    fun `getIncompleteTaskCount returns count from dao`() =
+        runTest {
+            every { taskDao.getIncompleteTaskCount() } returns flowOf(5)
+
+            repository.getIncompleteTaskCount().test {
+                val count = awaitItem()
+                assertEquals(5, count)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getIncompleteTaskCount returns zero when no incomplete tasks`() =
+        runTest {
+            every { taskDao.getIncompleteTaskCount() } returns flowOf(0)
+
+            repository.getIncompleteTaskCount().test {
+                val count = awaitItem()
+                assertEquals(0, count)
+                awaitComplete()
+            }
+        }
 }
