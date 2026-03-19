@@ -1,5 +1,9 @@
 package com.nshaddox.randomtask.ui.screens.completedtasks
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -48,6 +53,7 @@ import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
+import com.nshaddox.randomtask.ui.screens.settings.SettingsViewModel
 import com.nshaddox.randomtask.ui.theme.Spacing
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -102,8 +108,10 @@ fun resolveContentState(
 fun CompletedTasksScreen(
     navController: NavController,
     viewModel: CompletedTasksViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val settingsState by settingsViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val pendingDeleteTask = uiState.pendingDeleteTask
@@ -128,7 +136,11 @@ fun CompletedTasksScreen(
         tasks = uiState.tasks,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
+<<<<<<< HEAD
         errorResId = uiState.errorResId,
+=======
+        hapticEnabled = settingsState.hapticEnabled,
+>>>>>>> 5bda167 (feat: add list item animations, swipe haptics, and VIBRATE permission)
         onDeleteTask = { task -> viewModel.deleteTaskWithUndo(task) },
         onNavigateBack = { navController.popBackStack() },
         onClearError = { viewModel.clearError() },
@@ -146,7 +158,11 @@ fun CompletedTasksScreen(
     tasks: List<Task>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
+<<<<<<< HEAD
     errorResId: Int? = null,
+=======
+    hapticEnabled: Boolean = true,
+>>>>>>> 5bda167 (feat: add list item animations, swipe haptics, and VIBRATE permission)
     onDeleteTask: (Task) -> Unit = {},
     onNavigateBack: () -> Unit = {},
     onClearError: () -> Unit = {},
@@ -225,6 +241,8 @@ fun CompletedTasksScreen(
                         CompletedTaskItem(
                             task = task,
                             onDelete = { onDeleteTask(task) },
+                            hapticEnabled = hapticEnabled,
+                            modifier = Modifier.animateItem(),
                         )
                     }
                 }
@@ -242,12 +260,17 @@ fun CompletedTasksScreen(
 private fun CompletedTaskItem(
     task: Task,
     onDelete: () -> Unit,
+    hapticEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val dismissState =
         rememberSwipeToDismissBoxState(
             confirmValueChange = { value ->
                 if (value == SwipeToDismissBoxValue.EndToStart) {
+                    if (hapticEnabled) {
+                        performSwipeHaptic(context)
+                    }
                     onDelete()
                     true
                 } else {
@@ -318,6 +341,20 @@ private fun CompletedTaskItem(
                 )
             }
         }
+    }
+}
+
+private const val SWIPE_HAPTIC_DURATION_MS = 50L
+
+@Suppress("DEPRECATION")
+private fun performSwipeHaptic(context: Context) {
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(
+            VibrationEffect.createOneShot(SWIPE_HAPTIC_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE),
+        )
+    } else {
+        vibrator.vibrate(SWIPE_HAPTIC_DURATION_MS)
     }
 }
 

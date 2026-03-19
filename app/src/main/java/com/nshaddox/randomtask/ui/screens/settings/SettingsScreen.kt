@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.settings
 
 import android.os.Build
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -68,6 +70,7 @@ fun SettingsScreen(
         uiState = uiState,
         onThemeSelected = viewModel::setTheme,
         onSortOrderSelected = viewModel::setSortOrder,
+        onHapticEnabledChange = viewModel::setHapticEnabled,
         onBackClick = { navController.popBackStack() },
         onSendFeedback = {
             val intent =
@@ -96,6 +99,7 @@ internal fun SettingsScreenContent(
     uiState: SettingsUiState,
     onThemeSelected: (ThemeVariant) -> Unit = {},
     onSortOrderSelected: (SortOrder) -> Unit = {},
+    onHapticEnabledChange: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
     onSendFeedback: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -149,36 +153,19 @@ internal fun SettingsScreenContent(
 
             Spacer(modifier = Modifier.height(Spacing.large))
 
-            // About section
-            SettingsSectionHeader(text = stringResource(R.string.settings_about_section))
+            // Haptic feedback section
+            SettingsSectionHeader(text = stringResource(R.string.settings_haptic_section))
             Spacer(modifier = Modifier.height(Spacing.small))
+            HapticFeedbackToggle(
+                enabled = uiState.hapticEnabled,
+                onEnabledChange = onHapticEnabledChange,
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.large))
+
+            // About section
             AboutSection(onSendFeedback = onSendFeedback)
         }
-    }
-}
-
-@Composable
-private fun AboutSection(
-    onSendFeedback: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = "${stringResource(R.string.settings_version_label)}: ${BuildConfig.VERSION_NAME}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(modifier = Modifier.height(Spacing.small))
-        Text(
-            text = stringResource(R.string.feedback_send_label),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onSendFeedback)
-                    .padding(vertical = Spacing.componentPadding),
-        )
     }
 }
 
@@ -226,6 +213,58 @@ private fun SortOrderSelectionGroup(
                 onClick = { onSortOrderSelected(sortOrder) },
             )
         }
+    }
+}
+
+@Composable
+private fun AboutSection(
+    onSendFeedback: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        SettingsSectionHeader(text = stringResource(R.string.settings_about_section))
+        Spacer(modifier = Modifier.height(Spacing.small))
+        Text(
+            text = "${stringResource(R.string.settings_version_label)}: ${BuildConfig.VERSION_NAME}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(Spacing.small))
+        Text(
+            text = stringResource(R.string.feedback_send_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onSendFeedback)
+                    .padding(vertical = Spacing.componentPadding),
+        )
+    }
+}
+
+@Composable
+private fun HapticFeedbackToggle(
+    enabled: Boolean,
+    onEnabledChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = Spacing.componentPadding),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = stringResource(R.string.settings_haptic_feedback_label),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Switch(
+            checked = enabled,
+            onCheckedChange = onEnabledChange,
+        )
     }
 }
 

@@ -88,6 +88,8 @@
     <string name="settings_title">Settings</string>
     <string name="settings_theme_section">Theme</string>
     <string name="settings_sort_section">Default Sort Order</string>
+    <string name="settings_haptic_section">Feedback</string>
+    <string name="settings_haptic_feedback_label">Haptic feedback</string>
     <string name="settings_about_section">About</string>
     <string name="settings_version_label">Version</string>
 

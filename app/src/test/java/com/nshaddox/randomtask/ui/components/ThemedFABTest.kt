@@ -78,4 +78,78 @@ class ThemedFABTest {
     fun `fabHasBorder Vapor returns false`() {
         assertFalse(fabHasBorder(ThemeVariant.VAPOR))
     }
+
+    // ── wrapOnClick callback invocation ──
+
+    @Test
+    fun `wrapOnClick invokes original callback when haptic disabled`() {
+        var callbackInvoked = false
+        val wrapped =
+            wrapOnClick(
+                hapticEnabled = false,
+                performHaptic = { },
+                onClick = { callbackInvoked = true },
+            )
+
+        wrapped()
+
+        assertTrue(callbackInvoked)
+    }
+
+    @Test
+    fun `wrapOnClick invokes original callback when haptic enabled`() {
+        var callbackInvoked = false
+        val wrapped =
+            wrapOnClick(
+                hapticEnabled = true,
+                performHaptic = { },
+                onClick = { callbackInvoked = true },
+            )
+
+        wrapped()
+
+        assertTrue(callbackInvoked)
+    }
+
+    @Test
+    fun `wrapOnClick does not perform haptic when haptic disabled`() {
+        var hapticFired = false
+        val wrapped =
+            wrapOnClick(
+                hapticEnabled = false,
+                performHaptic = { hapticFired = true },
+                onClick = { },
+            )
+
+        wrapped()
+
+        assertFalse(hapticFired)
+    }
+
+    @Test
+    fun `wrapOnClick performs haptic when haptic enabled`() {
+        var hapticFired = false
+        val wrapped =
+            wrapOnClick(
+                hapticEnabled = true,
+                performHaptic = { hapticFired = true },
+                onClick = { },
+            )
+
+        wrapped()
+
+        assertTrue(hapticFired)
+    }
+
+    @Test
+    fun `wrapOnClick does not invoke callback before being called`() {
+        var callbackInvoked = false
+        wrapOnClick(
+            hapticEnabled = true,
+            performHaptic = { },
+            onClick = { callbackInvoked = true },
+        )
+
+        assertFalse(callbackInvoked)
+    }
 }
