@@ -1,5 +1,9 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -58,6 +63,7 @@ import com.nshaddox.randomtask.ui.components.ThemedFAB
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
+import com.nshaddox.randomtask.ui.screens.settings.SettingsViewModel
 import com.nshaddox.randomtask.ui.theme.Spacing
 import java.time.LocalDate
 
@@ -75,8 +81,10 @@ import java.time.LocalDate
 fun TaskListScreen(
     navController: NavController,
     viewModel: TaskListViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val settingsState by settingsViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
@@ -164,6 +172,7 @@ fun TaskListScreen(
         errorMessage = uiState.errorMessage,
         errorResId = uiState.errorResId,
         snackbarHostState = snackbarHostState,
+        hapticEnabled = settingsState.hapticEnabled,
         searchQuery = uiState.searchQuery,
         filterPriority = uiState.filterPriority,
         filterCategory = uiState.filterCategory,
@@ -205,6 +214,7 @@ fun TaskListScreen(
     errorMessage: String? = null,
     errorResId: Int? = null,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    hapticEnabled: Boolean = true,
     searchQuery: String = "",
     filterPriority: Priority? = null,
     filterCategory: String? = null,
@@ -283,6 +293,7 @@ fun TaskListScreen(
                 onClick = onAddTask,
                 icon = Icons.Default.Add,
                 contentDescription = "Add Task",
+                hapticEnabled = hapticEnabled,
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -345,6 +356,8 @@ fun TaskListScreen(
                                 onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
                                 onEditClick = { onEditTask(task) },
                                 onDeleteClick = { onDeleteTask(task) },
+                                hapticEnabled = hapticEnabled,
+                                modifier = Modifier.animateItem(),
                             )
                         }
                     }
@@ -357,6 +370,7 @@ fun TaskListScreen(
 /**
  * A task list item wrapped in a [SwipeToDismissBox] for swipe-to-delete.
  */
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDismissTaskItem(
@@ -365,12 +379,17 @@ private fun SwipeToDismissTaskItem(
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    hapticEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val dismissState =
         rememberSwipeToDismissBoxState(
             confirmValueChange = { value ->
                 if (value == SwipeToDismissBoxValue.EndToStart) {
+                    if (hapticEnabled) {
+                        performSwipeHaptic(context)
+                    }
                     onDeleteClick()
                     true
                 } else {
@@ -414,6 +433,7 @@ private fun SwipeToDismissTaskItem(
             onCheckedChange = onCheckedChange,
             onEditClick = onEditClick,
             onDeleteClick = onDeleteClick,
+            hapticEnabled = hapticEnabled,
         )
     }
 }
@@ -426,6 +446,7 @@ internal fun TaskListItem(
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    hapticEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     ThemedCard(
@@ -446,6 +467,7 @@ internal fun TaskListItem(
                 ThemedCheckbox(
                     checked = task.isCompleted,
                     onCheckedChange = onCheckedChange,
+                    hapticEnabled = hapticEnabled,
                 )
                 Column(
                     modifier = Modifier.weight(1f),
@@ -533,6 +555,20 @@ private fun TaskMetadataRow(task: TaskUiModel) {
 /**
  * Returns true when any filter is actively applied (search, priority, or category).
  */
+private const val SWIPE_HAPTIC_DURATION_MS = 50L
+
+@Suppress("DEPRECATION")
+private fun performSwipeHaptic(context: Context) {
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(
+            VibrationEffect.createOneShot(SWIPE_HAPTIC_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE),
+        )
+    } else {
+        vibrator.vibrate(SWIPE_HAPTIC_DURATION_MS)
+    }
+}
+
 private fun hasActiveFilters(
     searchQuery: String,
     filterPriority: Priority?,
