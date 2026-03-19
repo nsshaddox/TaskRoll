@@ -89,6 +89,28 @@ fun fabHasBorder(variant: ThemeVariant): Boolean =
     }
 
 /**
+ * Wraps an `onClick` callback with optional haptic feedback.
+ *
+ * Pure function -- testable without Compose runtime.
+ *
+ * @param hapticEnabled Whether haptic feedback should fire before the callback.
+ * @param performHaptic Side-effect that triggers haptic feedback.
+ * @param onClick The original callback to delegate to.
+ * @return A wrapped callback that optionally fires haptic then calls through.
+ */
+fun wrapOnClick(
+    hapticEnabled: Boolean,
+    performHaptic: () -> Unit,
+    onClick: () -> Unit,
+): () -> Unit =
+    {
+        if (hapticEnabled) {
+            performHaptic()
+        }
+        onClick()
+    }
+
+/**
  * Theme-aware FAB that renders differently per [ThemeVariant]:
  *
  * - **Obsidian**: CircleShape, filled primary, icon in onPrimary.
@@ -128,12 +150,12 @@ fun ThemedFAB(
         label = "fabScale",
     )
 
-    val wrappedOnClick: () -> Unit = {
-        if (hapticEnabled) {
-            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-        }
-        onClick()
-    }
+    val wrappedOnClick =
+        wrapOnClick(
+            hapticEnabled = hapticEnabled,
+            performHaptic = { hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress) },
+            onClick = onClick,
+        )
 
     val scaleModifier =
         Modifier.graphicsLayer {

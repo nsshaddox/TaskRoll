@@ -74,6 +74,28 @@ fun checkboxCheckmarkColor(variant: ThemeVariant): Color =
     }
 
 /**
+ * Wraps an `onCheckedChange` callback with optional haptic feedback.
+ *
+ * Pure function — testable without Compose runtime.
+ *
+ * @param hapticEnabled Whether haptic feedback should fire before the callback.
+ * @param performHaptic Side-effect that triggers haptic feedback.
+ * @param onCheckedChange The original callback to delegate to.
+ * @return A wrapped callback that optionally fires haptic then calls through.
+ */
+fun wrapOnCheckedChange(
+    hapticEnabled: Boolean,
+    performHaptic: () -> Unit,
+    onCheckedChange: (Boolean) -> Unit,
+): (Boolean) -> Unit =
+    { newValue ->
+        if (hapticEnabled) {
+            performHaptic()
+        }
+        onCheckedChange(newValue)
+    }
+
+/**
  * Theme-aware checkbox that renders differently per [ThemeVariant]:
  *
  * - **Obsidian**: 24dp circle. Unchecked: transparent with 2dp textSecondary stroke.
@@ -107,12 +129,12 @@ fun ThemedCheckbox(
         label = "checkboxScale",
     )
 
-    val wrappedOnCheckedChange: (Boolean) -> Unit = { newValue ->
-        if (hapticEnabled) {
-            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-        }
-        onCheckedChange(newValue)
-    }
+    val wrappedOnCheckedChange =
+        wrapOnCheckedChange(
+            hapticEnabled = hapticEnabled,
+            performHaptic = { hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress) },
+            onCheckedChange = onCheckedChange,
+        )
 
     val scaleModifier =
         Modifier.graphicsLayer {
