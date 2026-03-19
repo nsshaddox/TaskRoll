@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,6 +53,7 @@ import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedCheckbox
+import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedFAB
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
@@ -539,24 +541,11 @@ private fun hasActiveFilters(
 
 @Composable
 private fun EmptyTaskListContent(modifier: Modifier = Modifier) {
-    Box(
+    ThemedEmptyStateContent(
+        illustration = painterResource(R.drawable.ic_empty_task_list),
+        illustrationContentDescription = stringResource(R.string.cd_empty_task_list_illustration),
+        title = stringResource(R.string.empty_state_task_list_title),
+        body = stringResource(R.string.empty_state_task_list_body),
         modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.small),
-        ) {
-            Text(
-                text = "No tasks yet",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = "Tap + to add your first task",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    )
 }

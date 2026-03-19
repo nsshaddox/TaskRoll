@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +45,7 @@ import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -324,24 +326,11 @@ private fun CompletedTaskItem(
  */
 @Composable
 private fun EmptyCompletedTasksContent(modifier: Modifier = Modifier) {
-    Box(
+    ThemedEmptyStateContent(
+        illustration = painterResource(R.drawable.ic_empty_task_list),
+        illustrationContentDescription = stringResource(R.string.cd_empty_task_list_illustration),
+        title = stringResource(R.string.completed_tasks_empty_title),
+        body = stringResource(R.string.completed_tasks_empty_body),
         modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.small),
-        ) {
-            Text(
-                text = stringResource(R.string.completed_tasks_empty_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = stringResource(R.string.completed_tasks_empty_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    )
 }
