@@ -82,6 +82,12 @@
     <string name="sort_priority_desc">Priority (Highest)</string>
     <string name="sort_title_asc">Title (A-Z)</string>
 
+    <!-- Feedback -->
+    <string name="feedback_send_label">Send Feedback</string>
+    <string name="feedback_email_address">randomtask-feedback@example.com</string>
+    <string name="feedback_email_subject">RandomTask Feedback — v%1$s</string>
+    <string name="feedback_email_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\n[Your feedback here]</string>
+
     <!-- Navigation content descriptions -->
     <string name="navigate_back">Navigate back</string>
     <string name="navigate_to_settings">Settings</string>
