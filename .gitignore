@@ -73,5 +73,8 @@ proguard/
 ### RPI ###
 .rpi/
 
+### Project Management ###
+OPEN_ISSUES.md
+
 ### Claude Code ###
 .claude/worktrees/
