@@ -78,6 +78,9 @@
     <string name="cd_delete_task">Delete task</string>
     <string name="cd_edit_task">Edit task</string>
     <string name="cd_priority_badge">Priority: %1$s</string>
+    <string name="cd_add_task">Add task</string>
+    <string name="cd_navigate_to_random_task">Go to random task</string>
+    <string name="cd_complete_task_checkbox">Complete task: %1$s</string>
 
     <!-- Priority Labels -->
     <string name="priority_low">Low</string>

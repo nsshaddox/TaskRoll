@@ -1,9 +1,5 @@
 package com.nshaddox.randomtask.ui.screens.tasklist
 
-import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +19,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,8 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,12 +53,9 @@ import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedCheckbox
-import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedFAB
-import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
-import com.nshaddox.randomtask.ui.screens.settings.SettingsViewModel
 import com.nshaddox.randomtask.ui.theme.Spacing
 import java.time.LocalDate
 
@@ -81,10 +73,8 @@ import java.time.LocalDate
 fun TaskListScreen(
     navController: NavController,
     viewModel: TaskListViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val settingsState by settingsViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
@@ -170,9 +160,7 @@ fun TaskListScreen(
         tasks = taskUiModels,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
-        errorResId = uiState.errorResId,
         snackbarHostState = snackbarHostState,
-        hapticEnabled = settingsState.hapticEnabled,
         searchQuery = uiState.searchQuery,
         filterPriority = uiState.filterPriority,
         filterCategory = uiState.filterCategory,
@@ -212,7 +200,6 @@ fun TaskListScreen(
     tasks: List<TaskUiModel>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
-    errorResId: Int? = null,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     hapticEnabled: Boolean = true,
     searchQuery: String = "",
@@ -235,11 +222,12 @@ fun TaskListScreen(
     onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val resolvedErrorMessage = errorResId?.let { stringResource(it) } ?: errorMessage
-    LaunchedEffect(resolvedErrorMessage) {
-        if (resolvedErrorMessage != null) {
-            snackbarHostState.showSnackbar(resolvedErrorMessage)
-            onClearError()
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            val result = snackbarHostState.showSnackbar(errorMessage)
+            if (result == SnackbarResult.Dismissed || result == SnackbarResult.ActionPerformed) {
+                onClearError()
+            }
         }
     }
 
@@ -273,7 +261,7 @@ fun TaskListScreen(
                         IconButton(onClick = onNavigateToRandomTask) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Random Task",
+                                contentDescription = stringResource(R.string.cd_navigate_to_random_task),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
@@ -292,7 +280,7 @@ fun TaskListScreen(
             ThemedFAB(
                 onClick = onAddTask,
                 icon = Icons.Default.Add,
-                contentDescription = "Add Task",
+                contentDescription = stringResource(R.string.cd_add_task),
                 hapticEnabled = hapticEnabled,
             )
         },
@@ -307,7 +295,9 @@ fun TaskListScreen(
                         .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                ThemedLoadingIndicator()
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         } else if (tasks.isEmpty() && !hasActiveFilters(searchQuery, filterPriority, filterCategory)) {
             EmptyTaskListContent(
@@ -356,8 +346,6 @@ fun TaskListScreen(
                                 onCheckedChange = { checked -> onTaskCheckedChange(task, checked) },
                                 onEditClick = { onEditTask(task) },
                                 onDeleteClick = { onDeleteTask(task) },
-                                hapticEnabled = hapticEnabled,
-                                modifier = Modifier.animateItem(),
                             )
                         }
                     }
@@ -370,7 +358,6 @@ fun TaskListScreen(
 /**
  * A task list item wrapped in a [SwipeToDismissBox] for swipe-to-delete.
  */
-@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeToDismissTaskItem(
@@ -379,17 +366,12 @@ private fun SwipeToDismissTaskItem(
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    hapticEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val dismissState =
         rememberSwipeToDismissBoxState(
             confirmValueChange = { value ->
                 if (value == SwipeToDismissBoxValue.EndToStart) {
-                    if (hapticEnabled) {
-                        performSwipeHaptic(context)
-                    }
                     onDeleteClick()
                     true
                 } else {
@@ -433,7 +415,6 @@ private fun SwipeToDismissTaskItem(
             onCheckedChange = onCheckedChange,
             onEditClick = onEditClick,
             onDeleteClick = onDeleteClick,
-            hapticEnabled = hapticEnabled,
         )
     }
 }
@@ -446,7 +427,6 @@ internal fun TaskListItem(
     onCheckedChange: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    hapticEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     ThemedCard(
@@ -467,7 +447,7 @@ internal fun TaskListItem(
                 ThemedCheckbox(
                     checked = task.isCompleted,
                     onCheckedChange = onCheckedChange,
-                    hapticEnabled = hapticEnabled,
+                    contentDescription = stringResource(R.string.cd_complete_task_checkbox, task.title),
                 )
                 Column(
                     modifier = Modifier.weight(1f),
@@ -555,20 +535,6 @@ private fun TaskMetadataRow(task: TaskUiModel) {
 /**
  * Returns true when any filter is actively applied (search, priority, or category).
  */
-private const val SWIPE_HAPTIC_DURATION_MS = 50L
-
-@Suppress("DEPRECATION")
-private fun performSwipeHaptic(context: Context) {
-    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        vibrator.vibrate(
-            VibrationEffect.createOneShot(SWIPE_HAPTIC_DURATION_MS, VibrationEffect.DEFAULT_AMPLITUDE),
-        )
-    } else {
-        vibrator.vibrate(SWIPE_HAPTIC_DURATION_MS)
-    }
-}
-
 private fun hasActiveFilters(
     searchQuery: String,
     filterPriority: Priority?,
@@ -577,11 +543,24 @@ private fun hasActiveFilters(
 
 @Composable
 private fun EmptyTaskListContent(modifier: Modifier = Modifier) {
-    ThemedEmptyStateContent(
-        illustration = painterResource(R.drawable.ic_empty_task_list),
-        illustrationContentDescription = stringResource(R.string.cd_empty_task_list_illustration),
-        title = stringResource(R.string.empty_state_task_list_title),
-        body = stringResource(R.string.empty_state_task_list_body),
+    Box(
         modifier = modifier,
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Spacing.small),
+        ) {
+            Text(
+                text = "No tasks yet",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "Tap + to add your first task",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }

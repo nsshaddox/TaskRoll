@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
@@ -112,7 +113,7 @@ fun TaskEditorScreen(
                 IconButton(onClick = onCancelClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.cd_navigate_back),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
