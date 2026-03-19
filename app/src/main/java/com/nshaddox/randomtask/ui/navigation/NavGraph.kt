@@ -23,7 +23,7 @@ import com.nshaddox.randomtask.ui.theme.NAV_TRANSITION_DURATION_MS
  * Defines the navigation graph for the RandomTask app.
  *
  * Sets up the [NavHost] with all composable destinations and their routes.
- * The start destination is [Screen.TaskList].
+ * The start destination is [Screen.Home].
  *
  * @param navController The [NavHostController] used to navigate between screens.
  */
@@ -31,7 +31,7 @@ import com.nshaddox.randomtask.ui.theme.NAV_TRANSITION_DURATION_MS
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.TaskList.route,
+        startDestination = Screen.Home.route,
         enterTransition = {
             slideInHorizontally(
                 initialOffsetX = { it },
