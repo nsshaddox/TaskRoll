@@ -2,9 +2,13 @@
 
 package com.nshaddox.randomtask.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -12,15 +16,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nshaddox.randomtask.domain.model.ThemeVariant
 import com.nshaddox.randomtask.ui.theme.LocalThemeVariant
+import com.nshaddox.randomtask.ui.theme.animationDurationMs
 import com.nshaddox.randomtask.ui.theme.neoBrutalistAccentPink
 import com.nshaddox.randomtask.ui.theme.neoBrutalistBorder
 import com.nshaddox.randomtask.ui.theme.neoBrutalistOnAccentPink
@@ -85,27 +95,60 @@ fun fabHasBorder(variant: ThemeVariant): Boolean =
  * - **Neo Brutalist**: RoundedCornerShape(12dp), accentPink, 3dp border, offset shadow.
  * - **Vapor**: RoundedCornerShape(20dp), accentPink, icon in background.
  *
+ * Includes a press scale animation and optional haptic feedback on click.
+ *
  * @param onClick Click callback.
  * @param icon The icon to display.
  * @param contentDescription Accessibility description for the icon.
  * @param modifier Modifier for layout.
+ * @param hapticEnabled Whether haptic feedback fires on click.
  */
+@Suppress("LongMethod")
 @Composable
 fun ThemedFAB(
     onClick: () -> Unit,
     icon: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
+    hapticEnabled: Boolean = true,
 ) {
     val variant = LocalThemeVariant.current
     val cornerRadius = fabCornerRadius(variant)
     val shape = RoundedCornerShape(cornerRadius)
     val containerColor = fabContainerColor(variant)
     val iconColor = fabIconColor(variant)
+    val hapticFeedback = LocalHapticFeedback.current
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = tween(durationMillis = animationDurationMs(variant)),
+        label = "fabScale",
+    )
+
+    val wrappedOnClick: () -> Unit = {
+        if (hapticEnabled) {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+        onClick()
+    }
+
+    val scaleModifier =
+        Modifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
 
     when (variant) {
         ThemeVariant.NEO_BRUTALIST -> {
-            Box(modifier = modifier.padding(end = 4.dp, bottom = 4.dp)) {
+            Box(
+                modifier =
+                    modifier
+                        .then(scaleModifier)
+                        .padding(end = 4.dp, bottom = 4.dp),
+            ) {
                 // Shadow layer
                 Box(
                     modifier =
@@ -123,7 +166,11 @@ fun ThemedFAB(
                             .clip(shape)
                             .background(containerColor)
                             .border(3.dp, neoBrutalistBorder, shape)
-                            .clickable(onClick = onClick),
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null,
+                                onClick = wrappedOnClick,
+                            ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -140,9 +187,14 @@ fun ThemedFAB(
                 modifier =
                     modifier
                         .size(56.dp)
+                        .then(scaleModifier)
                         .clip(shape)
                         .background(containerColor)
-                        .clickable(onClick = onClick),
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            onClick = wrappedOnClick,
+                        ),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
