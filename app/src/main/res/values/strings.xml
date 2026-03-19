@@ -85,4 +85,28 @@
     <!-- Navigation content descriptions -->
     <string name="navigate_back">Navigate back</string>
     <string name="navigate_to_settings">Settings</string>
+
+    <!-- Home Screen -->
+    <string name="home_screen_title">Random Task</string>
+    <string name="home_hero_title">Your Task</string>
+    <string name="home_complete_task">Complete Task</string>
+    <string name="home_skip_task">Skip Task</string>
+    <string name="home_pick_another">Pick Another</string>
+    <string name="home_pick_random">Pick Random Task</string>
+    <string name="home_ready_prompt">Ready to tackle a task?</string>
+    <string name="home_ready_body">Tap the button below to randomly select a task from your list</string>
+    <string name="home_retry">Retry</string>
+    <string name="home_no_tasks">No tasks available. Add some tasks first!</string>
+    <string name="home_quick_actions_title">Quick Actions</string>
+    <string name="home_add_task">Add Task</string>
+    <string name="home_view_all_tasks">View All</string>
+    <string name="home_metrics_title">Dashboard</string>
+    <string name="home_metric_completed_today">Completed Today</string>
+    <string name="home_metric_completed_week">This Week</string>
+    <string name="home_metric_streak">Streak</string>
+    <string name="home_metric_streak_value">%1$d days</string>
+    <string name="home_metric_remaining">Remaining</string>
+    <string name="home_metric_completion_rate">Completion Rate</string>
+    <string name="home_metric_completion_rate_value">%1$d%%</string>
+    <string name="home_metric_overdue">Overdue</string>
 </resources>
