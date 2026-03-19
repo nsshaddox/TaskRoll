@@ -103,7 +103,7 @@ class HomeViewModelTest {
         }
 
     @Test
-    fun `completeTask sets taskCompleted flag on success`() =
+    fun `completeTask sets taskCompleted flag and clears currentTask on success`() =
         runTest(testDispatcher) {
             repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
 
@@ -117,6 +117,7 @@ class HomeViewModelTest {
             val state = viewModel.uiState.value
             assertFalse(state.isLoading)
             assertTrue(state.taskCompleted)
+            assertNull(state.currentTask)
         }
 
     @Test
@@ -128,6 +129,29 @@ class HomeViewModelTest {
             advanceUntilIdle()
 
             assertEquals(initialState, viewModel.uiState.value)
+        }
+
+    @Test
+    fun `completeTask sets error on failure`() =
+        runTest(testDispatcher) {
+            val task = Task(id = 999L, title = "Ghost Task", createdAt = 1000L, updatedAt = 1000L)
+            repository.addTask(task)
+
+            viewModel.pickRandom()
+            advanceUntilIdle()
+            assertNotNull(viewModel.uiState.value.currentTask)
+
+            // Delete the task so completeTask (which calls updateTask) will fail
+            repository.deleteTask(viewModel.uiState.value.currentTask!!)
+            advanceUntilIdle()
+
+            viewModel.completeTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertNotNull(state.error)
+            assertFalse(state.taskCompleted)
         }
 
     @Test
@@ -144,6 +168,42 @@ class HomeViewModelTest {
 
             val state = viewModel.uiState.value
             assertNotNull(state.currentTask)
+            assertFalse(state.isLoading)
+        }
+
+    @Test
+    fun `skipTask sets noTasksAvailable when no tasks exist`() =
+        runTest(testDispatcher) {
+            viewModel.skipTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNull(state.currentTask)
+            assertFalse(state.isLoading)
+            assertTrue(state.noTasksAvailable)
+        }
+
+    @Test
+    fun `skipTask with weighted random loads a new task`() =
+        runTest(testDispatcher) {
+            repository.addTask(
+                Task(
+                    title = "Weighted Task",
+                    createdAt = 1000L,
+                    updatedAt = 1000L,
+                    priority = Priority.HIGH,
+                ),
+            )
+
+            viewModel.toggleWeightedRandom()
+            assertTrue(viewModel.uiState.value.useWeightedRandom)
+
+            viewModel.skipTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNotNull(state.currentTask)
+            assertEquals("Weighted Task", state.currentTask!!.title)
             assertFalse(state.isLoading)
         }
 
@@ -200,6 +260,19 @@ class HomeViewModelTest {
             assertEquals(1, tasks.size)
             assertEquals("New Task", tasks[0].title)
             assertEquals("Description", tasks[0].description)
+        }
+
+    @Test
+    fun `addTask with null description succeeds`() =
+        runTest(testDispatcher) {
+            viewModel.addTask("Task No Desc", null)
+            advanceUntilIdle()
+
+            val tasks = repository.getAllTasksSnapshot()
+            assertEquals(1, tasks.size)
+            assertEquals("Task No Desc", tasks[0].title)
+            assertNull(tasks[0].description)
+            assertNull(viewModel.uiState.value.error)
         }
 
     @Test

@@ -71,7 +71,7 @@ class HomeViewModel
                 _uiState.update { it.copy(isLoading = true, error = null) }
                 completeTaskUseCase(task)
                     .onSuccess {
-                        _uiState.update { it.copy(isLoading = false, taskCompleted = true) }
+                        _uiState.update { it.copy(isLoading = false, taskCompleted = true, currentTask = null) }
                     }
                     .onFailure { e ->
                         _uiState.update {

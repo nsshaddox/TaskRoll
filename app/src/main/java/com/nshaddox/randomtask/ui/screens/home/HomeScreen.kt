@@ -30,9 +30,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +56,7 @@ import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
 import com.nshaddox.randomtask.ui.screens.tasklist.AddTaskDialog
+import com.nshaddox.randomtask.ui.theme.LocalAppThemeTokens
 import com.nshaddox.randomtask.ui.theme.Spacing
 
 /**
@@ -67,9 +71,18 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.taskCompleted) {
+        if (uiState.taskCompleted) {
+            snackbarHostState.showSnackbar("Task completed!")
+            viewModel.resetTaskCompleted()
+        }
+    }
 
     HomeScreenContent(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onPickRandom = viewModel::pickRandom,
         onCompleteTask = viewModel::completeTask,
         onSkipTask = viewModel::skipTask,
@@ -86,6 +99,7 @@ fun HomeScreen(
 @Composable
 internal fun HomeScreenContent(
     uiState: HomeUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPickRandom: () -> Unit = {},
     onCompleteTask: () -> Unit = {},
     onSkipTask: () -> Unit = {},
@@ -99,6 +113,7 @@ internal fun HomeScreenContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             HomeTopBar(
                 onNavigateToSettings = onNavigateToSettings,
@@ -153,6 +168,7 @@ private fun HomeTopBar(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val tokens = LocalAppThemeTokens.current
     Row(
         modifier =
             modifier
@@ -163,8 +179,9 @@ private fun HomeTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
+        val titleText = stringResource(R.string.home_screen_title)
         Text(
-            text = stringResource(R.string.home_screen_title),
+            text = if (tokens.useUppercaseTitles) titleText.uppercase() else titleText,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -187,12 +204,14 @@ private fun HeroSection(
     onToggleWeightedRandom: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val tokens = LocalAppThemeTokens.current
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Spacing.componentPadding),
     ) {
+        val heroTitle = stringResource(R.string.home_hero_title)
         Text(
-            text = stringResource(R.string.home_hero_title),
+            text = if (tokens.useUppercaseTitles) heroTitle.uppercase() else heroTitle,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -421,12 +440,14 @@ private fun QuickActionsSection(
     onViewAllTasks: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val tokens = LocalAppThemeTokens.current
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Spacing.componentPadding),
     ) {
+        val sectionTitle = stringResource(R.string.home_quick_actions_title)
         Text(
-            text = stringResource(R.string.home_quick_actions_title),
+            text = if (tokens.useUppercaseTitles) sectionTitle.uppercase() else sectionTitle,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -465,12 +486,14 @@ private fun MetricsDashboard(
     metrics: TaskMetrics,
     modifier: Modifier = Modifier,
 ) {
+    val tokens = LocalAppThemeTokens.current
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Spacing.componentPadding),
     ) {
+        val metricsTitle = stringResource(R.string.home_metrics_title)
         Text(
-            text = stringResource(R.string.home_metrics_title),
+            text = if (tokens.useUppercaseTitles) metricsTitle.uppercase() else metricsTitle,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

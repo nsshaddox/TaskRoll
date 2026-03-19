@@ -289,16 +289,16 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
             }
         }
 
-        // home: 85% instruction coverage (actual ~85%)
+        // home: 88% instruction coverage (actual ~90.6%)
         // HomeViewModel combines 5+ coroutine flows and multiple launch blocks,
-        // generating many unreachable JaCoCo synthetic branches.
+        // generating some unreachable JaCoCo synthetic branches in coroutine state machines.
         rule {
             element = "PACKAGE"
             includes = listOf("com.nshaddox.randomtask.ui.screens.home")
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.85".toBigDecimal()
+                minimum = "0.88".toBigDecimal()
             }
         }
 
