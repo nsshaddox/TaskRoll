@@ -136,11 +136,8 @@ fun CompletedTasksScreen(
         tasks = uiState.tasks,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
-<<<<<<< HEAD
         errorResId = uiState.errorResId,
-=======
         hapticEnabled = settingsState.hapticEnabled,
->>>>>>> 5bda167 (feat: add list item animations, swipe haptics, and VIBRATE permission)
         onDeleteTask = { task -> viewModel.deleteTaskWithUndo(task) },
         onNavigateBack = { navController.popBackStack() },
         onClearError = { viewModel.clearError() },
@@ -158,11 +155,8 @@ fun CompletedTasksScreen(
     tasks: List<Task>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
-<<<<<<< HEAD
     errorResId: Int? = null,
-=======
     hapticEnabled: Boolean = true,
->>>>>>> 5bda167 (feat: add list item animations, swipe haptics, and VIBRATE permission)
     onDeleteTask: (Task) -> Unit = {},
     onNavigateBack: () -> Unit = {},
     onClearError: () -> Unit = {},
@@ -339,6 +333,13 @@ private fun CompletedTaskItem(
                     priority = task.priority,
                     modifier = Modifier.padding(start = Spacing.small),
                 )
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.cd_delete_task),
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
         }
     }

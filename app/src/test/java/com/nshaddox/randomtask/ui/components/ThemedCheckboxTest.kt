@@ -150,4 +150,16 @@ class ThemedCheckboxTest {
 
         assertNull(callbackValue)
     }
+
+    // ── Content description ──
+
+    @Test
+    fun `checkboxContentDescription with null returns null`() {
+        assertNull(checkboxContentDescription(null))
+    }
+
+    @Test
+    fun `checkboxContentDescription with non-null returns same string`() {
+        assertEquals("Buy milk", checkboxContentDescription("Buy milk"))
+    }
 }

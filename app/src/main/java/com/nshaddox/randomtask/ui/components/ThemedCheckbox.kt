@@ -12,6 +12,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,6 +23,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,6 +63,13 @@ fun checkboxUncheckedColor(variant: ThemeVariant): Color =
         ThemeVariant.NEO_BRUTALIST -> neoBrutalistBorder
         ThemeVariant.VAPOR -> vaporAccentPinkDim
     }
+
+/**
+ * Returns the content description for the checkbox, or null if none was provided.
+ *
+ * Pure function — testable without Compose runtime.
+ */
+fun checkboxContentDescription(cd: String?): String? = cd
 
 /**
  * Returns the checkmark color (icon/text on checked surface).
@@ -111,6 +121,7 @@ fun wrapOnCheckedChange(
  * @param onCheckedChange Callback when the checkbox is toggled.
  * @param modifier Modifier for layout.
  * @param hapticEnabled Whether haptic feedback fires on toggle.
+ * @param contentDescription Accessibility content description; null to suppress.
  */
 @Suppress("LongMethod")
 @Composable
@@ -119,6 +130,7 @@ fun ThemedCheckbox(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     hapticEnabled: Boolean = true,
+    contentDescription: String? = null,
 ) {
     val variant = LocalThemeVariant.current
     val hapticFeedback = LocalHapticFeedback.current
@@ -147,6 +159,7 @@ fun ThemedCheckbox(
             Box(
                 modifier =
                     modifier
+                        .minimumInteractiveComponentSize()
                         .size(24.dp)
                         .then(scaleModifier)
                         .clip(CircleShape)
@@ -161,6 +174,15 @@ fun ThemedCheckbox(
                             value = checked,
                             role = Role.Checkbox,
                             onValueChange = wrappedOnCheckedChange,
+                        )
+                        .then(
+                            if (contentDescription != null) {
+                                Modifier.semantics {
+                                    this.contentDescription = contentDescription
+                                }
+                            } else {
+                                Modifier
+                            },
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -180,6 +202,7 @@ fun ThemedCheckbox(
             Box(
                 modifier =
                     modifier
+                        .minimumInteractiveComponentSize()
                         .size(28.dp)
                         .then(scaleModifier)
                         .clip(shape)
@@ -194,6 +217,15 @@ fun ThemedCheckbox(
                             value = checked,
                             role = Role.Checkbox,
                             onValueChange = wrappedOnCheckedChange,
+                        )
+                        .then(
+                            if (contentDescription != null) {
+                                Modifier.semantics {
+                                    this.contentDescription = contentDescription
+                                }
+                            } else {
+                                Modifier
+                            },
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -213,6 +245,7 @@ fun ThemedCheckbox(
             Box(
                 modifier =
                     modifier
+                        .minimumInteractiveComponentSize()
                         .size(24.dp)
                         .then(scaleModifier)
                         .clip(shape)
@@ -227,6 +260,15 @@ fun ThemedCheckbox(
                             value = checked,
                             role = Role.Checkbox,
                             onValueChange = wrappedOnCheckedChange,
+                        )
+                        .then(
+                            if (contentDescription != null) {
+                                Modifier.semantics {
+                                    this.contentDescription = contentDescription
+                                }
+                            } else {
+                                Modifier
+                            },
                         ),
                 contentAlignment = Alignment.Center,
             ) {
