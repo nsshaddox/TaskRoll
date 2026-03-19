@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.taskeditor
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
@@ -87,7 +88,7 @@ class TaskEditorViewModelTest {
 
                 val loaded = awaitItem()
                 assertFalse(loaded.isLoading)
-                assertEquals("Task not found", loaded.errorMessage)
+                assertEquals(R.string.error_task_not_found, loaded.errorResId)
             }
         }
 
@@ -131,7 +132,7 @@ class TaskEditorViewModelTest {
         }
 
     @Test
-    fun `saveTask with blank title sets error message`() =
+    fun `saveTask with blank title sets errorResId`() =
         runTest(testDispatcher) {
             repository.addTask(createTask(title = "Original"))
 
@@ -147,7 +148,7 @@ class TaskEditorViewModelTest {
                 viewModel.saveTask()
 
                 val errorState = awaitItem()
-                assertEquals("Task title cannot be blank", errorState.errorMessage)
+                assertEquals(R.string.error_save_task, errorState.errorResId)
                 assertFalse(errorState.isSaved)
             }
         }
@@ -172,6 +173,58 @@ class TaskEditorViewModelTest {
                 val storedTask = repository.getAllTasks().first().first()
                 assertEquals("Updated Title", storedTask.title)
                 assertEquals(1L, storedTask.id)
+            }
+        }
+
+    // === Error injection tests using shouldFailMutations ===
+
+    @Test
+    fun `saveTask with shouldFailMutations sets errorResId`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+
+            val viewModel = createViewModel(taskId = 1L)
+
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
+
+                viewModel.onTitleChange("Updated")
+                awaitItem() // title changed
+
+                repository.shouldFailMutations = true
+                viewModel.saveTask()
+
+                val errorState = awaitItem()
+                assertEquals(R.string.error_save_task, errorState.errorResId)
+                assertFalse(errorState.isSaved)
+            }
+        }
+
+    @Test
+    fun `clearError resets errorResId to null`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+
+            val viewModel = createViewModel(taskId = 1L)
+
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
+
+                viewModel.onTitleChange("Updated")
+                awaitItem() // title changed
+
+                repository.shouldFailMutations = true
+                viewModel.saveTask()
+
+                val errorState = awaitItem()
+                assertEquals(R.string.error_save_task, errorState.errorResId)
+
+                viewModel.clearError()
+
+                val clearedState = awaitItem()
+                assertNull(clearedState.errorResId)
             }
         }
 }

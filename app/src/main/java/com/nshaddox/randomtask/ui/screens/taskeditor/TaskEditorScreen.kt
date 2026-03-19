@@ -20,12 +20,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -45,10 +49,20 @@ fun EditTaskScreen(
     viewModel: TaskEditorViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
             navController.popBackStack()
+        }
+    }
+
+    val errorResId = uiState.errorResId
+    val resolvedErrorMessage = errorResId?.let { stringResource(it) }
+    LaunchedEffect(resolvedErrorMessage) {
+        if (resolvedErrorMessage != null) {
+            snackbarHostState.showSnackbar(resolvedErrorMessage)
+            viewModel.clearError()
         }
     }
 
@@ -58,6 +72,7 @@ fun EditTaskScreen(
         onTitleChange = viewModel::onTitleChange,
         onSaveClick = viewModel::saveTask,
         onCancelClick = { navController.popBackStack() },
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -79,10 +94,12 @@ fun TaskEditorScreen(
     onTitleChange: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             Row(
                 modifier =

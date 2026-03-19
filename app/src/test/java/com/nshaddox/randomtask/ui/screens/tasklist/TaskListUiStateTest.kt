@@ -26,6 +26,7 @@ class TaskListUiStateTest {
     fun `default state has no error`() {
         val state = TaskListUiState()
         assertNull(state.errorMessage)
+        assertNull(state.errorResId)
     }
 
     @Test

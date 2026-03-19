@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.randomtask
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.GetRandomTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.GetWeightedRandomTaskUseCase
@@ -39,14 +40,14 @@ class RandomTaskViewModel
         fun completeTask() {
             val task = _uiState.value.currentTask ?: return
             viewModelScope.launch(ioDispatcher) {
-                _uiState.update { it.copy(isLoading = true, error = null) }
+                _uiState.update { it.copy(isLoading = true, error = null, errorResId = null) }
                 completeTaskUseCase(task)
                     .onSuccess {
                         _uiState.update { it.copy(isLoading = false, taskCompleted = true) }
                     }
-                    .onFailure { e ->
+                    .onFailure { _ ->
                         _uiState.update {
-                            it.copy(isLoading = false, error = e.message ?: "Failed to complete task")
+                            it.copy(isLoading = false, errorResId = R.string.error_complete_task)
                         }
                     }
             }
@@ -54,6 +55,10 @@ class RandomTaskViewModel
 
         fun resetTaskCompleted() {
             _uiState.update { it.copy(taskCompleted = false) }
+        }
+
+        fun clearError() {
+            _uiState.update { it.copy(error = null, errorResId = null) }
         }
 
         fun toggleWeightedRandom() {
@@ -67,7 +72,7 @@ class RandomTaskViewModel
         }
 
         private suspend fun loadRandomTaskInternal() {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = true, error = null, errorResId = null) }
             try {
                 val task =
                     if (_useWeightedRandom.value) {
@@ -82,9 +87,12 @@ class RandomTaskViewModel
                         noTasksAvailable = task == null,
                     )
                 }
-            } catch (e: Exception) {
+            } catch (
+                @Suppress("SwallowedException", "TooGenericExceptionCaught")
+                e: Exception,
+            ) {
                 _uiState.update {
-                    it.copy(isLoading = false, error = e.message ?: "Unknown error")
+                    it.copy(isLoading = false, error = null, errorResId = R.string.error_load_random_task)
                 }
             }
         }

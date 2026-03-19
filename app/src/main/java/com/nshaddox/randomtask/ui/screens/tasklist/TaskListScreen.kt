@@ -160,6 +160,7 @@ fun TaskListScreen(
         tasks = taskUiModels,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
+        errorResId = uiState.errorResId,
         snackbarHostState = snackbarHostState,
         searchQuery = uiState.searchQuery,
         filterPriority = uiState.filterPriority,
@@ -200,6 +201,7 @@ fun TaskListScreen(
     tasks: List<TaskUiModel>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
+    errorResId: Int? = null,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     searchQuery: String = "",
     filterPriority: Priority? = null,
@@ -221,12 +223,11 @@ fun TaskListScreen(
     onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            val result = snackbarHostState.showSnackbar(errorMessage)
-            if (result == SnackbarResult.Dismissed || result == SnackbarResult.ActionPerformed) {
-                onClearError()
-            }
+    val resolvedErrorMessage = errorResId?.let { stringResource(it) } ?: errorMessage
+    LaunchedEffect(resolvedErrorMessage) {
+        if (resolvedErrorMessage != null) {
+            snackbarHostState.showSnackbar(resolvedErrorMessage)
+            onClearError()
         }
     }
 

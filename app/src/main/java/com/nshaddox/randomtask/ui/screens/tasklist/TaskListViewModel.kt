@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
@@ -157,8 +158,8 @@ class TaskListViewModel
                     priority = priority,
                     dueDate = dueDate,
                     category = category,
-                ).onFailure { error ->
-                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to add task") }
+                ).onFailure { _ ->
+                    _uiState.update { it.copy(errorResId = R.string.error_add_task) }
                 }.onSuccess {
                     _uiState.update { it.copy(isAddDialogVisible = false) }
                 }
@@ -168,8 +169,8 @@ class TaskListViewModel
         fun deleteTask(task: Task) {
             viewModelScope.launch(ioDispatcher) {
                 deleteTaskUseCase(task)
-                    .onFailure { error ->
-                        _uiState.update { it.copy(errorMessage = error.message ?: "Failed to delete task") }
+                    .onFailure { _ ->
+                        _uiState.update { it.copy(errorResId = R.string.error_delete_task) }
                     }
             }
         }
@@ -180,8 +181,8 @@ class TaskListViewModel
                     .onSuccess {
                         _uiState.update { it.copy(pendingDeleteTask = task) }
                     }
-                    .onFailure { error ->
-                        _uiState.update { it.copy(errorMessage = error.message ?: "Failed to delete task") }
+                    .onFailure { _ ->
+                        _uiState.update { it.copy(errorResId = R.string.error_delete_task) }
                     }
             }
         }
@@ -196,8 +197,8 @@ class TaskListViewModel
                     priority = pending.priority,
                     dueDate = pending.dueDate,
                     category = pending.category,
-                ).onFailure { error ->
-                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to restore task") }
+                ).onFailure { _ ->
+                    _uiState.update { it.copy(errorResId = R.string.error_restore_task) }
                 }
             }
         }
@@ -214,8 +215,8 @@ class TaskListViewModel
                     } else {
                         updateTaskUseCase(task.copy(isCompleted = false))
                     }
-                result.onFailure { error ->
-                    _uiState.update { it.copy(errorMessage = error.message ?: "Failed to update task") }
+                result.onFailure { _ ->
+                    _uiState.update { it.copy(errorResId = R.string.error_update_task) }
                 }
             }
         }
@@ -252,7 +253,7 @@ class TaskListViewModel
                 if (existingTask == null) {
                     _uiState.update {
                         it.copy(
-                            errorMessage = "Task not found",
+                            errorResId = R.string.error_task_not_found,
                             isEditDialogVisible = false,
                             editingTask = null,
                         )
@@ -273,10 +274,10 @@ class TaskListViewModel
                             it.copy(isEditDialogVisible = false, editingTask = null)
                         }
                     }
-                    .onFailure { error ->
+                    .onFailure { _ ->
                         _uiState.update {
                             it.copy(
-                                errorMessage = error.message ?: "Failed to update task",
+                                errorResId = R.string.error_update_task,
                                 isEditDialogVisible = false,
                                 editingTask = null,
                             )
@@ -286,7 +287,7 @@ class TaskListViewModel
         }
 
         fun clearError() {
-            _uiState.update { it.copy(errorMessage = null) }
+            _uiState.update { it.copy(errorMessage = null, errorResId = null) }
         }
 
         private data class CombineResult(

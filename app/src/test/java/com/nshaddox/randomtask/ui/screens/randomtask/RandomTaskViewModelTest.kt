@@ -1,6 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.randomtask
 
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
@@ -188,7 +189,7 @@ class RandomTaskViewModelTest {
 
             val state = errorViewModel.uiState.value
             assertFalse(state.taskCompleted)
-            assertNotNull(state.error)
+            assertEquals(R.string.error_complete_task, state.errorResId)
         }
 
     @Test
@@ -225,7 +226,7 @@ class RandomTaskViewModelTest {
         }
 
     @Test
-    fun `error handling when GetRandomTaskUseCase throws an exception`() =
+    fun `loadRandomTask sets errorResId when GetRandomTaskUseCase throws`() =
         runTest(testDispatcher) {
             val errorRepository =
                 object : TaskRepository {
@@ -285,8 +286,8 @@ class RandomTaskViewModelTest {
 
             val state = errorViewModel.uiState.value
             assertFalse(state.isLoading)
-            assertNotNull(state.error)
-            assertEquals("DB error", state.error)
+            assertNull(state.error)
+            assertEquals(R.string.error_load_random_task, state.errorResId)
         }
 
     @Test
@@ -358,5 +359,45 @@ class RandomTaskViewModelTest {
             val state = viewModel.uiState.value
             assertNotNull(state.currentTask)
             assertEquals("Regular Task", state.currentTask!!.title)
+        }
+
+    // === Error injection tests using shouldFailMutations ===
+
+    @Test
+    fun `completeTask with shouldFailMutations sets errorResId`() =
+        runTest(testDispatcher) {
+            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+            assertNotNull(viewModel.uiState.value.currentTask)
+
+            repository.shouldFailMutations = true
+            viewModel.completeTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.taskCompleted)
+            assertEquals(R.string.error_complete_task, state.errorResId)
+        }
+
+    @Test
+    fun `clearError resets errorResId to null`() =
+        runTest(testDispatcher) {
+            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            repository.shouldFailMutations = true
+            viewModel.completeTask()
+            advanceUntilIdle()
+
+            assertNotNull(viewModel.uiState.value.errorResId)
+
+            viewModel.clearError()
+
+            assertNull(viewModel.uiState.value.errorResId)
+            assertNull(viewModel.uiState.value.error)
         }
 }

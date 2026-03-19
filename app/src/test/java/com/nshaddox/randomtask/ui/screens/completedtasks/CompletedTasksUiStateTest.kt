@@ -26,6 +26,7 @@ class CompletedTasksUiStateTest {
     fun `default state has no error`() {
         val state = CompletedTasksUiState()
         assertNull(state.errorMessage)
+        assertNull(state.errorResId)
     }
 
     // ── Copy transition tests ──

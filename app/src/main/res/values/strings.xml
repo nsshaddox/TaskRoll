@@ -47,6 +47,16 @@
     <string name="completed_tasks_empty_title">No completed tasks yet</string>
     <string name="completed_tasks_empty_body">Tasks you complete will appear here</string>
 
+    <!-- Error Messages -->
+    <string name="error_add_task">Failed to add task</string>
+    <string name="error_delete_task">Failed to delete task</string>
+    <string name="error_restore_task">Failed to restore task</string>
+    <string name="error_update_task">Failed to update task</string>
+    <string name="error_complete_task">Failed to complete task</string>
+    <string name="error_task_not_found">Task not found</string>
+    <string name="error_save_task">Failed to save task</string>
+    <string name="error_load_random_task">Failed to load random task</string>
+
     <!-- Snackbar -->
     <string name="snackbar_task_deleted">Task deleted</string>
     <string name="snackbar_undo_action">Undo</string>

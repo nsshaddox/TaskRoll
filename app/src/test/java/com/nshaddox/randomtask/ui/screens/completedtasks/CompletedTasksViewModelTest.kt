@@ -1,6 +1,7 @@
 package com.nshaddox.randomtask.ui.screens.completedtasks
 
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.usecase.AddTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
@@ -130,7 +131,7 @@ class CompletedTasksViewModelTest {
         }
 
     @Test
-    fun `deleteTask failure sets errorMessage`() =
+    fun `deleteTask failure sets errorResId`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -143,12 +144,12 @@ class CompletedTasksViewModelTest {
                 viewModel.deleteTask(createTask(id = 999, title = "Nonexistent"))
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_delete_task, errorState.errorResId)
             }
         }
 
     @Test
-    fun `clearError resets errorMessage to null`() =
+    fun `clearError resets errorResId to null`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -162,12 +163,12 @@ class CompletedTasksViewModelTest {
                 viewModel.deleteTask(createTask(id = 999, title = "Nonexistent"))
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_delete_task, errorState.errorResId)
 
                 viewModel.clearError()
 
                 val clearedState = awaitItem()
-                assertNull(clearedState.errorMessage)
+                assertNull(clearedState.errorResId)
             }
         }
 
@@ -327,7 +328,7 @@ class CompletedTasksViewModelTest {
         }
 
     @Test
-    fun `deleteTaskWithUndo failure sets error message and does not set pendingDeleteTask`() =
+    fun `deleteTaskWithUndo failure sets errorResId and does not set pendingDeleteTask`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -341,7 +342,7 @@ class CompletedTasksViewModelTest {
                 viewModel.deleteTaskWithUndo(createTask(id = 999, title = "Nonexistent"))
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_delete_task, errorState.errorResId)
                 assertNull(errorState.pendingDeleteTask)
             }
         }

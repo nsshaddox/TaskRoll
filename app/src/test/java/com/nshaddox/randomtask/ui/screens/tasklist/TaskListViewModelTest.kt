@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.model.SortOrder
 import com.nshaddox.randomtask.domain.model.Task
@@ -180,7 +181,7 @@ class TaskListViewModelTest {
         }
 
     @Test
-    fun `addTask with blank title sets error message`() =
+    fun `addTask with blank title sets errorResId`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -193,7 +194,7 @@ class TaskListViewModelTest {
                 viewModel.addTask("   ")
 
                 val errorState = awaitItem()
-                assertEquals("Task title cannot be blank", errorState.errorMessage)
+                assertEquals(R.string.error_add_task, errorState.errorResId)
             }
         }
 
@@ -219,7 +220,7 @@ class TaskListViewModelTest {
         }
 
     @Test
-    fun `deleteTask failure sets error message`() =
+    fun `deleteTask failure sets errorResId`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -232,7 +233,7 @@ class TaskListViewModelTest {
                 viewModel.deleteTask(createTask(id = 999, title = "Nonexistent"))
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_delete_task, errorState.errorResId)
             }
         }
 
@@ -340,7 +341,7 @@ class TaskListViewModelTest {
         }
 
     @Test
-    fun `clearError resets errorMessage to null`() =
+    fun `clearError resets errorResId to null`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -354,12 +355,12 @@ class TaskListViewModelTest {
                 viewModel.addTask("")
 
                 val errorState = awaitItem()
-                assertEquals("Task title cannot be blank", errorState.errorMessage)
+                assertEquals(R.string.error_add_task, errorState.errorResId)
 
                 viewModel.clearError()
 
                 val clearedState = awaitItem()
-                assertNull(clearedState.errorMessage)
+                assertNull(clearedState.errorResId)
             }
         }
 
@@ -920,7 +921,7 @@ class TaskListViewModelTest {
         }
 
     @Test
-    fun `editTask with nonexistent taskId sets error and hides dialog`() =
+    fun `editTask with nonexistent taskId sets errorResId and hides dialog`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -937,7 +938,7 @@ class TaskListViewModelTest {
                 advanceUntilIdle()
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_task_not_found, errorState.errorResId)
                 assertFalse(errorState.isEditDialogVisible)
                 assertNull(errorState.editingTask)
             }
@@ -1182,7 +1183,7 @@ class TaskListViewModelTest {
         }
 
     @Test
-    fun `deleteTaskWithUndo failure sets error message and does not set pendingDeleteTask`() =
+    fun `deleteTaskWithUndo failure sets errorResId and does not set pendingDeleteTask`() =
         runTest(testDispatcher) {
             val viewModel = createViewModel()
 
@@ -1196,7 +1197,7 @@ class TaskListViewModelTest {
                 viewModel.deleteTaskWithUndo(createTask(id = 999, title = "Nonexistent"))
 
                 val errorState = awaitItem()
-                assertEquals("Task not found", errorState.errorMessage)
+                assertEquals(R.string.error_delete_task, errorState.errorResId)
                 assertNull(errorState.pendingDeleteTask)
             }
         }

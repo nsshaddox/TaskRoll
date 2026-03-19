@@ -126,6 +126,7 @@ fun CompletedTasksScreen(
         tasks = uiState.tasks,
         isLoading = uiState.isLoading,
         errorMessage = uiState.errorMessage,
+        errorResId = uiState.errorResId,
         onDeleteTask = { task -> viewModel.deleteTaskWithUndo(task) },
         onNavigateBack = { navController.popBackStack() },
         onClearError = { viewModel.clearError() },
@@ -143,15 +144,17 @@ fun CompletedTasksScreen(
     tasks: List<Task>,
     isLoading: Boolean = false,
     errorMessage: String? = null,
+    errorResId: Int? = null,
     onDeleteTask: (Task) -> Unit = {},
     onNavigateBack: () -> Unit = {},
     onClearError: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            snackbarHostState.showSnackbar(errorMessage)
+    val resolvedErrorMessage = errorResId?.let { stringResource(it) } ?: errorMessage
+    LaunchedEffect(resolvedErrorMessage) {
+        if (resolvedErrorMessage != null) {
+            snackbarHostState.showSnackbar(resolvedErrorMessage)
             onClearError()
         }
     }

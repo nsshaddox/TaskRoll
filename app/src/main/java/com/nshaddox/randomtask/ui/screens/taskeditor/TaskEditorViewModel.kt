@@ -3,6 +3,7 @@ package com.nshaddox.randomtask.ui.screens.taskeditor
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
 import com.nshaddox.randomtask.domain.usecase.UpdateTaskUseCase
@@ -22,6 +23,7 @@ data class TaskEditorUiState(
     val isLoading: Boolean = true,
     val isSaved: Boolean = false,
     val errorMessage: String? = null,
+    val errorResId: Int? = null,
 )
 
 @HiltViewModel
@@ -48,7 +50,7 @@ class TaskEditorViewModel
                     _uiState.update { it.copy(taskTitle = task.title, isLoading = false) }
                 } else {
                     _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Task not found")
+                        it.copy(isLoading = false, errorResId = R.string.error_task_not_found)
                     }
                 }
             }
@@ -56,6 +58,10 @@ class TaskEditorViewModel
 
         fun onTitleChange(newTitle: String) {
             _uiState.update { it.copy(taskTitle = newTitle) }
+        }
+
+        fun clearError() {
+            _uiState.update { it.copy(errorMessage = null, errorResId = null) }
         }
 
         fun saveTask() {
@@ -68,9 +74,9 @@ class TaskEditorViewModel
                     .onSuccess {
                         _uiState.update { it.copy(isSaved = true) }
                     }
-                    .onFailure { error ->
+                    .onFailure { _ ->
                         _uiState.update {
-                            it.copy(errorMessage = error.message ?: "Failed to save task")
+                            it.copy(errorResId = R.string.error_save_task)
                         }
                     }
             }

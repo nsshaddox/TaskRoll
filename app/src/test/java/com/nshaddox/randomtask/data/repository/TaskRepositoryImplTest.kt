@@ -9,6 +9,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -539,6 +540,92 @@ class TaskRepositoryImplTest {
             repository.getIncompleteTaskCount().test {
                 val count = awaitItem()
                 assertEquals(0, count)
+                awaitComplete()
+            }
+        }
+
+    // --- DAO exception handling for query flows ---
+
+    @Test
+    fun `getAllTasks emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.getAllTasks() } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getAllTasks().test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getIncompleteTasks emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.getIncompleteTasks() } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getIncompleteTasks().test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getCompletedTasks emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.getCompletedTasks() } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getCompletedTasks().test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getTaskById emits null when dao throws exception`() =
+        runTest {
+            every { taskDao.getTaskByIdFlow(1L) } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getTaskById(1L).test {
+                val task = awaitItem()
+                assertNull(task)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getTasksByPriority emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.getTasksByPriority("HIGH") } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getTasksByPriority(Priority.HIGH).test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `getTasksByCategory emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.getTasksByCategory("Work") } returns flow { throw IllegalStateException("DB error") }
+
+            repository.getTasksByCategory("Work").test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `searchTasks emits empty list when dao throws exception`() =
+        runTest {
+            every { taskDao.searchTasks("query") } returns flow { throw IllegalStateException("DB error") }
+
+            repository.searchTasks("query").test {
+                val tasks = awaitItem()
+                assertTrue(tasks.isEmpty())
                 awaitComplete()
             }
         }

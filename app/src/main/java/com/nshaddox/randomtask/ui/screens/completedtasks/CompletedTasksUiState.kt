@@ -15,5 +15,6 @@ data class CompletedTasksUiState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
+    val errorResId: Int? = null,
     val pendingDeleteTask: Task? = null,
 )
