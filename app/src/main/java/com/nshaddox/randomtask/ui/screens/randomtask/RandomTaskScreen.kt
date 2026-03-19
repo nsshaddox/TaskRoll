@@ -25,12 +25,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,6 +59,7 @@ fun RandomTaskScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val useWeightedRandom by viewModel.useWeightedRandom.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.loadRandomTask()
@@ -77,6 +81,8 @@ fun RandomTaskScreen(
         onBackClick = { navController.popBackStack() },
         useWeightedRandom = useWeightedRandom,
         onToggleWeightedRandom = viewModel::toggleWeightedRandom,
+        snackbarHostState = snackbarHostState,
+        onClearError = viewModel::clearError,
     )
 }
 
@@ -93,10 +99,22 @@ internal fun RandomTaskScreenContent(
     onBackClick: () -> Unit = {},
     useWeightedRandom: Boolean = false,
     onToggleWeightedRandom: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onClearError: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val errorResId = uiState.errorResId
+    val resolvedErrorMessage = errorResId?.let { stringResource(it) }
+    LaunchedEffect(resolvedErrorMessage) {
+        if (resolvedErrorMessage != null) {
+            snackbarHostState.showSnackbar(resolvedErrorMessage)
+            onClearError()
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             Row(
                 modifier =

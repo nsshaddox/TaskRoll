@@ -175,4 +175,56 @@ class TaskEditorViewModelTest {
                 assertEquals(1L, storedTask.id)
             }
         }
+
+    // === Error injection tests using shouldFailMutations ===
+
+    @Test
+    fun `saveTask with shouldFailMutations sets errorResId`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+
+            val viewModel = createViewModel(taskId = 1L)
+
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
+
+                viewModel.onTitleChange("Updated")
+                awaitItem() // title changed
+
+                repository.shouldFailMutations = true
+                viewModel.saveTask()
+
+                val errorState = awaitItem()
+                assertEquals(R.string.error_save_task, errorState.errorResId)
+                assertFalse(errorState.isSaved)
+            }
+        }
+
+    @Test
+    fun `clearError resets errorResId to null`() =
+        runTest(testDispatcher) {
+            repository.addTask(createTask(title = "Original"))
+
+            val viewModel = createViewModel(taskId = 1L)
+
+            viewModel.uiState.test {
+                awaitItem() // initial loading
+                awaitItem() // loaded
+
+                viewModel.onTitleChange("Updated")
+                awaitItem() // title changed
+
+                repository.shouldFailMutations = true
+                viewModel.saveTask()
+
+                val errorState = awaitItem()
+                assertEquals(R.string.error_save_task, errorState.errorResId)
+
+                viewModel.clearError()
+
+                val clearedState = awaitItem()
+                assertNull(clearedState.errorResId)
+            }
+        }
 }
