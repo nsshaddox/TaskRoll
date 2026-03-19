@@ -87,9 +87,12 @@ class RandomTaskViewModel
                         noTasksAvailable = task == null,
                     )
                 }
-            } catch (e: Exception) {
+            } catch (
+                @Suppress("SwallowedException", "TooGenericExceptionCaught")
+                e: Exception,
+            ) {
                 _uiState.update {
-                    it.copy(isLoading = false, error = e.message ?: "Unknown error")
+                    it.copy(isLoading = false, error = null, errorResId = R.string.error_load_random_task)
                 }
             }
         }

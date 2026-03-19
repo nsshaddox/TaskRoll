@@ -226,7 +226,7 @@ class RandomTaskViewModelTest {
         }
 
     @Test
-    fun `error handling when GetRandomTaskUseCase throws an exception`() =
+    fun `loadRandomTask sets errorResId when GetRandomTaskUseCase throws`() =
         runTest(testDispatcher) {
             val errorRepository =
                 object : TaskRepository {
@@ -286,8 +286,8 @@ class RandomTaskViewModelTest {
 
             val state = errorViewModel.uiState.value
             assertFalse(state.isLoading)
-            assertNotNull(state.error)
-            assertEquals("DB error", state.error)
+            assertNull(state.error)
+            assertEquals(R.string.error_load_random_task, state.errorResId)
         }
 
     @Test
