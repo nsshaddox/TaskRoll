@@ -12,7 +12,7 @@ import android.net.Uri
  * @param body Pre-filled email body text.
  * @return A configured [Intent] ready to launch.
  */
-fun buildFeedbackEmailIntent(
+internal fun buildFeedbackEmailIntent(
     emailAddress: String,
     subject: String,
     body: String,
@@ -31,7 +31,7 @@ fun buildFeedbackEmailIntent(
  * @param launcher A function that calls `context.startActivity(intent)`.
  * @return `true` on success, `false` if [ActivityNotFoundException] was caught.
  */
-fun safeLaunchFeedbackIntent(
+internal fun safeLaunchFeedbackIntent(
     intent: Intent,
     launcher: (Intent) -> Unit,
 ): Boolean =

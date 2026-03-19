@@ -62,6 +62,13 @@ android {
         buildConfig = true
     }
     testOptions {
+        // Required for unit-testing FeedbackUtils which constructs Intent(ACTION_SENDTO).
+        // Android framework stubs normally throw when accessed in JVM unit tests;
+        // this flag makes them return defaults (0, null, false) instead.
+        // Risk: tests that accidentally touch Android APIs will silently pass rather
+        // than throwing. Mitigated by: (1) domain layer has no Android imports,
+        // (2) ViewModel tests use mocked dispatchers, (3) Intent-dependent behavior
+        // is isolated to FeedbackUtils and verified via launcher lambda assertions.
         unitTests.isReturnDefaultValues = true
     }
     packaging {
