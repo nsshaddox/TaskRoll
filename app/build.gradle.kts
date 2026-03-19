@@ -172,6 +172,7 @@ val jacocoExclusions =
         "**/*ThemedCardKt*",
         "**/*ThemedCheckboxKt*",
         "**/*ThemedFABKt*",
+        "**/*ThemedLoadingIndicatorKt*",
         "**/*FilterBarKt*",
         "**/*PickerDialogKt*",
         "**/*Preview*",

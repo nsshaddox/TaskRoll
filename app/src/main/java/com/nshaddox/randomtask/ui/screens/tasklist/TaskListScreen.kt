@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +53,7 @@ import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedCheckbox
 import com.nshaddox.randomtask.ui.components.ThemedFAB
+import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
 import com.nshaddox.randomtask.ui.theme.Spacing
@@ -294,9 +294,7 @@ fun TaskListScreen(
                         .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                ThemedLoadingIndicator()
             }
         } else if (tasks.isEmpty() && !hasActiveFilters(searchQuery, filterPriority, filterCategory)) {
             EmptyTaskListContent(
