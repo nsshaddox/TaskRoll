@@ -55,7 +55,7 @@ import com.nshaddox.randomtask.domain.model.TaskMetrics
 import com.nshaddox.randomtask.ui.components.ThemedCard
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
 import com.nshaddox.randomtask.ui.navigation.Screen
-import com.nshaddox.randomtask.ui.screens.tasklist.AddTaskDialog
+import com.nshaddox.randomtask.ui.screens.tasklist.EditTaskDialog
 import com.nshaddox.randomtask.ui.theme.LocalAppThemeTokens
 import com.nshaddox.randomtask.ui.theme.Spacing
 
@@ -87,7 +87,9 @@ fun HomeScreen(
         onCompleteTask = viewModel::completeTask,
         onSkipTask = viewModel::skipTask,
         onToggleWeightedRandom = viewModel::toggleWeightedRandom,
-        onAddTask = viewModel::addTask,
+        onAddTask = { title, description, priority, dueDate, category ->
+            viewModel.addTask(title, description, priority, dueDate, category)
+        },
         onNavigateToTaskList = { navController.navigate(Screen.TaskList.route) },
         onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
     )
@@ -104,7 +106,7 @@ internal fun HomeScreenContent(
     onCompleteTask: () -> Unit = {},
     onSkipTask: () -> Unit = {},
     onToggleWeightedRandom: () -> Unit = {},
-    onAddTask: (String, String?) -> Unit = { _, _ -> },
+    onAddTask: (String, String?, Priority, Long?, String?) -> Unit = { _, _, _, _, _ -> },
     onNavigateToTaskList: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -153,9 +155,10 @@ internal fun HomeScreenContent(
     }
 
     if (showAddDialog) {
-        AddTaskDialog(
-            onConfirm = { title, description ->
-                onAddTask(title, description)
+        EditTaskDialog(
+            task = null,
+            onConfirm = { title, description, priority, dueDate, category ->
+                onAddTask(title, description, priority, dueDate?.toEpochDay(), category)
                 showAddDialog = false
             },
             onDismiss = { showAddDialog = false },
