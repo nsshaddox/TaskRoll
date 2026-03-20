@@ -3,6 +3,7 @@ package com.nshaddox.randomtask.di
 import android.content.Context
 import androidx.room.Room
 import com.nshaddox.randomtask.data.local.AppDatabase
+import com.nshaddox.randomtask.data.local.SubTaskDao
 import com.nshaddox.randomtask.data.local.TaskDao
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "random_task_db",
-        ).addMigrations(AppDatabase.MIGRATION_1_2)
+        ).addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .build()
     }
 
@@ -31,5 +32,11 @@ object DatabaseModule {
     @Singleton
     fun provideTaskDao(db: AppDatabase): TaskDao {
         return db.taskDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSubTaskDao(db: AppDatabase): SubTaskDao {
+        return db.subTaskDao()
     }
 }

@@ -1,5 +1,6 @@
 package com.nshaddox.randomtask.ui.screens.taskeditor
 
+import com.nshaddox.randomtask.domain.model.Priority
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -57,5 +58,33 @@ class TaskEditorUiStateTest {
         val state1 = TaskEditorUiState()
         val state2 = TaskEditorUiState()
         assertEquals(state1, state2)
+    }
+
+    @Test
+    fun `default state has empty subTasks`() {
+        val state = TaskEditorUiState()
+        assertTrue(state.subTasks.isEmpty())
+        assertFalse(state.isAddingSubTask)
+        assertEquals("", state.newSubTaskTitle)
+    }
+
+    @Test
+    fun `default state has empty description and category`() {
+        val state = TaskEditorUiState()
+        assertEquals("", state.taskDescription)
+        assertEquals("", state.taskCategory)
+    }
+
+    @Test
+    fun `default state has MEDIUM priority and null due date`() {
+        val state = TaskEditorUiState()
+        assertEquals(Priority.MEDIUM, state.taskPriority)
+        assertNull(state.taskDueDate)
+    }
+
+    @Test
+    fun `default state has showDatePicker false`() {
+        val state = TaskEditorUiState()
+        assertFalse(state.showDatePicker)
     }
 }

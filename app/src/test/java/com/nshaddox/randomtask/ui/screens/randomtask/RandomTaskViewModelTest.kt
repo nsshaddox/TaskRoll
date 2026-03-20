@@ -3,12 +3,18 @@ package com.nshaddox.randomtask.ui.screens.randomtask
 import app.cash.turbine.test
 import com.nshaddox.randomtask.R
 import com.nshaddox.randomtask.domain.model.Priority
+import com.nshaddox.randomtask.domain.model.SubTask
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.domain.repository.TaskRepository
+import com.nshaddox.randomtask.domain.usecase.AddSubTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.CompleteSubTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.FakeSubTaskRepository
 import com.nshaddox.randomtask.domain.usecase.FakeTaskRepository
 import com.nshaddox.randomtask.domain.usecase.GetRandomTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.GetTaskWithSubTasksUseCase
 import com.nshaddox.randomtask.domain.usecase.GetWeightedRandomTaskUseCase
+import com.nshaddox.randomtask.domain.usecase.UncompleteSubTaskUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,30 +37,50 @@ import org.junit.Test
 class RandomTaskViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: FakeTaskRepository
+    private lateinit var subTaskRepository: FakeSubTaskRepository
     private lateinit var getRandomTaskUseCase: GetRandomTaskUseCase
     private lateinit var getWeightedRandomTaskUseCase: GetWeightedRandomTaskUseCase
     private lateinit var completeTaskUseCase: CompleteTaskUseCase
+    private lateinit var getTaskWithSubTasksUseCase: GetTaskWithSubTasksUseCase
+    private lateinit var addSubTaskUseCase: AddSubTaskUseCase
+    private lateinit var completeSubTaskUseCase: CompleteSubTaskUseCase
+    private lateinit var uncompleteSubTaskUseCase: UncompleteSubTaskUseCase
     private lateinit var viewModel: RandomTaskViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = FakeTaskRepository()
+        subTaskRepository = FakeSubTaskRepository()
         getRandomTaskUseCase = GetRandomTaskUseCase(repository)
         getWeightedRandomTaskUseCase = GetWeightedRandomTaskUseCase(repository)
         completeTaskUseCase = CompleteTaskUseCase(repository)
-        viewModel =
-            RandomTaskViewModel(
-                getRandomTaskUseCase,
-                completeTaskUseCase,
-                getWeightedRandomTaskUseCase,
-                testDispatcher,
-            )
+        getTaskWithSubTasksUseCase = GetTaskWithSubTasksUseCase(repository, subTaskRepository)
+        addSubTaskUseCase = AddSubTaskUseCase(subTaskRepository)
+        completeSubTaskUseCase = CompleteSubTaskUseCase(subTaskRepository)
+        uncompleteSubTaskUseCase = UncompleteSubTaskUseCase(subTaskRepository)
+        viewModel = createViewModel()
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    private fun createViewModel(
+        taskRepo: FakeTaskRepository = repository,
+        subTaskRepo: FakeSubTaskRepository = subTaskRepository,
+    ): RandomTaskViewModel {
+        return RandomTaskViewModel(
+            getRandomTaskUseCase = GetRandomTaskUseCase(taskRepo),
+            completeTaskUseCase = CompleteTaskUseCase(taskRepo),
+            getWeightedRandomTaskUseCase = GetWeightedRandomTaskUseCase(taskRepo),
+            getTaskWithSubTasksUseCase = GetTaskWithSubTasksUseCase(taskRepo, subTaskRepo),
+            addSubTaskUseCase = AddSubTaskUseCase(subTaskRepo),
+            completeSubTaskUseCase = CompleteSubTaskUseCase(subTaskRepo),
+            uncompleteSubTaskUseCase = UncompleteSubTaskUseCase(subTaskRepo),
+            ioDispatcher = testDispatcher,
+        )
     }
 
     @Test
@@ -177,7 +203,16 @@ class RandomTaskViewModelTest {
             val errorWeightedUseCase = GetWeightedRandomTaskUseCase(errorRepository)
             val errorCompleteUseCase = CompleteTaskUseCase(errorRepository)
             val errorViewModel =
-                RandomTaskViewModel(errorGetUseCase, errorCompleteUseCase, errorWeightedUseCase, testDispatcher)
+                RandomTaskViewModel(
+                    errorGetUseCase,
+                    errorCompleteUseCase,
+                    errorWeightedUseCase,
+                    GetTaskWithSubTasksUseCase(errorRepository, subTaskRepository),
+                    addSubTaskUseCase,
+                    completeSubTaskUseCase,
+                    uncompleteSubTaskUseCase,
+                    testDispatcher,
+                )
 
             errorViewModel.loadRandomTask()
             advanceUntilIdle()
@@ -279,7 +314,16 @@ class RandomTaskViewModelTest {
             val errorUseCase = GetRandomTaskUseCase(errorRepository)
             val errorWeightedUseCase = GetWeightedRandomTaskUseCase(errorRepository)
             val errorViewModel =
-                RandomTaskViewModel(errorUseCase, completeTaskUseCase, errorWeightedUseCase, testDispatcher)
+                RandomTaskViewModel(
+                    errorUseCase,
+                    completeTaskUseCase,
+                    errorWeightedUseCase,
+                    GetTaskWithSubTasksUseCase(errorRepository, subTaskRepository),
+                    addSubTaskUseCase,
+                    completeSubTaskUseCase,
+                    uncompleteSubTaskUseCase,
+                    testDispatcher,
+                )
 
             errorViewModel.loadRandomTask()
             advanceUntilIdle()
@@ -399,5 +443,165 @@ class RandomTaskViewModelTest {
 
             assertNull(viewModel.uiState.value.errorResId)
             assertNull(viewModel.uiState.value.error)
+        }
+
+    // === Subtask tests ===
+
+    @Test
+    fun `loadRandomTask starts collecting subtasks for selected task`() =
+        runTest(testDispatcher) {
+            val taskId = repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L)).getOrThrow()
+            subTaskRepository.addSubTask(
+                SubTask(parentTaskId = taskId, title = "Sub 1", createdAt = 1000L, updatedAt = 1000L),
+            )
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNotNull(state.currentTask)
+            assertEquals(1, state.subTasks.size)
+            assertEquals("Sub 1", state.subTasks.first().title)
+        }
+
+    @Test
+    fun `addSubTask with valid title adds subtask to list`() =
+        runTest(testDispatcher) {
+            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            viewModel.onNewSubTaskTitleChange("New SubTask")
+            viewModel.addSubTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(1, state.subTasks.size)
+            assertEquals("New SubTask", state.subTasks.first().title)
+            assertFalse(state.isAddingSubTask)
+            assertEquals("", state.newSubTaskTitle)
+        }
+
+    @Test
+    fun `addSubTask with blank title sets error`() =
+        runTest(testDispatcher) {
+            repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L))
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            viewModel.onNewSubTaskTitleChange("   ")
+            viewModel.addSubTask()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(R.string.error_add_subtask, state.errorResId)
+            assertTrue(state.subTasks.isEmpty())
+        }
+
+    @Test
+    fun `toggleSubTask marks incomplete subtask as completed`() =
+        runTest(testDispatcher) {
+            val taskId = repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L)).getOrThrow()
+            subTaskRepository.addSubTask(
+                SubTask(parentTaskId = taskId, title = "Sub 1", createdAt = 1000L, updatedAt = 1000L),
+            )
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            val subTask = viewModel.uiState.value.subTasks.first()
+            assertFalse(subTask.isCompleted)
+
+            viewModel.toggleSubTask(subTask)
+            advanceUntilIdle()
+
+            val updated = viewModel.uiState.value.subTasks.first()
+            assertTrue(updated.isCompleted)
+        }
+
+    @Test
+    fun `toggleSubTask marks completed subtask as incomplete`() =
+        runTest(testDispatcher) {
+            val taskId = repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L)).getOrThrow()
+            subTaskRepository.addSubTask(
+                SubTask(
+                    parentTaskId = taskId,
+                    title = "Sub 1",
+                    isCompleted = true,
+                    createdAt = 1000L,
+                    updatedAt = 1000L,
+                ),
+            )
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            val subTask = viewModel.uiState.value.subTasks.first()
+            assertTrue(subTask.isCompleted)
+
+            viewModel.toggleSubTask(subTask)
+            advanceUntilIdle()
+
+            val updated = viewModel.uiState.value.subTasks.first()
+            assertFalse(updated.isCompleted)
+        }
+
+    @Test
+    fun `showAddSubTask sets isAddingSubTask to true`() =
+        runTest(testDispatcher) {
+            viewModel.showAddSubTask()
+
+            assertTrue(viewModel.uiState.value.isAddingSubTask)
+        }
+
+    @Test
+    fun `hideAddSubTask clears state`() =
+        runTest(testDispatcher) {
+            viewModel.showAddSubTask()
+            viewModel.onNewSubTaskTitleChange("Partial title")
+
+            viewModel.hideAddSubTask()
+
+            assertFalse(viewModel.uiState.value.isAddingSubTask)
+            assertEquals("", viewModel.uiState.value.newSubTaskTitle)
+        }
+
+    @Test
+    fun `onNewSubTaskTitleChange updates newSubTaskTitle`() =
+        runTest(testDispatcher) {
+            viewModel.onNewSubTaskTitleChange("My subtask")
+
+            assertEquals("My subtask", viewModel.uiState.value.newSubTaskTitle)
+        }
+
+    @Test
+    fun `skipTask clears subtasks and loads new task subtasks`() =
+        runTest(testDispatcher) {
+            val taskId = repository.addTask(Task(title = "Task 1", createdAt = 1000L, updatedAt = 1000L)).getOrThrow()
+            subTaskRepository.addSubTask(
+                SubTask(parentTaskId = taskId, title = "Sub 1", createdAt = 1000L, updatedAt = 1000L),
+            )
+
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            assertEquals(1, viewModel.uiState.value.subTasks.size)
+
+            viewModel.skipTask()
+            advanceUntilIdle()
+
+            // After skip, subtasks should be re-collected for the (same) task
+            assertNotNull(viewModel.uiState.value.currentTask)
+        }
+
+    @Test
+    fun `loadRandomTask clears subtasks when no task available`() =
+        runTest(testDispatcher) {
+            viewModel.loadRandomTask()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.subTasks.isEmpty())
         }
 }

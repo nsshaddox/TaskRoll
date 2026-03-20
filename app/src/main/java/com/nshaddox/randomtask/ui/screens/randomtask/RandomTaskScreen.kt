@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.nshaddox.randomtask.ui.screens.randomtask
 
 import androidx.compose.foundation.background
@@ -11,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Refresh
@@ -23,11 +29,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,11 +47,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nshaddox.randomtask.R
+import com.nshaddox.randomtask.domain.model.SubTask
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.components.ThemedCard
+import com.nshaddox.randomtask.ui.components.ThemedCheckbox
 import com.nshaddox.randomtask.ui.components.ThemedEmptyStateContent
 import com.nshaddox.randomtask.ui.components.ThemedLoadingIndicator
 import com.nshaddox.randomtask.ui.components.ThemedPriorityBadge
@@ -86,13 +97,18 @@ fun RandomTaskScreen(
         onToggleWeightedRandom = viewModel::toggleWeightedRandom,
         snackbarHostState = snackbarHostState,
         onClearError = viewModel::clearError,
+        onToggleSubTask = viewModel::toggleSubTask,
+        onAddSubTask = viewModel::addSubTask,
+        onNewSubTaskTitleChange = viewModel::onNewSubTaskTitleChange,
+        onShowAddSubTask = viewModel::showAddSubTask,
+        onHideAddSubTask = viewModel::hideAddSubTask,
     )
 }
 
 /**
  * Stateless Random Task Screen content for preview support.
  */
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun RandomTaskScreenContent(
     uiState: RandomTaskUiState,
@@ -104,6 +120,11 @@ internal fun RandomTaskScreenContent(
     onToggleWeightedRandom: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onClearError: () -> Unit = {},
+    onToggleSubTask: (SubTask) -> Unit = {},
+    onAddSubTask: () -> Unit = {},
+    onNewSubTaskTitleChange: (String) -> Unit = {},
+    onShowAddSubTask: () -> Unit = {},
+    onHideAddSubTask: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val errorResId = uiState.errorResId
@@ -161,6 +182,11 @@ internal fun RandomTaskScreenContent(
                 onCompleteTask = onCompleteTask,
                 onSkipTask = onSkipTask,
                 onBackClick = onBackClick,
+                onToggleSubTask = onToggleSubTask,
+                onAddSubTask = onAddSubTask,
+                onNewSubTaskTitleChange = onNewSubTaskTitleChange,
+                onShowAddSubTask = onShowAddSubTask,
+                onHideAddSubTask = onHideAddSubTask,
             )
         }
     }
@@ -192,6 +218,7 @@ private fun WeightedRandomToggle(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun RandomTaskContent(
     uiState: RandomTaskUiState,
@@ -199,6 +226,11 @@ private fun RandomTaskContent(
     onCompleteTask: () -> Unit,
     onSkipTask: () -> Unit,
     onBackClick: () -> Unit,
+    onToggleSubTask: (SubTask) -> Unit,
+    onAddSubTask: () -> Unit,
+    onNewSubTaskTitleChange: (String) -> Unit,
+    onShowAddSubTask: () -> Unit,
+    onHideAddSubTask: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -225,9 +257,20 @@ private fun RandomTaskContent(
             uiState.currentTask != null -> {
                 SelectedTaskContent(
                     task = uiState.currentTask,
+                    subTasks = uiState.subTasks,
+                    completedSubTaskCount = uiState.completedSubTaskCount,
+                    totalSubTaskCount = uiState.totalSubTaskCount,
+                    hasSubTasks = uiState.hasSubTasks,
+                    isAddingSubTask = uiState.isAddingSubTask,
+                    newSubTaskTitle = uiState.newSubTaskTitle,
                     onSelectRandom = onSelectRandom,
                     onCompleteTask = onCompleteTask,
                     onSkipTask = onSkipTask,
+                    onToggleSubTask = onToggleSubTask,
+                    onAddSubTask = onAddSubTask,
+                    onNewSubTaskTitleChange = onNewSubTaskTitleChange,
+                    onShowAddSubTask = onShowAddSubTask,
+                    onHideAddSubTask = onHideAddSubTask,
                 )
             }
             else -> {
@@ -328,16 +371,31 @@ private fun NoTasksAvailableContent(
     )
 }
 
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 private fun SelectedTaskContent(
     task: Task,
+    subTasks: List<SubTask>,
+    completedSubTaskCount: Int,
+    totalSubTaskCount: Int,
+    hasSubTasks: Boolean,
+    isAddingSubTask: Boolean,
+    newSubTaskTitle: String,
     onSelectRandom: () -> Unit,
     onCompleteTask: () -> Unit,
     onSkipTask: () -> Unit,
+    onToggleSubTask: (SubTask) -> Unit,
+    onAddSubTask: () -> Unit,
+    onNewSubTaskTitleChange: (String) -> Unit,
+    onShowAddSubTask: () -> Unit,
+    onHideAddSubTask: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier,
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Spacing.large),
     ) {
@@ -378,6 +436,21 @@ private fun SelectedTaskContent(
                 }
             }
         }
+
+        // Subtask section
+        SubTaskSection(
+            subTasks = subTasks,
+            completedSubTaskCount = completedSubTaskCount,
+            totalSubTaskCount = totalSubTaskCount,
+            hasSubTasks = hasSubTasks,
+            isAddingSubTask = isAddingSubTask,
+            newSubTaskTitle = newSubTaskTitle,
+            onToggleSubTask = onToggleSubTask,
+            onAddSubTask = onAddSubTask,
+            onNewSubTaskTitleChange = onNewSubTaskTitleChange,
+            onShowAddSubTask = onShowAddSubTask,
+            onHideAddSubTask = onHideAddSubTask,
+        )
 
         Spacer(modifier = Modifier.height(Spacing.small))
 
@@ -425,6 +498,143 @@ private fun SelectedTaskContent(
                 )
                 Text("Pick Another")
             }
+        }
+    }
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun SubTaskSection(
+    subTasks: List<SubTask>,
+    completedSubTaskCount: Int,
+    totalSubTaskCount: Int,
+    hasSubTasks: Boolean,
+    isAddingSubTask: Boolean,
+    newSubTaskTitle: String,
+    onToggleSubTask: (SubTask) -> Unit,
+    onAddSubTask: () -> Unit,
+    onNewSubTaskTitleChange: (String) -> Unit,
+    onShowAddSubTask: () -> Unit,
+    onHideAddSubTask: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(Spacing.small),
+    ) {
+        // Progress counter
+        if (hasSubTasks) {
+            Text(
+                text = stringResource(R.string.subtask_progress, completedSubTaskCount, totalSubTaskCount),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        // Subtask list
+        subTasks.forEach { subTask ->
+            SubTaskItem(
+                subTask = subTask,
+                onToggleSubTask = onToggleSubTask,
+            )
+        }
+
+        // Add subtask UI
+        if (isAddingSubTask) {
+            AddSubTaskRow(
+                title = newSubTaskTitle,
+                onTitleChange = onNewSubTaskTitleChange,
+                onConfirm = onAddSubTask,
+                onCancel = onHideAddSubTask,
+            )
+        } else {
+            TextButton(
+                onClick = onShowAddSubTask,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.cd_add_subtask),
+                    modifier = Modifier.padding(end = Spacing.extraSmall),
+                )
+                Text(stringResource(R.string.add_subtask))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SubTaskItem(
+    subTask: SubTask,
+    onToggleSubTask: (SubTask) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+    ) {
+        ThemedCheckbox(
+            checked = subTask.isCompleted,
+            onCheckedChange = { onToggleSubTask(subTask) },
+            contentDescription = stringResource(R.string.cd_toggle_subtask, subTask.title),
+        )
+        Text(
+            text = subTask.title,
+            style = MaterialTheme.typography.bodyMedium,
+            color =
+                if (subTask.isCompleted) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            textDecoration =
+                if (subTask.isCompleted) {
+                    TextDecoration.LineThrough
+                } else {
+                    TextDecoration.None
+                },
+        )
+    }
+}
+
+@Composable
+private fun AddSubTaskRow(
+    title: String,
+    onTitleChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.small),
+    ) {
+        OutlinedTextField(
+            value = title,
+            onValueChange = onTitleChange,
+            placeholder = { Text(stringResource(R.string.subtask_placeholder)) },
+            singleLine = true,
+            modifier = Modifier.weight(1f),
+            textStyle = MaterialTheme.typography.bodyMedium,
+        )
+        IconButton(
+            onClick = onConfirm,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = stringResource(R.string.cd_confirm_subtask),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+        IconButton(
+            onClick = onCancel,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(R.string.cd_cancel_subtask),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

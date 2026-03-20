@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
@@ -95,45 +96,20 @@ fun TaskListScreen(
             uiState.tasks.map { it.toUiModel(currentEpochDay) }
         }
 
-    if (uiState.isEditDialogVisible || uiState.isAddDialogVisible) {
-        val editingTask = uiState.editingTask
-        val initialDueDate =
-            editingTask?.let { task ->
-                uiState.tasks.find { it.id == task.id }?.dueDate?.let {
-                    LocalDate.ofEpochDay(it)
-                }
-            }
+    if (uiState.isAddDialogVisible) {
         EditTaskDialog(
-            task = editingTask,
+            task = null,
             onConfirm = { title, description, priority, dueDate, category ->
-                if (editingTask != null) {
-                    viewModel.editTask(
-                        taskId = editingTask.id,
-                        title = title,
-                        description = description,
-                        priority = priority,
-                        dueDate = dueDate?.toEpochDay(),
-                        category = category,
-                    )
-                } else {
-                    viewModel.addTask(
-                        title = title,
-                        description = description,
-                        priority = priority,
-                        dueDate = dueDate?.toEpochDay(),
-                        category = category,
-                    )
-                    viewModel.hideAddDialog()
-                }
+                viewModel.addTask(
+                    title = title,
+                    description = description,
+                    priority = priority,
+                    dueDate = dueDate?.toEpochDay(),
+                    category = category,
+                )
+                viewModel.hideAddDialog()
             },
-            onDismiss = {
-                if (editingTask != null) {
-                    viewModel.hideEditDialog()
-                } else {
-                    viewModel.hideAddDialog()
-                }
-            },
-            initialDueDate = initialDueDate,
+            onDismiss = { viewModel.hideAddDialog() },
         )
     }
 
@@ -182,7 +158,10 @@ fun TaskListScreen(
                 viewModel.deleteTaskWithUndo(task)
             }
         },
-        onEditTask = { taskUiModel -> viewModel.showEditDialog(taskUiModel) },
+        onEditTask = { taskUiModel ->
+            navController.navigate(Screen.EditTask.createRoute(taskUiModel.id))
+        },
+        onBackClick = { navController.popBackStack() },
         onAddTask = { viewModel.showAddDialog() },
         onNavigateToRandomTask = { navController.navigate(Screen.RandomTask.route) },
         onNavigateToCompletedTasks = { navController.navigate(Screen.CompletedTasks.route) },
@@ -216,6 +195,7 @@ fun TaskListScreen(
     onTaskCheckedChange: (TaskUiModel, Boolean) -> Unit = { _, _ -> },
     onDeleteTask: (TaskUiModel) -> Unit = {},
     onEditTask: (TaskUiModel) -> Unit = {},
+    onBackClick: () -> Unit = {},
     onAddTask: () -> Unit = {},
     onNavigateToRandomTask: () -> Unit = {},
     onNavigateToCompletedTasks: () -> Unit = {},
@@ -245,11 +225,22 @@ fun TaskListScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "My Tasks",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.cd_navigate_back),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Text(
+                            text = "My Tasks",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                     Row {
                         IconButton(onClick = onNavigateToCompletedTasks) {
                             Icon(
