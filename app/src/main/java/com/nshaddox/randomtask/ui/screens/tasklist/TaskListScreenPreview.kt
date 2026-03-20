@@ -143,18 +143,3 @@ fun TaskListItemOverduePreview() {
         )
     }
 }
-
-/**
- * Preview for EditTaskDialog in add mode
- */
-@Preview(showBackground = true)
-@Composable
-fun AddTaskDialogPreview() {
-    RandomTaskTheme {
-        EditTaskDialog(
-            task = null,
-            onConfirm = { _, _, _, _, _ -> },
-            onDismiss = {},
-        )
-    }
-}

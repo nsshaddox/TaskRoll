@@ -2,6 +2,7 @@ package com.nshaddox.randomtask.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nshaddox.randomtask.domain.model.Priority
 import com.nshaddox.randomtask.domain.usecase.AddTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.CompleteTaskUseCase
 import com.nshaddox.randomtask.domain.usecase.GetRandomTaskUseCase
@@ -113,9 +114,12 @@ class HomeViewModel
         fun addTask(
             title: String,
             description: String?,
+            priority: Priority = Priority.MEDIUM,
+            dueDate: Long? = null,
+            category: String? = null,
         ) {
             viewModelScope.launch(ioDispatcher) {
-                addTaskUseCase(title, description)
+                addTaskUseCase(title, description, priority, dueDate, category)
                     .onFailure { e ->
                         _uiState.update {
                             it.copy(error = e.message ?: "Failed to add task")
