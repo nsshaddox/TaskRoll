@@ -1,10 +1,12 @@
 package com.nshaddox.randomtask.ui.screens.randomtask
 
+import com.nshaddox.randomtask.domain.model.SubTask
 import com.nshaddox.randomtask.domain.model.Task
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RandomTaskUiStateTest {
@@ -91,5 +93,77 @@ class RandomTaskUiStateTest {
         val state2 = RandomTaskUiState(noTasksAvailable = false)
 
         assertNotEquals(state1, state2)
+    }
+
+    // --- Subtask computed property tests ---
+
+    private fun createSubTask(
+        id: Long = 1L,
+        isCompleted: Boolean = false,
+    ) = SubTask(
+        id = id,
+        parentTaskId = 1L,
+        title = "SubTask $id",
+        isCompleted = isCompleted,
+        createdAt = 1000L,
+        updatedAt = 2000L,
+    )
+
+    @Test
+    fun `default state has empty subTasks and false isAddingSubTask`() {
+        val state = RandomTaskUiState()
+
+        assertTrue(state.subTasks.isEmpty())
+        assertFalse(state.isAddingSubTask)
+        assertEquals("", state.newSubTaskTitle)
+    }
+
+    @Test
+    fun `hasSubTasks returns true when subTasks is non-empty`() {
+        val state = RandomTaskUiState(subTasks = listOf(createSubTask(1)))
+
+        assertTrue(state.hasSubTasks)
+    }
+
+    @Test
+    fun `hasSubTasks returns false when subTasks is empty`() {
+        val state = RandomTaskUiState()
+
+        assertFalse(state.hasSubTasks)
+    }
+
+    @Test
+    fun `totalSubTaskCount returns correct count`() {
+        val state =
+            RandomTaskUiState(
+                subTasks = listOf(createSubTask(1), createSubTask(2), createSubTask(3)),
+            )
+
+        assertEquals(3, state.totalSubTaskCount)
+    }
+
+    @Test
+    fun `completedSubTaskCount returns count of completed subtasks`() {
+        val state =
+            RandomTaskUiState(
+                subTasks =
+                    listOf(
+                        createSubTask(1, isCompleted = true),
+                        createSubTask(2, isCompleted = false),
+                        createSubTask(3, isCompleted = true),
+                    ),
+            )
+
+        assertEquals(2, state.completedSubTaskCount)
+    }
+
+    @Test
+    fun `completedSubTaskCount returns zero when none completed`() {
+        val state =
+            RandomTaskUiState(
+                subTasks = listOf(createSubTask(1), createSubTask(2)),
+            )
+
+        assertEquals(0, state.completedSubTaskCount)
     }
 }

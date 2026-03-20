@@ -1,6 +1,7 @@
 package com.nshaddox.randomtask.ui.preview
 
 import com.nshaddox.randomtask.domain.model.Priority
+import com.nshaddox.randomtask.domain.model.SubTask
 import com.nshaddox.randomtask.domain.model.Task
 import com.nshaddox.randomtask.ui.screens.tasklist.TaskUiModel
 
@@ -189,6 +190,34 @@ object SampleData {
                 dueDateLabel = "Jun 23, 2024",
                 isOverdue = true,
                 category = "Personal",
+            ),
+        )
+
+    val sampleSubTasks =
+        listOf(
+            SubTask(
+                id = 1L,
+                parentTaskId = 1L,
+                title = "Research design patterns",
+                isCompleted = true,
+                createdAt = 1_700_000_000_000L,
+                updatedAt = 1_700_000_100_000L,
+            ),
+            SubTask(
+                id = 2L,
+                parentTaskId = 1L,
+                title = "Create initial mockups",
+                isCompleted = false,
+                createdAt = 1_700_000_100_000L,
+                updatedAt = 1_700_000_100_000L,
+            ),
+            SubTask(
+                id = 3L,
+                parentTaskId = 1L,
+                title = "Review with team",
+                isCompleted = false,
+                createdAt = 1_700_000_200_000L,
+                updatedAt = 1_700_000_200_000L,
             ),
         )
 
